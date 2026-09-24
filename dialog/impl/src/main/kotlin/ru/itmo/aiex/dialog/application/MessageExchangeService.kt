@@ -40,21 +40,26 @@ class MessageExchangeService(
 ) {
     private val log = LoggerFactory.getLogger(javaClass)
 
+    /**
+     * [onAccepted] вызывается, когда сообщение пользователя уже зафиксировано, но ответа ещё нет:
+     * WebSocket показывает его собеседникам сразу, не дожидаясь LLM.
+     */
     @Transactional(propagation = Propagation.NEVER)
-    fun send(actor: Actor, conversationId: UUID, text: String): MessageExchange {
+    fun send(actor: Actor, conversationId: UUID, text: String, onAccepted: (Message) -> Unit = {}): MessageExchange {
         val conversation = transactions.read { requireWritable(conversationId, actor) }
         val persona = personas.assertOwned(conversation.personaId, actor.userId)
         if (!persona.canChat) throw personaNotReady(persona)
 
         val accepted = transactions.write { acceptUserMessage(conversationId, actor, text) }
+        onAccepted(accepted.userMessage)
         val reply =
             replyGenerator.generate(
                 GenerateReplyCommand(conversationId = conversationId, personaId = conversation.personaId, history = accepted.history),
             )
-        return transactions.write { storeReply(conversationId, accepted.userMessageId, reply) }
+        return transactions.write { storeReply(conversationId, accepted.userMessage.id, reply) }
     }
 
-    private class AcceptedMessage(val userMessageId: UUID, val history: List<HistoryMessage>)
+    private class AcceptedMessage(val userMessage: Message, val history: List<HistoryMessage>)
 
     private fun acceptUserMessage(conversationId: UUID, actor: Actor, text: String): AcceptedMessage {
         val conversation = requireWritable(conversationId, actor)
@@ -64,7 +69,7 @@ class MessageExchangeService(
 
         val earlier = messages.findSlice(conversationId, userMessage.position, MessageScope.ALL, replyGenerator.historyWindow - 1)
         val history = (earlier.asReversed() + userMessage).map { it.toHistoryMessage() }
-        return AcceptedMessage(userMessage.id, history)
+        return AcceptedMessage(userMessage, history)
     }
 
     private fun storeReply(conversationId: UUID, userMessageId: UUID, generated: GeneratedReply): MessageExchange {
