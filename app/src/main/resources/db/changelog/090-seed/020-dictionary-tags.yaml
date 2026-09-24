@@ -1,0 +1,26 @@
+databaseChangeLog:
+  - changeSet:
+      id: 090-020-dictionary-tags
+      author: persona
+      changes:
+        - sql:
+            sql: >-
+              INSERT INTO persona.tags (code, title) VALUES
+                ('cold', 'холодная'),
+                ('jealous', 'ревнивая'),
+                ('caps', 'пишет капсом'),
+                ('emoji', 'любит эмодзи'),
+                ('night-owl', 'сова'),
+                ('laconic', 'немногословная'),
+                ('talkative', 'болтливая'),
+                ('slow-replier', 'отвечает медленно'),
+                ('fast-replier', 'отвечает сразу'),
+                ('affectionate', 'нежная'),
+                ('sarcastic', 'язвительная'),
+                ('caring', 'заботливая')
+              ON CONFLICT (code) DO NOTHING
+      rollback:
+        - sql:
+            sql: >-
+              DELETE FROM persona.tags WHERE code IN ('cold', 'jealous', 'caps', 'emoji', 'night-owl', 'laconic',
+                'talkative', 'slow-replier', 'fast-replier', 'affectionate', 'sarcastic', 'caring')

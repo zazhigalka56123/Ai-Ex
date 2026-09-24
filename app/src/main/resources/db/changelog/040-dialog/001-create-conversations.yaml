@@ -1,0 +1,33 @@
+databaseChangeLog:
+  - changeSet:
+      id: 040-001-create-conversations
+      author: dialog
+      changes:
+        - createTable:
+            schemaName: dialog
+            tableName: conversations
+            columns:
+              - column: { name: id, type: uuid, constraints: { primaryKey: true, primaryKeyName: pk_conversations } }
+              - column: { name: user_id, type: uuid, constraints: { nullable: false } }
+              - column: { name: persona_id, type: uuid, constraints: { nullable: false } }
+              - column: { name: title, type: varchar(128), constraints: { nullable: false } }
+              - column: { name: status, type: varchar(24), constraints: { nullable: false } }
+              - column: { name: created_at, type: timestamptz, constraints: { nullable: false } }
+              - column: { name: last_message_at, type: timestamptz }
+              - column: { name: message_count, type: int, defaultValueNumeric: 0, constraints: { nullable: false } }
+              - column: { name: version, type: bigint, constraints: { nullable: false } }
+        - sql:
+            sql: >-
+              ALTER TABLE dialog.conversations
+                ADD CONSTRAINT ck_conversations_status CHECK (status IN ('ACTIVE', 'ARCHIVED')),
+                ADD CONSTRAINT ck_conversations_title CHECK (length(trim(title)) > 0),
+                ADD CONSTRAINT ck_conversations_message_count CHECK (message_count >= 0)
+        - sql:
+            sql: CREATE INDEX ix_conversations_user_last_message ON dialog.conversations (user_id, last_message_at DESC)
+        - createIndex:
+            schemaName: dialog
+            tableName: conversations
+            indexName: ix_conversations_persona
+            columns: [ { column: { name: persona_id } } ]
+      rollback:
+        - dropTable: { schemaName: dialog, tableName: conversations }

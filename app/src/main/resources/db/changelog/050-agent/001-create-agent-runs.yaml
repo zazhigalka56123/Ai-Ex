@@ -1,0 +1,42 @@
+databaseChangeLog:
+  - changeSet:
+      id: 050-001-create-agent-runs
+      author: agent
+      changes:
+        - createTable:
+            schemaName: agent
+            tableName: agent_runs
+            columns:
+              - column: { name: id, type: uuid, constraints: { primaryKey: true, primaryKeyName: pk_agent_runs } }
+              - column: { name: conversation_id, type: uuid, constraints: { nullable: false } }
+              - column: { name: persona_id, type: uuid, constraints: { nullable: false } }
+              - column: { name: persona_profile_id, type: uuid }
+              - column: { name: model, type: varchar(128), constraints: { nullable: false } }
+              - column: { name: status, type: varchar(24), constraints: { nullable: false } }
+              - column: { name: prompt_hash, type: varchar(64), constraints: { nullable: false } }
+              - column: { name: prompt_preview, type: varchar(200), constraints: { nullable: false } }
+              - column: { name: history_size, type: int, constraints: { nullable: false } }
+              - column: { name: latency_ms, type: int }
+              - column: { name: tokens_in, type: int }
+              - column: { name: tokens_out, type: int }
+              - column: { name: error_code, type: varchar(64) }
+              - column: { name: created_at, type: timestamptz, constraints: { nullable: false } }
+              - column: { name: finished_at, type: timestamptz }
+        - sql:
+            sql: >-
+              ALTER TABLE agent.agent_runs
+                ADD CONSTRAINT ck_agent_runs_status CHECK (status IN ('PENDING', 'SUCCESS', 'FAILED', 'TIMEOUT')),
+                ADD CONSTRAINT ck_agent_runs_finished CHECK ((status = 'PENDING') = (finished_at IS NULL)),
+                ADD CONSTRAINT ck_agent_runs_prompt_hash CHECK (prompt_hash ~ '^[0-9a-f]{64}$'),
+                ADD CONSTRAINT ck_agent_runs_history_size CHECK (history_size >= 0),
+                ADD CONSTRAINT ck_agent_runs_latency CHECK (latency_ms IS NULL OR latency_ms >= 0),
+                ADD CONSTRAINT ck_agent_runs_tokens CHECK ((tokens_in IS NULL OR tokens_in >= 0) AND (tokens_out IS NULL OR tokens_out >= 0))
+        - sql:
+            sql: CREATE INDEX ix_agent_runs_conversation_created ON agent.agent_runs (conversation_id, created_at DESC)
+        - createIndex:
+            schemaName: agent
+            tableName: agent_runs
+            indexName: ix_agent_runs_status
+            columns: [ { column: { name: status } } ]
+      rollback:
+        - dropTable: { schemaName: agent, tableName: agent_runs }

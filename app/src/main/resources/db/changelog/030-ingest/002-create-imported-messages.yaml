@@ -1,0 +1,36 @@
+databaseChangeLog:
+  - changeSet:
+      id: 030-002-create-imported-messages
+      author: ingest
+      changes:
+        - createTable:
+            schemaName: ingest
+            tableName: imported_messages
+            columns:
+              - column: { name: id, type: uuid, constraints: { primaryKey: true, primaryKeyName: pk_imported_messages } }
+              - column: { name: import_id, type: uuid, constraints: { nullable: false } }
+              - column: { name: author, type: varchar(24), constraints: { nullable: false } }
+              - column: { name: body, type: text, constraints: { nullable: false } }
+              - column: { name: sent_at, type: timestamptz }
+              - column: { name: ordinal, type: int, constraints: { nullable: false } }
+        - addForeignKeyConstraint:
+            baseTableSchemaName: ingest
+            baseTableName: imported_messages
+            baseColumnNames: import_id
+            referencedTableSchemaName: ingest
+            referencedTableName: chat_imports
+            referencedColumnNames: id
+            constraintName: fk_imported_messages_import
+            onDelete: CASCADE
+        - addUniqueConstraint:
+            schemaName: ingest
+            tableName: imported_messages
+            columnNames: import_id, ordinal
+            constraintName: uq_imported_messages_ordinal
+        - sql:
+            sql: >-
+              ALTER TABLE ingest.imported_messages
+                ADD CONSTRAINT ck_imported_messages_author CHECK (author IN ('ME', 'THEM')),
+                ADD CONSTRAINT ck_imported_messages_ordinal CHECK (ordinal >= 0)
+      rollback:
+        - dropTable: { schemaName: ingest, tableName: imported_messages }

@@ -1,0 +1,19 @@
+databaseChangeLog:
+  - changeSet:
+      id: 020-007-add-personas-active-profile-fk
+      author: persona
+      changes:
+        - addForeignKeyConstraint:
+            baseTableSchemaName: persona
+            baseTableName: personas
+            baseColumnNames: active_profile_id
+            referencedTableSchemaName: persona
+            referencedTableName: persona_profile_versions
+            referencedColumnNames: id
+            constraintName: fk_personas_active_profile
+            onDelete: SET NULL
+      rollback:
+        - dropForeignKeyConstraint:
+            baseTableSchemaName: persona
+            baseTableName: personas
+            constraintName: fk_personas_active_profile

@@ -1,0 +1,228 @@
+### 0. Приложение живо
+GET {{host}}/actuator/health
+
+> {% client.test("health UP", () => client.assert(response.body.status === "UP")); %}
+
+### 1. Регистрация (в лаб. 1 открыта): 201 + Location
+POST {{host}}/api/v1/users
+Content-Type: application/json
+
+{"email": "demo-{{$random.alphanumeric(8)}}@example.com", "displayName": "Новый пользователь"}
+
+> {% client.test("201 Created", () => client.assert(response.status === 201 && response.headers.valueOf("Location"))); %}
+
+### 2. Клиент создаёт персону — статус DRAFT
+POST {{host}}/api/v1/personas
+X-User-Id: {{client}}
+Content-Type: application/json
+
+{"name": "Маша", "relationshipKind": "EX_PARTNER", "description": "бывшая, 2024", "tagCodes": ["sarcastic"]}
+
+> {%
+    client.test("201 DRAFT", () => client.assert(response.status === 201 && response.body.status === "DRAFT"));
+    client.global.set("personaId", response.body.id);
+%}
+
+### 3. Загрузка выгрузки Telegram: 202 + Location, разбор (TX-1a) и сборка профиля (TX-1b)
+POST {{host}}/api/v1/personas/{{personaId}}/imports
+X-User-Id: {{client}}
+Content-Type: multipart/form-data; boundary=AiExBoundary
+
+--AiExBoundary
+Content-Disposition: form-data; name="file"; filename="telegram-masha.json"
+Content-Type: application/json
+
+< ./demo/telegram-masha.json
+--AiExBoundary--
+
+> {%
+    client.test("202 Accepted", () => client.assert(response.status === 202));
+    client.global.set("importId", response.body.id);
+%}
+
+### 4. Статус импорта и статистика разбора
+GET {{host}}/api/v1/imports/{{importId}}
+X-User-Id: {{client}}
+
+> {% client.test("PARSED", () => client.assert(response.body.status === "PARSED")); %}
+
+### 5. Персона готова: READY, черты и автотеги из корпуса
+GET {{host}}/api/v1/personas/{{personaId}}
+X-User-Id: {{client}}
+
+> {% client.test("READY", () => client.assert(response.body.status === "READY" && response.body.activeProfile.versionNo === 1)); %}
+
+### 6. Активная версия профиля — из неё собирается системный промпт
+GET {{host}}/api/v1/personas/{{personaId}}/profile
+X-User-Id: {{client}}
+
+### 7. Offset-пагинация с общим количеством в заголовке X-Total-Count
+GET {{host}}/api/v1/personas?page=0&size=20&sort=createdAt,desc
+X-User-Id: {{client}}
+
+> {% client.test("X-Total-Count", () => client.assert(response.headers.valueOf("X-Total-Count") !== null)); %}
+
+### 8. Беседа с персоной
+POST {{host}}/api/v1/conversations
+X-User-Id: {{client}}
+Content-Type: application/json
+
+{"personaId": "{{personaId}}"}
+
+> {%
+    client.test("201", () => client.assert(response.status === 201));
+    client.global.set("conversationId", response.body.id);
+%}
+
+### 9. «Привет, спишь?» — ответ в манере персоны (TX-2: две транзакции вокруг вызова LLM)
+POST {{host}}/api/v1/conversations/{{conversationId}}/messages
+X-User-Id: {{client}}
+Content-Type: application/json
+
+{"text": "привет, спишь?"}
+
+> {%
+    client.test("201 + ответ персоны", () => client.assert(response.status === 201 && response.body.reply.sender === "PERSONA"));
+    client.global.set("replyId", response.body.reply.id);
+%}
+
+### 10. Ещё реплика
+POST {{host}}/api/v1/conversations/{{conversationId}}/messages
+X-User-Id: {{client}}
+Content-Type: application/json
+
+{"text": "где ты была весь вечер?"}
+
+### 11. LLM недоступен → 503, но сообщение пользователя сохранено (маркер заглушки)
+POST {{host}}/api/v1/conversations/{{conversationId}}/messages
+X-User-Id: {{client}}
+Content-Type: application/json
+
+{"text": "ты тут? [[llm:down]]"}
+
+> {% client.test("503 LLM_UNAVAILABLE", () => client.assert(response.status === 503 && response.body.code === "LLM_UNAVAILABLE")); %}
+
+### 12. Guardrails: опасная тема не уходит в LLM, сообщение помечается для модерации
+POST {{host}}/api/v1/conversations/{{conversationId}}/messages
+X-User-Id: {{client}}
+Content-Type: application/json
+
+{"text": "я не хочу жить"}
+
+> {% client.test("помечено", () => client.assert(response.body.userMessage.flagged === true)); %}
+
+### 13. Бесконечная прокрутка: курсорная пагинация без общего количества
+GET {{host}}/api/v1/conversations/{{conversationId}}/messages?limit=3
+X-User-Id: {{client}}
+
+> {%
+    client.test("есть nextCursor", () => client.assert(response.body.nextCursor !== null && !response.headers.valueOf("X-Total-Count")));
+    client.global.set("cursor", response.body.nextCursor);
+%}
+
+### 14. Следующая порция по курсору
+GET {{host}}/api/v1/conversations/{{conversationId}}/messages?limit=3&cursor={{cursor}}
+X-User-Id: {{client}}
+
+### 15. Каталог специалистов с фильтром по специализации
+GET {{host}}/api/v1/specialists?specialization=breakup
+X-User-Id: {{client}}
+
+### 16. Свободные слоты демо-специалиста
+GET {{host}}/api/v1/specialists/{{specialistProfile}}/slots
+X-User-Id: {{client}}
+
+> {% client.global.set("slotId", response.body[0].id); %}
+
+### 17. Запись на консультацию с расшариванием беседы (TX-3: пессимистичная блокировка слота)
+POST {{host}}/api/v1/consultations
+X-User-Id: {{client}}
+Content-Type: application/json
+
+{"slotId": "{{slotId}}", "sharedConversationId": "{{conversationId}}"}
+
+> {%
+    client.test("201 REQUESTED", () => client.assert(response.status === 201 && response.body.status === "REQUESTED"));
+    client.global.set("consultationId", response.body.id);
+%}
+
+### 18. Повторная запись на тот же слот → 409 SLOT_TAKEN
+POST {{host}}/api/v1/consultations
+X-User-Id: {{admin}}
+Content-Type: application/json
+
+{"slotId": "{{slotId}}"}
+
+> {% client.test("409 SLOT_TAKEN", () => client.assert(response.status === 409 && response.body.code === "SLOT_TAKEN")); %}
+
+### 19. Специалист подтверждает консультацию
+PATCH {{host}}/api/v1/consultations/{{consultationId}}
+X-User-Id: {{specialist}}
+Content-Type: application/json
+
+{"status": "CONFIRMED"}
+
+### 20. Специалист читает расшаренную беседу (логика зависит от текущего пользователя)
+GET {{host}}/api/v1/conversations/{{conversationId}}/messages
+X-User-Id: {{specialist}}
+
+> {% client.test("200", () => client.assert(response.status === 200)); %}
+
+### 21. Клиент жалуется на ответ персоны
+POST {{host}}/api/v1/moderation/flags
+X-User-Id: {{client}}
+Content-Type: application/json
+
+{"messageId": "{{replyId}}", "reason": "ABUSE", "comment": "грубит"}
+
+> {%
+    client.test("201", () => client.assert(response.status === 201));
+    client.global.set("flagId", response.body.id);
+%}
+
+### 22. Администратор видит в беседе только флагнутые сообщения
+GET {{host}}/api/v1/conversations/{{conversationId}}/messages
+X-User-Id: {{admin}}
+
+> {% client.test("только флаги", () => client.assert(response.body.items.every(m => m.flagged))); %}
+
+### 23. Очередь модерации: жалоба клиента + флаг guardrails
+GET {{host}}/api/v1/moderation/flags?status=OPEN
+X-User-Id: {{admin}}
+
+### 24. Вердикт: жалоба обоснована, персона архивируется (TX-4 + каскад по событию PersonaArchived)
+PATCH {{host}}/api/v1/moderation/flags/{{flagId}}
+X-User-Id: {{admin}}
+Content-Type: application/json
+
+{"status": "RESOLVED", "resolution": "персона архивирована", "archivePersona": true}
+
+> {% client.test("персона архивирована", () => client.assert(response.body.personaArchived === true)); %}
+
+### 25. С архивной персоной беседовать нельзя → 409
+POST {{host}}/api/v1/conversations/{{conversationId}}/messages
+X-User-Id: {{client}}
+Content-Type: application/json
+
+{"text": "ты тут?"}
+
+> {% client.test("409", () => client.assert(response.status === 409)); %}
+
+### 26. Уведомления клиента: импорт разобран, персона готова, жалоба рассмотрена
+GET {{host}}/api/v1/notifications
+X-User-Id: {{client}}
+
+### 27. Агрегированные метрики администратора
+GET {{host}}/api/v1/admin/metrics
+X-User-Id: {{admin}}
+
+### Ошибки: без X-User-Id → 401
+GET {{host}}/api/v1/personas
+
+### Ошибки: size > 50 → 400 со списком полей
+GET {{host}}/api/v1/personas?size=51
+X-User-Id: {{client}}
+
+### Ошибки: чужая персона → 404, а не 403
+GET {{host}}/api/v1/personas/{{personaId}}
+X-User-Id: {{admin}}

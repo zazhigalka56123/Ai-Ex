@@ -1,0 +1,71 @@
+config:
+  validation: true
+
+complexity:
+  LongParameterList:
+    functionThreshold: 8
+    constructorThreshold: 12
+    ignoreDataClasses: true
+    ignoreAnnotated: ['Entity', 'Embeddable', 'RestController', 'Service', 'Component', 'Repository', 'Configuration']
+  TooManyFunctions:
+    thresholdInFiles: 25
+    thresholdInClasses: 20
+    thresholdInInterfaces: 15
+    thresholdInObjects: 15
+    ignorePrivate: true
+    ignoreAnnotatedFunctions: ['Test']
+  LongMethod:
+    threshold: 70
+    excludes: ['**/test/**', '**/testFixtures/**']
+  CyclomaticComplexMethod:
+    threshold: 18
+  NestedBlockDepth:
+    threshold: 5
+  LargeClass:
+    excludes: ['**/test/**']
+
+naming:
+  FunctionNaming:
+    ignoreAnnotated: ['Test', 'ParameterizedTest']
+  MatchingDeclarationName:
+    active: false
+  ConstructorParameterNaming:
+    active: true
+
+style:
+  MagicNumber:
+    excludes: ['**/test/**', '**/testFixtures/**', '**/*Properties.kt', '**/dto/**']
+    ignoreAnnotated: ['Schema', 'Size', 'Max', 'Min', 'DecimalMax', 'DecimalMin']
+    ignorePropertyDeclaration: true
+    ignoreCompanionObjectPropertyDeclaration: true
+    ignoreEnums: true
+    ignoreNamedArgument: true
+  MaxLineLength:
+    maxLineLength: 150
+    excludeCommentStatements: true
+  ReturnCount:
+    max: 4
+    excludeGuardClauses: true
+  ThrowsCount:
+    max: 5
+  UnusedPrivateMember:
+    ignoreAnnotated: ['Test']
+  WildcardImport:
+    active: true
+  ForbiddenComment:
+    active: false
+  DestructuringDeclarationWithTooManyEntries:
+    maxDestructuringEntries: 4
+
+exceptions:
+  TooGenericExceptionCaught:
+    excludes: ['**/test/**']
+    exceptionNames: ['Error', 'Throwable', 'RuntimeException']
+  SwallowedException:
+    ignoredExceptionTypes: ['InterruptedException', 'NumberFormatException', 'ParseException', 'MalformedURLException', 'IllegalArgumentException', 'DateTimeParseException']
+  InstanceOfCheckForException:
+    active: false
+
+potential-bugs:
+  LateinitUsage:
+    active: false

@@ -1,0 +1,7 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:${AIEX_DB_PORT:5432}/ai-ex
+    username: ai-ex
+    password: ai-ex
+  liquibase:
+    contexts: ${AIEX_LIQUIBASE_CONTEXTS:demo}

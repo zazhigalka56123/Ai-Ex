@@ -1,0 +1,50 @@
+databaseChangeLog:
+  - changeSet:
+      id: 070-001-create-moderation-flags
+      author: admin
+      changes:
+        - createTable:
+            schemaName: admin
+            tableName: moderation_flags
+            columns:
+              - column: { name: id, type: uuid, constraints: { primaryKey: true, primaryKeyName: pk_moderation_flags } }
+              - column: { name: message_id, type: uuid, constraints: { nullable: false } }
+              - column: { name: conversation_id, type: uuid, constraints: { nullable: false } }
+              - column: { name: persona_id, type: uuid, constraints: { nullable: false } }
+              - column: { name: reporter_id, type: uuid }
+              - column: { name: source, type: varchar(24), constraints: { nullable: false } }
+              - column: { name: reason, type: varchar(24), constraints: { nullable: false } }
+              - column: { name: comment, type: varchar(500) }
+              - column: { name: status, type: varchar(24), constraints: { nullable: false } }
+              - column: { name: resolution, type: text }
+              - column: { name: assignee_id, type: uuid }
+              - column: { name: created_at, type: timestamptz, constraints: { nullable: false } }
+              - column: { name: updated_at, type: timestamptz, constraints: { nullable: false } }
+              - column: { name: resolved_at, type: timestamptz }
+              - column: { name: version, type: bigint, constraints: { nullable: false } }
+        - addUniqueConstraint:
+            schemaName: admin
+            tableName: moderation_flags
+            columnNames: message_id, reporter_id
+            constraintName: uq_moderation_flags_message_reporter
+        - sql:
+            sql: >-
+              ALTER TABLE admin.moderation_flags
+                ADD CONSTRAINT ck_moderation_flags_source CHECK (source IN ('USER', 'GUARDRAIL')),
+                ADD CONSTRAINT ck_moderation_flags_reason CHECK (reason IN ('ABUSE', 'SELF_HARM', 'SPAM', 'OTHER')),
+                ADD CONSTRAINT ck_moderation_flags_status CHECK (status IN ('OPEN', 'IN_REVIEW', 'RESOLVED', 'REJECTED')),
+                ADD CONSTRAINT ck_moderation_flags_reporter CHECK ((source = 'USER') = (reporter_id IS NOT NULL)),
+                ADD CONSTRAINT ck_moderation_flags_resolved CHECK ((status IN ('RESOLVED', 'REJECTED')) = (resolved_at IS NOT NULL))
+        - sql:
+            sql: >-
+              CREATE UNIQUE INDEX ux_moderation_flags_guardrail ON admin.moderation_flags (message_id, reason)
+                WHERE source = 'GUARDRAIL'
+        - createIndex:
+            schemaName: admin
+            tableName: moderation_flags
+            indexName: ix_moderation_flags_status_created
+            columns:
+              - column: { name: status }
+              - column: { name: created_at }
+      rollback:
+        - dropTable: { schemaName: admin, tableName: moderation_flags }

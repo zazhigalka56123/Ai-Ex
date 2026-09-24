@@ -1,0 +1,23 @@
+databaseChangeLog:
+  - changeSet:
+      id: 010-002-create-roles
+      author: platform
+      changes:
+        - createTable:
+            schemaName: iam
+            tableName: roles
+            columns:
+              - column: { name: id, type: bigint, autoIncrement: true, constraints: { primaryKey: true, primaryKeyName: pk_roles } }
+              - column: { name: code, type: varchar(24), constraints: { nullable: false } }
+        - addUniqueConstraint:
+            schemaName: iam
+            tableName: roles
+            columnNames: code
+            constraintName: uq_roles_code
+        - sql:
+            sql: ALTER TABLE iam.roles ADD CONSTRAINT ck_roles_code CHECK (code IN ('USER', 'SPECIALIST', 'ADMIN'))
+        - insert: { schemaName: iam, tableName: roles, columns: [ { column: { name: code, value: USER } } ] }
+        - insert: { schemaName: iam, tableName: roles, columns: [ { column: { name: code, value: SPECIALIST } } ] }
+        - insert: { schemaName: iam, tableName: roles, columns: [ { column: { name: code, value: ADMIN } } ] }
+      rollback:
+        - dropTable: { schemaName: iam, tableName: roles }

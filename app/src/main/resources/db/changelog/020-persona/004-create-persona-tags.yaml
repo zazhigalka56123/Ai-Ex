@@ -1,0 +1,49 @@
+databaseChangeLog:
+  - changeSet:
+      id: 020-004-create-persona-tags
+      author: persona
+      changes:
+        - createTable:
+            schemaName: persona
+            tableName: persona_tags
+            columns:
+              - column: { name: persona_id, type: uuid, constraints: { nullable: false } }
+              - column: { name: tag_id, type: bigint, constraints: { nullable: false } }
+              - column: { name: weight, type: "numeric(4,3)", constraints: { nullable: false } }
+              - column: { name: source, type: varchar(24), constraints: { nullable: false } }
+              - column: { name: created_at, type: timestamptz, constraints: { nullable: false } }
+        - addPrimaryKey:
+            schemaName: persona
+            tableName: persona_tags
+            columnNames: persona_id, tag_id
+            constraintName: pk_persona_tags
+        - addForeignKeyConstraint:
+            baseTableSchemaName: persona
+            baseTableName: persona_tags
+            baseColumnNames: persona_id
+            referencedTableSchemaName: persona
+            referencedTableName: personas
+            referencedColumnNames: id
+            constraintName: fk_persona_tags_persona
+            onDelete: CASCADE
+        - addForeignKeyConstraint:
+            baseTableSchemaName: persona
+            baseTableName: persona_tags
+            baseColumnNames: tag_id
+            referencedTableSchemaName: persona
+            referencedTableName: tags
+            referencedColumnNames: id
+            constraintName: fk_persona_tags_tag
+            onDelete: RESTRICT
+        - createIndex:
+            schemaName: persona
+            tableName: persona_tags
+            indexName: ix_persona_tags_tag
+            columns: [ { column: { name: tag_id } } ]
+        - sql:
+            sql: >-
+              ALTER TABLE persona.persona_tags
+                ADD CONSTRAINT ck_persona_tags_weight CHECK (weight BETWEEN 0 AND 1),
+                ADD CONSTRAINT ck_persona_tags_source CHECK (source IN ('AUTO', 'MANUAL'))
+      rollback:
+        - dropTable: { schemaName: persona, tableName: persona_tags }

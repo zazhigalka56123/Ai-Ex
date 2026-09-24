@@ -1,0 +1,34 @@
+*                               @participant-a @participant-b @participant-c
+
+/build-logic/                   @participant-a
+/gradle/                        @participant-a
+/build.gradle.kts               @participant-a
+/settings.gradle.kts            @participant-a
+/docker/                        @participant-a
+/docker-compose.yml             @participant-a
+/.github/                       @participant-a
+/app/                           @participant-a
+/common/                        @participant-a
+/web-common/                    @participant-a
+/iam/                           @participant-a
+/care/                          @participant-a
+/admin/                         @participant-a
+/app/src/main/resources/db/changelog/010-iam/    @participant-a
+/app/src/main/resources/db/changelog/060-care/   @participant-a
+/app/src/main/resources/db/changelog/070-admin/  @participant-a
+
+/persona/                       @participant-b
+/ingest/                        @participant-b
+/app/src/main/resources/db/changelog/020-persona/ @participant-b
+/app/src/main/resources/db/changelog/030-ingest/  @participant-b
+
+/llm/                           @participant-c
+/agent/                         @participant-c
+/dialog/                        @participant-c
+/notification/                  @participant-c
+/app/src/main/resources/db/changelog/040-dialog/       @participant-c
+/app/src/main/resources/db/changelog/050-agent/        @participant-c
+/app/src/main/resources/db/changelog/080-notification/ @participant-c
+/docs/ai-ex.http                @participant-c
+
+/*/api/                         @participant-a @participant-b @participant-c

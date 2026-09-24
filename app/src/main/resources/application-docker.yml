@@ -1,0 +1,8 @@
+spring:
+  liquibase:
+    contexts: ${AIEX_LIQUIBASE_CONTEXTS:demo}
+
+logging:
+  structured:
+    format:
+      console: ${AIEX_LOG_FORMAT:ecs}

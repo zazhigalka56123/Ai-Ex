@@ -1,0 +1,975 @@
+{
+ "name": "Маша",
+ "type": "personal_chat",
+ "id": 100000001,
+ "messages": [
+  {
+   "id": 1,
+   "type": "service",
+   "date": "2024-03-01T23:40:00",
+   "date_unixtime": "1709325600",
+   "actor": "Маша",
+   "actor_id": "user100000001",
+   "action": "phone_call",
+   "duration_seconds": 0,
+   "text": "",
+   "text_entities": []
+  },
+  {
+   "id": 2,
+   "type": "message",
+   "date": "2024-03-01T23:41:14",
+   "date_unixtime": "1709325674",
+   "from": "Я",
+   "from_id": "user100000002",
+   "text": "привет, спишь?",
+   "text_entities": [
+    {
+     "type": "plain",
+     "text": "привет, спишь?"
+    }
+   ]
+  },
+  {
+   "id": 3,
+   "type": "message",
+   "date": "2024-03-01T23:58:21",
+   "date_unixtime": "1709326701",
+   "from": "Маша",
+   "from_id": "user100000001",
+   "text": "ну привет",
+   "text_entities": [
+    {
+     "type": "plain",
+     "text": "ну привет"
+    }
+   ]
+  },
+  {
+   "id": 4,
+   "type": "message",
+   "date": "2024-03-01T23:58:28",
+   "date_unixtime": "1709326708",
+   "from": "Маша",
+   "from_id": "user100000001",
+   "text": "я сплю вообще-то 🙄",
+   "text_entities": [
+    {
+     "type": "plain",
+     "text": "я сплю вообще-то 🙄"
+    }
+   ]
+  },
+  {
+   "id": 5,
+   "type": "message",
+   "date": "2024-03-01T23:59:35",
+   "date_unixtime": "1709326775",
+   "from": "Я",
+   "from_id": "user100000002",
+   "text": "а почему тогда отвечаешь)",
+   "text_entities": [
+    {
+     "type": "plain",
+     "text": "а почему тогда отвечаешь)"
+    }
+   ]
+  },
+  {
+   "id": 6,
+   "type": "message",
+   "date": "2024-03-02T00:07:42",
+   "date_unixtime": "1709327262",
+   "from": "Маша",
+   "from_id": "user100000001",
+   "text": "потому что ты опять пишешь в полночь",
+   "text_entities": [
+    {
+     "type": "plain",
+     "text": "потому что ты опять пишешь в полночь"
+    }
+   ]
+  },
+  {
+   "id": 7,
+   "type": "message",
+   "date": "2024-03-02T00:08:49",
+   "date_unixtime": "1709327329",
+   "from": "Маша",
+   "from_id": "user100000001",
+   "text": "где ты был весь вечер?",
+   "text_entities": [
+    {
+     "type": "plain",
+     "text": "где ты был весь вечер?"
+    }
+   ]
+  },
+  {
+   "id": 8,
+   "type": "message",
+   "date": "2024-03-02T00:10:56",
+   "date_unixtime": "1709327456",
+   "from": "Я",
+   "from_id": "user100000002",
+   "text": "с ребятами в баре",
+   "text_entities": [
+    {
+     "type": "plain",
+     "text": "с ребятами в баре"
+    }
+   ]
+  },
+  {
+   "id": 9,
+   "type": "message",
+   "date": "2024-03-02T00:21:03",
+   "date_unixtime": "1709328063",
+   "from": "Маша",
+   "from_id": "user100000001",
+   "text": "с какими ещё ребятами...",
+   "text_entities": [
+    {
+     "type": "plain",
+     "text": "с какими ещё ребятами..."
+    }
+   ]
+  },
+  {
+   "id": 10,
+   "type": "message",
+   "date": "2024-03-02T00:22:10",
+   "date_unixtime": "1709328130",
+   "from": "Маша",
+   "from_id": "user100000001",
+   "text": "с кем ты был, скажи нормально",
+   "text_entities": [
+    {
+     "type": "plain",
+     "text": "с кем ты был, скажи нормально"
+    }
+   ]
+  },
+  {
+   "id": 11,
+   "type": "message",
+   "date": "2024-03-02T00:25:17",
+   "date_unixtime": "1709328317",
+   "from": "Я",
+   "from_id": "user100000002",
+   "text": "с Димой и Олегом, ты их знаешь",
+   "text_entities": [
+    {
+     "type": "plain",
+     "text": "с Димой и Олегом, ты их знаешь"
+    }
+   ]
+  },
+  {
+   "id": 12,
+   "type": "message",
+   "date": "2024-03-02T00:40:24",
+   "date_unixtime": "1709329224",
+   "from": "Маша",
+   "from_id": "user100000001",
+   "text": "ладно",
+   "text_entities": [
+    {
+     "type": "plain",
+     "text": "ладно"
+    }
+   ]
+  },
+  {
+   "id": 13,
+   "type": "message",
+   "date": "2024-03-02T00:40:31",
+   "date_unixtime": "1709329231",
+   "from": "Маша",
+   "from_id": "user100000001",
+   "text": "спокойной ночи",
+   "text_entities": [
+    {
+     "type": "plain",
+     "text": "спокойной ночи"
+    }
+   ]
+  },
+  {
+   "id": 14,
+   "type": "message",
+   "date": "2024-03-02T12:15:38",
+   "date_unixtime": "1709370938",
+   "from": "Я",
+   "from_id": "user100000002",
+   "text": "доброе утро!",
+   "text_entities": [
+    {
+     "type": "plain",
+     "text": "доброе утро!"
+    }
+   ]
+  },
+  {
+   "id": 15,
+   "type": "message",
+   "date": "2024-03-02T13:02:45",
+   "date_unixtime": "1709373765",
+   "from": "Маша",
+   "from_id": "user100000001",
+   "text": "угу",
+   "text_entities": [
+    {
+     "type": "plain",
+     "text": "угу"
+    }
+   ]
+  },
+  {
+   "id": 16,
+   "type": "message",
+   "date": "2024-03-02T13:03:52",
+   "date_unixtime": "1709373832",
+   "from": "Маша",
+   "from_id": "user100000001",
+   "photo": "(File not included)",
+   "width": 1280,
+   "height": 960,
+   "text": "",
+   "text_entities": []
+  },
+  {
+   "id": 17,
+   "type": "message",
+   "date": "2024-03-02T13:03:59",
+   "date_unixtime": "1709373839",
+   "from": "Маша",
+   "from_id": "user100000001",
+   "text": "смотри какой кот у подъезда 😂",
+   "text_entities": [
+    {
+     "type": "plain",
+     "text": "смотри какой кот у подъезда 😂"
+    }
+   ]
+  },
+  {
+   "id": 18,
+   "type": "message",
+   "date": "2024-03-02T13:05:06",
+   "date_unixtime": "1709373906",
+   "from": "Я",
+   "from_id": "user100000002",
+   "text": "ахаха он на тебя похож",
+   "text_entities": [
+    {
+     "type": "plain",
+     "text": "ахаха он на тебя похож"
+    }
+   ]
+  },
+  {
+   "id": 19,
+   "type": "message",
+   "date": "2024-03-02T13:30:13",
+   "date_unixtime": "1709375413",
+   "from": "Маша",
+   "from_id": "user100000001",
+   "text": "очень смешно 😒",
+   "text_entities": [
+    {
+     "type": "plain",
+     "text": "очень смешно 😒"
+    }
+   ]
+  },
+  {
+   "id": 20,
+   "type": "message",
+   "date": "2024-03-02T13:31:20",
+   "date_unixtime": "1709375480",
+   "from": "Маша",
+   "from_id": "user100000001",
+   "text": "ахах ладно, похож",
+   "text_entities": [
+    {
+     "type": "plain",
+     "text": "ахах ладно, похож"
+    }
+   ]
+  },
+  {
+   "id": 21,
+   "type": "message",
+   "date": "2024-03-03T19:44:27",
+   "date_unixtime": "1709484267",
+   "from": "Маша",
+   "from_id": "user100000001",
+   "text": "ты где?",
+   "text_entities": [
+    {
+     "type": "plain",
+     "text": "ты где?"
+    }
+   ]
+  },
+  {
+   "id": 22,
+   "type": "message",
+   "date": "2024-03-03T19:45:34",
+   "date_unixtime": "1709484334",
+   "from": "Маша",
+   "from_id": "user100000001",
+   "text": "почему не отвечаешь",
+   "text_entities": [
+    {
+     "type": "plain",
+     "text": "почему не отвечаешь"
+    }
+   ]
+  },
+  {
+   "id": 23,
+   "type": "message",
+   "date": "2024-03-03T20:30:41",
+   "date_unixtime": "1709487041",
+   "from": "Я",
+   "from_id": "user100000002",
+   "text": "на тренировке был, телефон в шкафчике",
+   "text_entities": [
+    {
+     "type": "plain",
+     "text": "на тренировке был, телефон в шкафчике"
+    }
+   ]
+  },
+  {
+   "id": 24,
+   "type": "message",
+   "date": "2024-03-03T20:52:48",
+   "date_unixtime": "1709488368",
+   "from": "Маша",
+   "from_id": "user100000001",
+   "text": "мог бы и предупредить",
+   "text_entities": [
+    {
+     "type": "plain",
+     "text": "мог бы и предупредить"
+    }
+   ]
+  },
+  {
+   "id": 25,
+   "type": "message",
+   "date": "2024-03-03T20:52:55",
+   "date_unixtime": "1709488375",
+   "from": "Маша",
+   "from_id": "user100000001",
+   "text": "я уже напридумывала себе всякого",
+   "text_entities": [
+    {
+     "type": "plain",
+     "text": "я уже напридумывала себе всякого"
+    }
+   ]
+  },
+  {
+   "id": 26,
+   "type": "message",
+   "date": "2024-03-03T20:55:02",
+   "date_unixtime": "1709488502",
+   "from": "Я",
+   "from_id": "user100000002",
+   "text": "прости, в следующий раз напишу",
+   "text_entities": [
+    {
+     "type": "plain",
+     "text": "прости, в следующий раз напишу"
+    }
+   ]
+  },
+  {
+   "id": 27,
+   "type": "message",
+   "date": "2024-03-03T21:10:09",
+   "date_unixtime": "1709489409",
+   "from": "Маша",
+   "from_id": "user100000001",
+   "text": "ну смотри мне",
+   "text_entities": [
+    {
+     "type": "plain",
+     "text": "ну смотри мне"
+    }
+   ]
+  },
+  {
+   "id": 28,
+   "type": "message",
+   "date": "2024-03-03T21:10:16",
+   "date_unixtime": "1709489416",
+   "from": "Маша",
+   "from_id": "user100000001",
+   "sticker_emoji": "😘",
+   "media_type": "sticker",
+   "file": "(File not included)",
+   "text": "",
+   "text_entities": []
+  },
+  {
+   "id": 29,
+   "type": "message",
+   "date": "2024-03-04T01:12:23",
+   "date_unixtime": "1709503943",
+   "from": "Маша",
+   "from_id": "user100000001",
+   "text": "не спится",
+   "text_entities": [
+    {
+     "type": "plain",
+     "text": "не спится"
+    }
+   ]
+  },
+  {
+   "id": 30,
+   "type": "message",
+   "date": "2024-03-04T01:13:30",
+   "date_unixtime": "1709504010",
+   "from": "Маша",
+   "from_id": "user100000001",
+   "text": "скучаю...",
+   "text_entities": [
+    {
+     "type": "plain",
+     "text": "скучаю..."
+    }
+   ]
+  },
+  {
+   "id": 31,
+   "type": "message",
+   "date": "2024-03-04T01:40:37",
+   "date_unixtime": "1709505637",
+   "from": "Я",
+   "from_id": "user100000002",
+   "text": "я тоже. завтра увидимся?",
+   "text_entities": [
+    {
+     "type": "plain",
+     "text": "я тоже. завтра увидимся?"
+    }
+   ]
+  },
+  {
+   "id": 32,
+   "type": "message",
+   "date": "2024-03-04T01:41:44",
+   "date_unixtime": "1709505704",
+   "from": "Маша",
+   "from_id": "user100000001",
+   "text": "посмотрим",
+   "text_entities": [
+    {
+     "type": "plain",
+     "text": "посмотрим"
+    }
+   ]
+  },
+  {
+   "id": 33,
+   "type": "message",
+   "date": "2024-03-04T01:41:51",
+   "date_unixtime": "1709505711",
+   "from": "Маша",
+   "from_id": "user100000001",
+   "text": "если будешь хорошо себя вести ))",
+   "text_entities": [
+    {
+     "type": "plain",
+     "text": "если будешь хорошо себя вести ))"
+    }
+   ]
+  },
+  {
+   "id": 34,
+   "type": "message",
+   "date": "2024-03-04T18:05:58",
+   "date_unixtime": "1709564758",
+   "from": "Я",
+   "from_id": "user100000002",
+   "text": "во сколько встречаемся?",
+   "text_entities": [
+    {
+     "type": "plain",
+     "text": "во сколько встречаемся?"
+    }
+   ]
+  },
+  {
+   "id": 35,
+   "type": "message",
+   "date": "2024-03-04T18:44:05",
+   "date_unixtime": "1709567045",
+   "from": "Маша",
+   "from_id": "user100000001",
+   "text": "в восемь у фонтана",
+   "text_entities": [
+    {
+     "type": "plain",
+     "text": "в восемь у фонтана"
+    }
+   ]
+  },
+  {
+   "id": 36,
+   "type": "message",
+   "date": "2024-03-04T18:45:12",
+   "date_unixtime": "1709567112",
+   "from": "Маша",
+   "from_id": "user100000001",
+   "text": "и не опаздывай как в прошлый раз",
+   "text_entities": [
+    {
+     "type": "plain",
+     "text": "и не опаздывай как в прошлый раз"
+    }
+   ]
+  },
+  {
+   "id": 37,
+   "type": "message",
+   "date": "2024-03-04T18:46:19",
+   "date_unixtime": "1709567179",
+   "from": "Я",
+   "from_id": "user100000002",
+   "text": "буду вовремя, честно",
+   "text_entities": [
+    {
+     "type": "plain",
+     "text": "буду вовремя, честно"
+    }
+   ]
+  },
+  {
+   "id": 38,
+   "type": "message",
+   "date": "2024-03-04T20:12:26",
+   "date_unixtime": "1709572346",
+   "from": "Маша",
+   "from_id": "user100000001",
+   "text": "ТЫ ГДЕ",
+   "text_entities": [
+    {
+     "type": "plain",
+     "text": "ТЫ ГДЕ"
+    }
+   ]
+  },
+  {
+   "id": 39,
+   "type": "message",
+   "date": "2024-03-04T20:13:33",
+   "date_unixtime": "1709572413",
+   "from": "Маша",
+   "from_id": "user100000001",
+   "text": "я уже 10 минут стою",
+   "text_entities": [
+    {
+     "type": "plain",
+     "text": "я уже 10 минут стою"
+    }
+   ]
+  },
+  {
+   "id": 40,
+   "type": "message",
+   "date": "2024-03-04T20:15:40",
+   "date_unixtime": "1709572540",
+   "from": "Я",
+   "from_id": "user100000002",
+   "text": "бегу!!",
+   "text_entities": [
+    {
+     "type": "plain",
+     "text": "бегу!!"
+    }
+   ]
+  },
+  {
+   "id": 41,
+   "type": "message",
+   "date": "2024-03-05T10:20:47",
+   "date_unixtime": "1709623247",
+   "from": "Маша",
+   "from_id": "user100000001",
+   "text": [
+    "вчера было ",
+    {
+     "type": "bold",
+     "text": "классно"
+    },
+    ", спасибо"
+   ],
+   "text_entities": [
+    {
+     "type": "plain",
+     "text": "вчера было "
+    },
+    {
+     "type": "bold",
+     "text": "классно"
+    },
+    {
+     "type": "plain",
+     "text": ", спасибо"
+    }
+   ]
+  },
+  {
+   "id": 42,
+   "type": "message",
+   "date": "2024-03-05T10:21:54",
+   "date_unixtime": "1709623314",
+   "from": "Маша",
+   "from_id": "user100000001",
+   "text": "но в следующий раз цветы 🌷",
+   "text_entities": [
+    {
+     "type": "plain",
+     "text": "но в следующий раз цветы 🌷"
+    }
+   ]
+  },
+  {
+   "id": 43,
+   "type": "message",
+   "date": "2024-03-05T10:40:01",
+   "date_unixtime": "1709624401",
+   "from": "Я",
+   "from_id": "user100000002",
+   "text": "договорились",
+   "text_entities": [
+    {
+     "type": "plain",
+     "text": "договорились"
+    }
+   ]
+  },
+  {
+   "id": 44,
+   "type": "message",
+   "date": "2024-03-06T22:03:08",
+   "date_unixtime": "1709751788",
+   "from": "Я",
+   "from_id": "user100000002",
+   "text": "кто тебе сейчас пишет весь вечер?",
+   "text_entities": [
+    {
+     "type": "plain",
+     "text": "кто тебе сейчас пишет весь вечер?"
+    }
+   ]
+  },
+  {
+   "id": 45,
+   "type": "message",
+   "date": "2024-03-06T22:30:15",
+   "date_unixtime": "1709753415",
+   "from": "Маша",
+   "from_id": "user100000001",
+   "text": "а тебе какая разница",
+   "text_entities": [
+    {
+     "type": "plain",
+     "text": "а тебе какая разница"
+    }
+   ]
+  },
+  {
+   "id": 46,
+   "type": "message",
+   "date": "2024-03-06T22:31:22",
+   "date_unixtime": "1709753482",
+   "from": "Маша",
+   "from_id": "user100000001",
+   "text": "шучу, подруга, у неё опять драма",
+   "text_entities": [
+    {
+     "type": "plain",
+     "text": "шучу, подруга, у неё опять драма"
+    }
+   ]
+  },
+  {
+   "id": 47,
+   "type": "message",
+   "date": "2024-03-06T22:33:29",
+   "date_unixtime": "1709753609",
+   "from": "Я",
+   "from_id": "user100000002",
+   "text": "понял)",
+   "text_entities": [
+    {
+     "type": "plain",
+     "text": "понял)"
+    }
+   ]
+  },
+  {
+   "id": 48,
+   "type": "message",
+   "date": "2024-03-06T23:50:36",
+   "date_unixtime": "1709758236",
+   "from": "Маша",
+   "from_id": "user100000001",
+   "text": "а ты чего не спишь",
+   "text_entities": [
+    {
+     "type": "plain",
+     "text": "а ты чего не спишь"
+    }
+   ]
+  },
+  {
+   "id": 49,
+   "type": "message",
+   "date": "2024-03-06T23:51:43",
+   "date_unixtime": "1709758303",
+   "from": "Маша",
+   "from_id": "user100000001",
+   "text": "опять сериалы?",
+   "text_entities": [
+    {
+     "type": "plain",
+     "text": "опять сериалы?"
+    }
+   ]
+  },
+  {
+   "id": 50,
+   "type": "message",
+   "date": "2024-03-06T23:52:50",
+   "date_unixtime": "1709758370",
+   "from": "Я",
+   "from_id": "user100000002",
+   "text": "ага, досматриваю",
+   "text_entities": [
+    {
+     "type": "plain",
+     "text": "ага, досматриваю"
+    }
+   ]
+  },
+  {
+   "id": 51,
+   "type": "message",
+   "date": "2024-03-06T23:59:57",
+   "date_unixtime": "1709758797",
+   "from": "Маша",
+   "from_id": "user100000001",
+   "text": "без меня?? ну всё",
+   "text_entities": [
+    {
+     "type": "plain",
+     "text": "без меня?? ну всё"
+    }
+   ]
+  },
+  {
+   "id": 52,
+   "type": "message",
+   "date": "2024-03-07T00:01:04",
+   "date_unixtime": "1709758864",
+   "from": "Маша",
+   "from_id": "user100000001",
+   "text": "ладно, смотри, я добрая сегодня",
+   "text_entities": [
+    {
+     "type": "plain",
+     "text": "ладно, смотри, я добрая сегодня"
+    }
+   ]
+  },
+  {
+   "id": 53,
+   "type": "message",
+   "date": "2024-03-07T00:02:11",
+   "date_unixtime": "1709758931",
+   "from": "Маша",
+   "from_id": "user100000001",
+   "text": "люблю тебя, дурака",
+   "text_entities": [
+    {
+     "type": "plain",
+     "text": "люблю тебя, дурака"
+    }
+   ]
+  },
+  {
+   "id": 54,
+   "type": "message",
+   "date": "2024-03-07T09:15:18",
+   "date_unixtime": "1709792118",
+   "from": "Я",
+   "from_id": "user100000002",
+   "text": "и я тебя",
+   "text_entities": [
+    {
+     "type": "plain",
+     "text": "и я тебя"
+    }
+   ]
+  },
+  {
+   "id": 55,
+   "type": "message",
+   "date": "2024-03-08T21:00:25",
+   "date_unixtime": "1709920825",
+   "from": "Маша",
+   "from_id": "user100000001",
+   "text": "слушай, нам надо поговорить",
+   "text_entities": [
+    {
+     "type": "plain",
+     "text": "слушай, нам надо поговорить"
+    }
+   ]
+  },
+  {
+   "id": 56,
+   "type": "message",
+   "date": "2024-03-08T21:05:32",
+   "date_unixtime": "1709921132",
+   "from": "Я",
+   "from_id": "user100000002",
+   "text": "что случилось?",
+   "text_entities": [
+    {
+     "type": "plain",
+     "text": "что случилось?"
+    }
+   ]
+  },
+  {
+   "id": 57,
+   "type": "message",
+   "date": "2024-03-08T21:40:39",
+   "date_unixtime": "1709923239",
+   "from": "Маша",
+   "from_id": "user100000001",
+   "text": "не по переписке",
+   "text_entities": [
+    {
+     "type": "plain",
+     "text": "не по переписке"
+    }
+   ]
+  },
+  {
+   "id": 58,
+   "type": "message",
+   "date": "2024-03-08T21:41:46",
+   "date_unixtime": "1709923306",
+   "from": "Маша",
+   "from_id": "user100000001",
+   "text": "завтра наберу",
+   "text_entities": [
+    {
+     "type": "plain",
+     "text": "завтра наберу"
+    }
+   ]
+  },
+  {
+   "id": 59,
+   "type": "message",
+   "date": "2024-03-09T23:20:53",
+   "date_unixtime": "1710015653",
+   "from": "Я",
+   "from_id": "user100000002",
+   "text": "ты как?",
+   "text_entities": [
+    {
+     "type": "plain",
+     "text": "ты как?"
+    }
+   ]
+  },
+  {
+   "id": 60,
+   "type": "message",
+   "date": "2024-03-09T23:59:00",
+   "date_unixtime": "1710017940",
+   "from": "Маша",
+   "from_id": "user100000001",
+   "text": "нормально.",
+   "text_entities": [
+    {
+     "type": "plain",
+     "text": "нормально."
+    }
+   ]
+  },
+  {
+   "id": 61,
+   "type": "message",
+   "date": "2024-03-10T02:10:07",
+   "date_unixtime": "1710025807",
+   "from": "Маша",
+   "from_id": "user100000001",
+   "text": "не пиши мне больше ночью, ладно",
+   "text_entities": [
+    {
+     "type": "plain",
+     "text": "не пиши мне больше ночью, ладно"
+    }
+   ]
+  },
+  {
+   "id": 62,
+   "type": "message",
+   "date": "2024-03-10T02:11:14",
+   "date_unixtime": "1710025874",
+   "from": "Маша",
+   "from_id": "user100000001",
+   "text": "мне так проще",
+   "text_entities": [
+    {
+     "type": "plain",
+     "text": "мне так проще"
+    }
+   ]
+  },
+  {
+   "id": 63,
+   "type": "message",
+   "date": "2024-03-10T09:30:21",
+   "date_unixtime": "1710052221",
+   "from": "Я",
+   "from_id": "user100000002",
+   "text": "хорошо. береги себя",
+   "text_entities": [
+    {
+     "type": "plain",
+     "text": "хорошо. береги себя"
+    }
+   ]
+  },
+  {
+   "id": 64,
+   "type": "message",
+   "date": "2024-03-10T11:02:28",
+   "date_unixtime": "1710057748",
+   "from": "Маша",
+   "from_id": "user100000001",
+   "text": "ты тоже",
+   "text_entities": [
+    {
+     "type": "plain",
+     "text": "ты тоже"
+    }
+   ]
+  }
+ ]
+}

@@ -1,0 +1,40 @@
+databaseChangeLog:
+  - changeSet:
+      id: 060-002-create-specialists
+      author: care
+      changes:
+        - createTable:
+            schemaName: care
+            tableName: specialists
+            columns:
+              - column: { name: id, type: uuid, constraints: { primaryKey: true, primaryKeyName: pk_specialists } }
+              - column: { name: user_id, type: uuid, constraints: { nullable: false } }
+              - column: { name: headline, type: varchar(128), constraints: { nullable: false } }
+              - column: { name: bio, type: text, constraints: { nullable: false } }
+              - column: { name: price_per_hour, type: 'numeric(10,2)', constraints: { nullable: false } }
+              - column: { name: status, type: varchar(24), constraints: { nullable: false } }
+              - column: { name: booked_count, type: int, defaultValueNumeric: 0, constraints: { nullable: false } }
+              - column: { name: created_at, type: timestamptz, constraints: { nullable: false } }
+              - column: { name: updated_at, type: timestamptz, constraints: { nullable: false } }
+              - column: { name: version, type: bigint, constraints: { nullable: false } }
+        - addUniqueConstraint:
+            schemaName: care
+            tableName: specialists
+            columnNames: user_id
+            constraintName: uq_specialists_user
+        - sql:
+            sql: >-
+              ALTER TABLE care.specialists
+                ADD CONSTRAINT ck_specialists_status CHECK (status IN ('ACTIVE', 'INACTIVE')),
+                ADD CONSTRAINT ck_specialists_price CHECK (price_per_hour >= 0),
+                ADD CONSTRAINT ck_specialists_booked_count CHECK (booked_count >= 0),
+                ADD CONSTRAINT ck_specialists_headline CHECK (length(trim(headline)) > 0)
+        - createIndex:
+            schemaName: care
+            tableName: specialists
+            indexName: ix_specialists_status_created
+            columns:
+              - column: { name: status }
+              - column: { name: created_at, descending: true }
+      rollback:
+        - dropTable: { schemaName: care, tableName: specialists }

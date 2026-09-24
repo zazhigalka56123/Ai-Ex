@@ -1,0 +1,27 @@
+databaseChangeLog:
+  - changeSet:
+      id: 020-005-create-corpus-snapshots
+      author: persona
+      changes:
+        - createTable:
+            schemaName: persona
+            tableName: corpus_snapshots
+            columns:
+              - column: { name: id, type: uuid, constraints: { primaryKey: true, primaryKeyName: pk_corpus_snapshots } }
+              - column: { name: persona_id, type: uuid, constraints: { nullable: false } }
+              - column: { name: import_id, type: uuid, constraints: { nullable: false } }
+              - column: { name: payload, type: jsonb, constraints: { nullable: false } }
+              - column: { name: created_at, type: timestamptz, constraints: { nullable: false } }
+        - addForeignKeyConstraint:
+            baseTableSchemaName: persona
+            baseTableName: corpus_snapshots
+            baseColumnNames: persona_id
+            referencedTableSchemaName: persona
+            referencedTableName: personas
+            referencedColumnNames: id
+            constraintName: fk_corpus_snapshots_persona
+            onDelete: CASCADE
+        - sql:
+            sql: CREATE INDEX ix_corpus_snapshots_persona_created ON persona.corpus_snapshots (persona_id, created_at DESC)
+      rollback:
+        - dropTable: { schemaName: persona, tableName: corpus_snapshots }

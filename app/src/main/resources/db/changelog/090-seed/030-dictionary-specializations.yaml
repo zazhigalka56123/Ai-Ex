@@ -1,0 +1,19 @@
+databaseChangeLog:
+  - changeSet:
+      id: 090-030-dictionary-specializations
+      author: care
+      changes:
+        - sql:
+            sql: >-
+              INSERT INTO care.specializations (code, title) VALUES
+                ('anxiety', 'Тревожность'),
+                ('breakup', 'Расставание'),
+                ('grief', 'Горе и утрата'),
+                ('relationships', 'Отношения'),
+                ('self-esteem', 'Самооценка'),
+                ('sleep', 'Сон')
+      rollback:
+        - sql:
+            sql: >-
+              DELETE FROM care.specializations
+              WHERE code IN ('anxiety', 'breakup', 'grief', 'relationships', 'self-esteem', 'sleep')

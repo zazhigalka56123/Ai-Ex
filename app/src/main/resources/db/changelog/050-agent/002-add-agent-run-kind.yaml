@@ -1,0 +1,49 @@
+databaseChangeLog:
+  - changeSet:
+      id: 050-002-add-agent-run-kind
+      author: agent
+      changes:
+        - addColumn:
+            schemaName: agent
+            tableName: agent_runs
+            columns:
+              - column: { name: kind, type: varchar(32), defaultValue: REPLY, constraints: { nullable: false } }
+        - dropDefaultValue:
+            schemaName: agent
+            tableName: agent_runs
+            columnName: kind
+            columnDataType: varchar(32)
+        - dropNotNullConstraint:
+            schemaName: agent
+            tableName: agent_runs
+            columnName: conversation_id
+            columnDataType: uuid
+        - sql:
+            sql: >-
+              ALTER TABLE agent.agent_runs
+                ADD CONSTRAINT ck_agent_runs_kind CHECK (kind IN ('REPLY', 'PERSONA_SUMMARY')),
+                ADD CONSTRAINT ck_agent_runs_conversation CHECK ((kind = 'REPLY') = (conversation_id IS NOT NULL))
+        - createIndex:
+            schemaName: agent
+            tableName: agent_runs
+            indexName: ix_agent_runs_kind_created
+            columns:
+              - column: { name: kind }
+              - column: { name: created_at, descending: true }
+      rollback:
+        - dropIndex: { schemaName: agent, tableName: agent_runs, indexName: ix_agent_runs_kind_created }
+        - sql:
+            sql: >-
+              ALTER TABLE agent.agent_runs
+                DROP CONSTRAINT ck_agent_runs_conversation,
+                DROP CONSTRAINT ck_agent_runs_kind
+        - delete:
+            schemaName: agent
+            tableName: agent_runs
+            where: conversation_id IS NULL
+        - addNotNullConstraint:
+            schemaName: agent
+            tableName: agent_runs
+            columnName: conversation_id
+            columnDataType: uuid
+        - dropColumn: { schemaName: agent, tableName: agent_runs, columnName: kind }

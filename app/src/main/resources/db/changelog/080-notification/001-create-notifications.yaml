@@ -1,0 +1,30 @@
+databaseChangeLog:
+  - changeSet:
+      id: 080-001-create-notifications
+      author: notification
+      changes:
+        - createTable:
+            schemaName: notification
+            tableName: notifications
+            columns:
+              - column: { name: id, type: uuid, constraints: { primaryKey: true, primaryKeyName: pk_notifications } }
+              - column: { name: recipient_id, type: uuid, constraints: { nullable: false } }
+              - column: { name: type, type: varchar(48), constraints: { nullable: false } }
+              - column: { name: payload, type: jsonb, defaultValue: '{}', constraints: { nullable: false } }
+              - column: { name: status, type: varchar(24), constraints: { nullable: false } }
+              - column: { name: attempts, type: int, defaultValueNumeric: 0, constraints: { nullable: false } }
+              - column: { name: created_at, type: timestamptz, constraints: { nullable: false } }
+              - column: { name: sent_at, type: timestamptz }
+        - sql:
+            sql: >-
+              ALTER TABLE notification.notifications
+                ADD CONSTRAINT ck_notifications_type CHECK (type IN ('IMPORT_PARSED', 'IMPORT_FAILED', 'PERSONA_READY',
+                  'PERSONA_ARCHIVED', 'CONSULTATION_REQUESTED', 'CONSULTATION_STATUS_CHANGED', 'FLAG_RESOLVED')),
+                ADD CONSTRAINT ck_notifications_status CHECK (status IN ('PENDING', 'SENT', 'FAILED')),
+                ADD CONSTRAINT ck_notifications_attempts CHECK (attempts >= 0),
+                ADD CONSTRAINT ck_notifications_sent CHECK ((status = 'SENT') = (sent_at IS NOT NULL)),
+                ADD CONSTRAINT ck_notifications_payload CHECK (jsonb_typeof(payload) = 'object')
+        - sql:
+            sql: CREATE INDEX ix_notifications_recipient_created ON notification.notifications (recipient_id, created_at DESC)
+      rollback:
+        - dropTable: { schemaName: notification, tableName: notifications }

@@ -1,0 +1,24 @@
+databaseChangeLog:
+  - changeSet:
+      id: 060-001-create-specializations
+      author: care
+      changes:
+        - createTable:
+            schemaName: care
+            tableName: specializations
+            columns:
+              - column: { name: id, type: bigint, autoIncrement: true, constraints: { primaryKey: true, primaryKeyName: pk_specializations } }
+              - column: { name: code, type: varchar(48), constraints: { nullable: false } }
+              - column: { name: title, type: varchar(96), constraints: { nullable: false } }
+        - addUniqueConstraint:
+            schemaName: care
+            tableName: specializations
+            columnNames: code
+            constraintName: uq_specializations_code
+        - sql:
+            sql: >-
+              ALTER TABLE care.specializations
+                ADD CONSTRAINT ck_specializations_code CHECK (code ~ '^[a-z0-9-]+$'),
+                ADD CONSTRAINT ck_specializations_title CHECK (length(trim(title)) > 0)
+      rollback:
+        - dropTable: { schemaName: care, tableName: specializations }

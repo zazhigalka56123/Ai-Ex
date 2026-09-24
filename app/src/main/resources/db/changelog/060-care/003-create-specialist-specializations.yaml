@@ -1,0 +1,41 @@
+databaseChangeLog:
+  - changeSet:
+      id: 060-003-create-specialist-specializations
+      author: care
+      changes:
+        - createTable:
+            schemaName: care
+            tableName: specialist_specializations
+            columns:
+              - column: { name: specialist_id, type: uuid, constraints: { nullable: false } }
+              - column: { name: specialization_id, type: bigint, constraints: { nullable: false } }
+        - addPrimaryKey:
+            schemaName: care
+            tableName: specialist_specializations
+            columnNames: specialist_id, specialization_id
+            constraintName: pk_specialist_specializations
+        - addForeignKeyConstraint:
+            baseTableSchemaName: care
+            baseTableName: specialist_specializations
+            baseColumnNames: specialist_id
+            referencedTableSchemaName: care
+            referencedTableName: specialists
+            referencedColumnNames: id
+            constraintName: fk_specialist_specializations_specialist
+            onDelete: CASCADE
+        - addForeignKeyConstraint:
+            baseTableSchemaName: care
+            baseTableName: specialist_specializations
+            baseColumnNames: specialization_id
+            referencedTableSchemaName: care
+            referencedTableName: specializations
+            referencedColumnNames: id
+            constraintName: fk_specialist_specializations_specialization
+            onDelete: RESTRICT
+        - createIndex:
+            schemaName: care
+            tableName: specialist_specializations
+            indexName: ix_specialist_specializations_specialization
+            columns: [ { column: { name: specialization_id } } ]
+      rollback:
+        - dropTable: { schemaName: care, tableName: specialist_specializations }

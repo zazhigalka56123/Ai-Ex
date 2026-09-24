@@ -1,0 +1,63 @@
+name: ai-ex
+
+services:
+  postgres:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-aiex}
+      POSTGRES_USER: ${POSTGRES_USER:-aiex}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-aiex}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "127.0.0.1:${AIEX_DB_PORT:-5432}:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  app:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    image: ai-ex:latest
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE:-docker}
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB:-aiex}
+      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER:-aiex}
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD:-aiex}
+      AIEX_LIQUIBASE_CONTEXTS: ${AIEX_LIQUIBASE_CONTEXTS:-demo}
+      AIEX_LLM_PROVIDER: ${AIEX_LLM_PROVIDER:-stub}
+      AIEX_LLM_BASE_URL: ${AIEX_LLM_BASE_URL:-}
+      AIEX_LLM_API_KEY: ${AIEX_LLM_API_KEY:-}
+      AIEX_LLM_MODEL: ${AIEX_LLM_MODEL:-}
+      AIEX_LLM_TIMEOUT_MS: ${AIEX_LLM_TIMEOUT_MS:-20000}
+      AIEX_LLM_MAX_RETRIES: ${AIEX_LLM_MAX_RETRIES:-2}
+      AIEX_AGENT_HISTORY_WINDOW: ${AIEX_AGENT_HISTORY_WINDOW:-20}
+      AIEX_AGENT_MAX_OUTPUT_TOKENS: ${AIEX_AGENT_MAX_OUTPUT_TOKENS:-512}
+      AIEX_PAGINATION_MAX_SIZE: ${AIEX_PAGINATION_MAX_SIZE:-50}
+      AIEX_IMPORT_MAX_FILE_MB: ${AIEX_IMPORT_MAX_FILE_MB:-20}
+      AIEX_IMPORT_MAX_MESSAGES: ${AIEX_IMPORT_MAX_MESSAGES:-50000}
+      AIEX_LOG_FORMAT: ${AIEX_LOG_FORMAT:-ecs}
+      JAVA_OPTS: ${JAVA_OPTS:--XX:MaxRAMPercentage=75}
+    ports:
+      - "${AIEX_PORT:-8080}:8080"
+
+  pgadmin:
+    image: dpage/pgadmin4:9
+    profiles: ["tools"]
+    depends_on:
+      - postgres
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@ai-ex.local
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD:-admin}
+      PGADMIN_CONFIG_SERVER_MODE: "False"
+    ports:
+      - "127.0.0.1:${PGADMIN_PORT:-5050}:80"
+
+volumes:
+  pgdata:

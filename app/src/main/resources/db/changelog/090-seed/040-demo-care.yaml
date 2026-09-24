@@ -1,0 +1,31 @@
+databaseChangeLog:
+  - changeSet:
+      id: 090-040-demo-care
+      author: care
+      context: demo
+      changes:
+        - sql:
+            sql: >-
+              INSERT INTO care.specialists (id, user_id, headline, bio, price_per_hour, status, booked_count, created_at, updated_at, version)
+              VALUES ('00000000-0000-0000-0000-00000000b101', '00000000-0000-0000-0000-00000000b001',
+                'Психолог, помогаю пережить расставание',
+                'Работаю в когнитивно-поведенческом подходе. Помогаю отпустить прошлые отношения и выстроить новые.',
+                2500.00, 'ACTIVE', 0, now(), now(), 0)
+        - sql:
+            sql: >-
+              INSERT INTO care.specialist_specializations (specialist_id, specialization_id)
+              SELECT '00000000-0000-0000-0000-00000000b101', id FROM care.specializations WHERE code IN ('breakup', 'relationships')
+        - sql:
+            sql: >-
+              INSERT INTO care.specialist_slots (id, specialist_id, starts_at, duration_min, created_at) VALUES
+                ('00000000-0000-0000-0000-00000000b201', '00000000-0000-0000-0000-00000000b101',
+                  date_trunc('day', now(), 'UTC') + interval '1 day 10 hours', 60, now()),
+                ('00000000-0000-0000-0000-00000000b202', '00000000-0000-0000-0000-00000000b101',
+                  date_trunc('day', now(), 'UTC') + interval '1 day 11 hours', 60, now()),
+                ('00000000-0000-0000-0000-00000000b203', '00000000-0000-0000-0000-00000000b101',
+                  date_trunc('day', now(), 'UTC') + interval '1 day 12 hours', 60, now())
+      rollback:
+        - sql:
+            sql: DELETE FROM care.specialist_slots WHERE specialist_id = '00000000-0000-0000-0000-00000000b101'
+        - sql:
+            sql: DELETE FROM care.specialists WHERE id = '00000000-0000-0000-0000-00000000b101'

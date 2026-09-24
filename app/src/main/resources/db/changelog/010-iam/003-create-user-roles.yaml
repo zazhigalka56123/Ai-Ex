@@ -1,0 +1,41 @@
+databaseChangeLog:
+  - changeSet:
+      id: 010-003-create-user-roles
+      author: platform
+      changes:
+        - createTable:
+            schemaName: iam
+            tableName: user_roles
+            columns:
+              - column: { name: user_id, type: uuid, constraints: { nullable: false } }
+              - column: { name: role_id, type: bigint, constraints: { nullable: false } }
+        - addPrimaryKey:
+            schemaName: iam
+            tableName: user_roles
+            columnNames: user_id, role_id
+            constraintName: pk_user_roles
+        - addForeignKeyConstraint:
+            baseTableSchemaName: iam
+            baseTableName: user_roles
+            baseColumnNames: user_id
+            referencedTableSchemaName: iam
+            referencedTableName: users
+            referencedColumnNames: id
+            constraintName: fk_user_roles_user
+            onDelete: CASCADE
+        - addForeignKeyConstraint:
+            baseTableSchemaName: iam
+            baseTableName: user_roles
+            baseColumnNames: role_id
+            referencedTableSchemaName: iam
+            referencedTableName: roles
+            referencedColumnNames: id
+            constraintName: fk_user_roles_role
+            onDelete: RESTRICT
+        - createIndex:
+            schemaName: iam
+            tableName: user_roles
+            indexName: ix_user_roles_role
+            columns: [ { column: { name: role_id } } ]
+      rollback:
+        - dropTable: { schemaName: iam, tableName: user_roles }

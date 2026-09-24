@@ -1,0 +1,62 @@
+# Gradle
+.gradle/
+build/
+!gradle/wrapper/gradle-wrapper.jar
+gradle-app.setting
+.gradletasknamecache
+
+# Kotlin
+.kotlin/
+
+# JVM
+*.class
+hs_err_pid*
+replay_pid*
+*.hprof
+
+# IntelliJ IDEA
+.idea/
+*.iml
+*.ipr
+*.iws
+out/
+
+# Прочие редакторы и IDE
+.vscode/
+.fleet/
+.settings/
+.project
+.classpath
+*~
+*.swp
+*.swo
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+.Spotlight-V100
+.Trashes
+
+# Windows и Linux
+Thumbs.db
+Desktop.ini
+.directory
+
+# Локальная конфигурация и секреты
+.env
+.env.local
+.env.*.local
+!.env.example
+*.pem
+*.key
+*.p12
+*.jks
+
+# Логи и временные файлы
+*.log
+*.tmp
+*.bak
+*.orig
+*.rej

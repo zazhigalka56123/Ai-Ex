@@ -1,0 +1,65 @@
+databaseChangeLog:
+  - changeSet:
+      id: 060-005-create-consultation-sessions
+      author: care
+      changes:
+        - createTable:
+            schemaName: care
+            tableName: consultation_sessions
+            columns:
+              - column: { name: id, type: uuid, constraints: { primaryKey: true, primaryKeyName: pk_consultation_sessions } }
+              - column: { name: user_id, type: uuid, constraints: { nullable: false } }
+              - column: { name: specialist_id, type: uuid, constraints: { nullable: false } }
+              - column: { name: slot_id, type: uuid, constraints: { nullable: false } }
+              - column: { name: starts_at, type: timestamptz, constraints: { nullable: false } }
+              - column: { name: duration_min, type: int, constraints: { nullable: false } }
+              - column: { name: status, type: varchar(24), constraints: { nullable: false } }
+              - column: { name: shared_conversation_id, type: uuid }
+              - column: { name: rating, type: smallint }
+              - column: { name: summary, type: text }
+              - column: { name: recommendations, type: text }
+              - column: { name: cancel_reason, type: varchar(500) }
+              - column: { name: created_at, type: timestamptz, constraints: { nullable: false } }
+              - column: { name: updated_at, type: timestamptz, constraints: { nullable: false } }
+              - column: { name: version, type: bigint, constraints: { nullable: false } }
+        - addForeignKeyConstraint:
+            baseTableSchemaName: care
+            baseTableName: consultation_sessions
+            baseColumnNames: specialist_id
+            referencedTableSchemaName: care
+            referencedTableName: specialists
+            referencedColumnNames: id
+            constraintName: fk_consultation_sessions_specialist
+            onDelete: RESTRICT
+        - addForeignKeyConstraint:
+            baseTableSchemaName: care
+            baseTableName: consultation_sessions
+            baseColumnNames: slot_id
+            referencedTableSchemaName: care
+            referencedTableName: specialist_slots
+            referencedColumnNames: id
+            constraintName: fk_consultation_sessions_slot
+            onDelete: RESTRICT
+        - sql:
+            sql: >-
+              ALTER TABLE care.consultation_sessions
+                ADD CONSTRAINT ck_consultation_sessions_status CHECK (status IN ('REQUESTED', 'CONFIRMED', 'DONE', 'CANCELLED')),
+                ADD CONSTRAINT ck_consultation_sessions_duration CHECK (duration_min BETWEEN 15 AND 240),
+                ADD CONSTRAINT ck_consultation_sessions_rating CHECK (rating IS NULL OR (rating BETWEEN 1 AND 5 AND status = 'DONE')),
+                ADD CONSTRAINT ck_consultation_sessions_cancel_reason CHECK (cancel_reason IS NULL OR status = 'CANCELLED')
+        - sql:
+            sql: >-
+              CREATE UNIQUE INDEX ux_consultation_sessions_active_slot ON care.consultation_sessions (specialist_id, starts_at)
+                WHERE status IN ('REQUESTED', 'CONFIRMED')
+        - sql:
+            sql: CREATE INDEX ix_consultation_sessions_user_starts ON care.consultation_sessions (user_id, starts_at DESC)
+        - sql:
+            sql: CREATE INDEX ix_consultation_sessions_specialist_starts ON care.consultation_sessions (specialist_id, starts_at DESC)
+        - sql:
+            sql: CREATE INDEX ix_consultation_sessions_slot ON care.consultation_sessions (slot_id)
+        - sql:
+            sql: >-
+              CREATE INDEX ix_consultation_sessions_shared_conversation ON care.consultation_sessions (shared_conversation_id)
+                WHERE shared_conversation_id IS NOT NULL
+      rollback:
+        - dropTable: { schemaName: care, tableName: consultation_sessions }

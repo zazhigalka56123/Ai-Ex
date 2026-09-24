@@ -1,0 +1,24 @@
+databaseChangeLog:
+  - changeSet:
+      id: 090-010-demo-users
+      author: platform
+      context: demo
+      changes:
+        - sql:
+            sql: >-
+              INSERT INTO iam.users (id, email, display_name, status, created_at, updated_at, version) VALUES
+                ('00000000-0000-0000-0000-00000000a001', 'admin@ai-ex.local', 'Администратор', 'ACTIVE', now(), now(), 0),
+                ('00000000-0000-0000-0000-00000000b001', 'psy@ai-ex.local', 'Анна Психолог', 'ACTIVE', now(), now(), 0),
+                ('00000000-0000-0000-0000-00000000c001', 'client@ai-ex.local', 'Клиент Демо', 'ACTIVE', now(), now(), 0)
+        - sql:
+            sql: >-
+              INSERT INTO iam.user_roles (user_id, role_id)
+              SELECT u.id, r.id FROM iam.users u JOIN iam.roles r ON
+                (u.id = '00000000-0000-0000-0000-00000000a001' AND r.code IN ('ADMIN', 'USER')) OR
+                (u.id = '00000000-0000-0000-0000-00000000b001' AND r.code = 'SPECIALIST') OR
+                (u.id = '00000000-0000-0000-0000-00000000c001' AND r.code = 'USER')
+      rollback:
+        - sql:
+            sql: >-
+              DELETE FROM iam.users WHERE id IN ('00000000-0000-0000-0000-00000000a001',
+                '00000000-0000-0000-0000-00000000b001', '00000000-0000-0000-0000-00000000c001')

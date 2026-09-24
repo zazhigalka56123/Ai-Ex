@@ -1,0 +1,5 @@
+{
+ "name": "Маша",
+ "type": "personal_chat",
+ "messages": [
+  {"id": 1, "type": "message", "from": "Маша", "text": "привет"

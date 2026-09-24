@@ -1,0 +1,15 @@
+spring:
+  liquibase:
+    contexts: test
+  task:
+    execution:
+      pool:
+        core-size: 1
+ai-ex:
+  llm:
+    provider: stub
+logging:
+  level:
+    root: WARN
+    ru.itmo.aiex: INFO
+    org.springframework.test: WARN

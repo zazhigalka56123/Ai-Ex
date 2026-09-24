@@ -1,0 +1,570 @@
+{
+  "archiveConversation" : {
+    "method" : "DELETE",
+    "path" : "/api/v1/conversations/{id}",
+    "responses" : {
+      "204" : [ ],
+      "401" : [ "UNAUTHENTICATED" ],
+      "404" : [ "CONVERSATION_NOT_FOUND" ],
+      "409" : [ "CONCURRENT_MODIFICATION" ],
+      "500" : [ "INTERNAL_ERROR" ]
+    }
+  },
+  "archivePersona" : {
+    "method" : "DELETE",
+    "path" : "/api/v1/personas/{id}",
+    "responses" : {
+      "204" : [ ],
+      "401" : [ "UNAUTHENTICATED" ],
+      "404" : [ "PERSONA_NOT_FOUND" ],
+      "409" : [ "CONCURRENT_MODIFICATION" ],
+      "500" : [ "INTERNAL_ERROR" ]
+    }
+  },
+  "bookConsultation" : {
+    "method" : "POST",
+    "path" : "/api/v1/consultations",
+    "responses" : {
+      "201" : [ ],
+      "400" : [ "VALIDATION_FAILED" ],
+      "401" : [ "UNAUTHENTICATED" ],
+      "403" : [ "FORBIDDEN" ],
+      "404" : [ "CONVERSATION_NOT_FOUND", "SLOT_NOT_FOUND" ],
+      "409" : [ "SLOT_TAKEN" ],
+      "500" : [ "INTERNAL_ERROR" ]
+    }
+  },
+  "createConversation" : {
+    "method" : "POST",
+    "path" : "/api/v1/conversations",
+    "responses" : {
+      "201" : [ ],
+      "400" : [ "VALIDATION_FAILED" ],
+      "401" : [ "UNAUTHENTICATED" ],
+      "404" : [ "PERSONA_NOT_FOUND" ],
+      "409" : [ "PERSONA_NOT_READY" ],
+      "500" : [ "INTERNAL_ERROR" ]
+    }
+  },
+  "createFlag" : {
+    "method" : "POST",
+    "path" : "/api/v1/moderation/flags",
+    "responses" : {
+      "201" : [ ],
+      "400" : [ "VALIDATION_FAILED" ],
+      "401" : [ "UNAUTHENTICATED" ],
+      "403" : [ "FORBIDDEN" ],
+      "404" : [ "MESSAGE_NOT_FOUND" ],
+      "409" : [ "FLAG_ALREADY_REPORTED" ],
+      "500" : [ "INTERNAL_ERROR" ]
+    }
+  },
+  "createImport" : {
+    "method" : "POST",
+    "path" : "/api/v1/personas/{id}/imports",
+    "responses" : {
+      "202" : [ ],
+      "400" : [ "VALIDATION_FAILED" ],
+      "401" : [ "UNAUTHENTICATED" ],
+      "403" : [ "FORBIDDEN" ],
+      "404" : [ "PERSONA_NOT_FOUND" ],
+      "409" : [ "CONCURRENT_MODIFICATION", "PERSONA_INVALID_STATE" ],
+      "413" : [ "FILE_TOO_LARGE" ],
+      "415" : [ "UNSUPPORTED_FORMAT" ],
+      "500" : [ "INTERNAL_ERROR" ]
+    }
+  },
+  "createPersona" : {
+    "method" : "POST",
+    "path" : "/api/v1/personas",
+    "responses" : {
+      "201" : [ ],
+      "400" : [ "VALIDATION_FAILED" ],
+      "401" : [ "UNAUTHENTICATED" ],
+      "403" : [ "FORBIDDEN" ],
+      "500" : [ "INTERNAL_ERROR" ]
+    }
+  },
+  "createSlot" : {
+    "method" : "POST",
+    "path" : "/api/v1/specialists/{id}/slots",
+    "responses" : {
+      "201" : [ ],
+      "400" : [ "VALIDATION_FAILED" ],
+      "401" : [ "UNAUTHENTICATED" ],
+      "403" : [ "FORBIDDEN" ],
+      "404" : [ "SPECIALIST_NOT_FOUND" ],
+      "409" : [ "SLOT_OVERLAP" ],
+      "500" : [ "INTERNAL_ERROR" ]
+    }
+  },
+  "createSpecialist" : {
+    "method" : "POST",
+    "path" : "/api/v1/specialists",
+    "responses" : {
+      "201" : [ ],
+      "400" : [ "VALIDATION_FAILED" ],
+      "401" : [ "UNAUTHENTICATED" ],
+      "403" : [ "FORBIDDEN" ],
+      "409" : [ "SPECIALIST_PROFILE_EXISTS" ],
+      "500" : [ "INTERNAL_ERROR" ]
+    }
+  },
+  "createSpecialization" : {
+    "method" : "POST",
+    "path" : "/api/v1/specializations",
+    "responses" : {
+      "201" : [ ],
+      "400" : [ "VALIDATION_FAILED" ],
+      "401" : [ "UNAUTHENTICATED" ],
+      "403" : [ "FORBIDDEN" ],
+      "409" : [ "DICTIONARY_CODE_TAKEN" ],
+      "500" : [ "INTERNAL_ERROR" ]
+    }
+  },
+  "createTag" : {
+    "method" : "POST",
+    "path" : "/api/v1/tags",
+    "responses" : {
+      "201" : [ ],
+      "400" : [ "VALIDATION_FAILED" ],
+      "401" : [ "UNAUTHENTICATED" ],
+      "403" : [ "FORBIDDEN" ],
+      "409" : [ "DICTIONARY_CODE_TAKEN" ],
+      "500" : [ "INTERNAL_ERROR" ]
+    }
+  },
+  "createUser" : {
+    "method" : "POST",
+    "path" : "/api/v1/users",
+    "responses" : {
+      "201" : [ ],
+      "400" : [ "VALIDATION_FAILED" ],
+      "409" : [ "EMAIL_TAKEN" ],
+      "500" : [ "INTERNAL_ERROR" ]
+    }
+  },
+  "deleteSpecialization" : {
+    "method" : "DELETE",
+    "path" : "/api/v1/specializations/{id}",
+    "responses" : {
+      "204" : [ ],
+      "401" : [ "UNAUTHENTICATED" ],
+      "403" : [ "FORBIDDEN" ],
+      "404" : [ "SPECIALIZATION_NOT_FOUND" ],
+      "409" : [ "CONSTRAINT_VIOLATED" ],
+      "500" : [ "INTERNAL_ERROR" ]
+    }
+  },
+  "deleteTag" : {
+    "method" : "DELETE",
+    "path" : "/api/v1/tags/{id}",
+    "responses" : {
+      "204" : [ ],
+      "401" : [ "UNAUTHENTICATED" ],
+      "403" : [ "FORBIDDEN" ],
+      "404" : [ "TAG_NOT_FOUND" ],
+      "409" : [ "CONSTRAINT_VIOLATED" ],
+      "500" : [ "INTERNAL_ERROR" ]
+    }
+  },
+  "getConsultation" : {
+    "method" : "GET",
+    "path" : "/api/v1/consultations/{id}",
+    "responses" : {
+      "200" : [ ],
+      "401" : [ "UNAUTHENTICATED" ],
+      "404" : [ "CONSULTATION_NOT_FOUND" ],
+      "500" : [ "INTERNAL_ERROR" ]
+    }
+  },
+  "getConversation" : {
+    "method" : "GET",
+    "path" : "/api/v1/conversations/{id}",
+    "responses" : {
+      "200" : [ ],
+      "401" : [ "UNAUTHENTICATED" ],
+      "403" : [ "FORBIDDEN" ],
+      "404" : [ "CONVERSATION_NOT_FOUND" ],
+      "500" : [ "INTERNAL_ERROR" ]
+    }
+  },
+  "getConversationMessage" : {
+    "method" : "GET",
+    "path" : "/api/v1/conversations/{conversationId}/messages/{id}",
+    "responses" : {
+      "200" : [ ],
+      "401" : [ "UNAUTHENTICATED" ],
+      "403" : [ "FORBIDDEN" ],
+      "404" : [ "CONVERSATION_NOT_FOUND", "MESSAGE_NOT_FOUND" ],
+      "500" : [ "INTERNAL_ERROR" ]
+    }
+  },
+  "getFlag" : {
+    "method" : "GET",
+    "path" : "/api/v1/moderation/flags/{id}",
+    "responses" : {
+      "200" : [ ],
+      "401" : [ "UNAUTHENTICATED" ],
+      "403" : [ "FORBIDDEN" ],
+      "404" : [ "FLAG_NOT_FOUND" ],
+      "500" : [ "INTERNAL_ERROR" ]
+    }
+  },
+  "getImport" : {
+    "method" : "GET",
+    "path" : "/api/v1/imports/{id}",
+    "responses" : {
+      "200" : [ ],
+      "401" : [ "UNAUTHENTICATED" ],
+      "404" : [ "IMPORT_NOT_FOUND" ],
+      "500" : [ "INTERNAL_ERROR" ]
+    }
+  },
+  "getMetrics" : {
+    "method" : "GET",
+    "path" : "/api/v1/admin/metrics",
+    "responses" : {
+      "200" : [ ],
+      "401" : [ "UNAUTHENTICATED" ],
+      "403" : [ "FORBIDDEN" ],
+      "500" : [ "INTERNAL_ERROR" ]
+    }
+  },
+  "getPersona" : {
+    "method" : "GET",
+    "path" : "/api/v1/personas/{id}",
+    "responses" : {
+      "200" : [ ],
+      "401" : [ "UNAUTHENTICATED" ],
+      "404" : [ "PERSONA_NOT_FOUND" ],
+      "500" : [ "INTERNAL_ERROR" ]
+    }
+  },
+  "getPersonaProfile" : {
+    "method" : "GET",
+    "path" : "/api/v1/personas/{id}/profile",
+    "responses" : {
+      "200" : [ ],
+      "401" : [ "UNAUTHENTICATED" ],
+      "404" : [ "PERSONA_NOT_FOUND" ],
+      "409" : [ "PERSONA_NOT_READY" ],
+      "500" : [ "INTERNAL_ERROR" ]
+    }
+  },
+  "getSlot" : {
+    "method" : "GET",
+    "path" : "/api/v1/specialists/{id}/slots/{slotId}",
+    "responses" : {
+      "200" : [ ],
+      "404" : [ "SLOT_NOT_FOUND", "SPECIALIST_NOT_FOUND" ],
+      "500" : [ "INTERNAL_ERROR" ]
+    }
+  },
+  "getSpecialist" : {
+    "method" : "GET",
+    "path" : "/api/v1/specialists/{id}",
+    "responses" : {
+      "200" : [ ],
+      "404" : [ "SPECIALIST_NOT_FOUND" ],
+      "500" : [ "INTERNAL_ERROR" ]
+    }
+  },
+  "getSpecialization" : {
+    "method" : "GET",
+    "path" : "/api/v1/specializations/{id}",
+    "responses" : {
+      "200" : [ ],
+      "404" : [ "SPECIALIZATION_NOT_FOUND" ],
+      "500" : [ "INTERNAL_ERROR" ]
+    }
+  },
+  "getTag" : {
+    "method" : "GET",
+    "path" : "/api/v1/tags/{id}",
+    "responses" : {
+      "200" : [ ],
+      "404" : [ "TAG_NOT_FOUND" ],
+      "500" : [ "INTERNAL_ERROR" ]
+    }
+  },
+  "getUser" : {
+    "method" : "GET",
+    "path" : "/api/v1/users/{id}",
+    "responses" : {
+      "200" : [ ],
+      "401" : [ "UNAUTHENTICATED" ],
+      "404" : [ "USER_NOT_FOUND" ],
+      "500" : [ "INTERNAL_ERROR" ]
+    }
+  },
+  "listConsultations" : {
+    "method" : "GET",
+    "path" : "/api/v1/consultations",
+    "responses" : {
+      "200" : [ ],
+      "400" : [ "VALIDATION_FAILED" ],
+      "401" : [ "UNAUTHENTICATED" ],
+      "500" : [ "INTERNAL_ERROR" ]
+    }
+  },
+  "listConversationMessages" : {
+    "method" : "GET",
+    "path" : "/api/v1/conversations/{conversationId}/messages",
+    "responses" : {
+      "200" : [ ],
+      "400" : [ "VALIDATION_FAILED" ],
+      "401" : [ "UNAUTHENTICATED" ],
+      "403" : [ "FORBIDDEN" ],
+      "404" : [ "CONVERSATION_NOT_FOUND" ],
+      "500" : [ "INTERNAL_ERROR" ]
+    }
+  },
+  "listConversations" : {
+    "method" : "GET",
+    "path" : "/api/v1/conversations",
+    "responses" : {
+      "200" : [ ],
+      "400" : [ "VALIDATION_FAILED" ],
+      "401" : [ "UNAUTHENTICATED" ],
+      "500" : [ "INTERNAL_ERROR" ]
+    }
+  },
+  "listFlags" : {
+    "method" : "GET",
+    "path" : "/api/v1/moderation/flags",
+    "responses" : {
+      "200" : [ ],
+      "400" : [ "VALIDATION_FAILED" ],
+      "401" : [ "UNAUTHENTICATED" ],
+      "403" : [ "FORBIDDEN" ],
+      "500" : [ "INTERNAL_ERROR" ]
+    }
+  },
+  "listFreeSlots" : {
+    "method" : "GET",
+    "path" : "/api/v1/specialists/{id}/slots",
+    "responses" : {
+      "200" : [ ],
+      "400" : [ "VALIDATION_FAILED" ],
+      "404" : [ "SPECIALIST_NOT_FOUND" ],
+      "500" : [ "INTERNAL_ERROR" ]
+    }
+  },
+  "listImportMessages" : {
+    "method" : "GET",
+    "path" : "/api/v1/imports/{id}/messages",
+    "responses" : {
+      "200" : [ ],
+      "400" : [ "VALIDATION_FAILED" ],
+      "401" : [ "UNAUTHENTICATED" ],
+      "404" : [ "IMPORT_NOT_FOUND" ],
+      "500" : [ "INTERNAL_ERROR" ]
+    }
+  },
+  "listNotifications" : {
+    "method" : "GET",
+    "path" : "/api/v1/notifications",
+    "responses" : {
+      "200" : [ ],
+      "400" : [ "VALIDATION_FAILED" ],
+      "401" : [ "UNAUTHENTICATED" ],
+      "500" : [ "INTERNAL_ERROR" ]
+    }
+  },
+  "listPersonaImports" : {
+    "method" : "GET",
+    "path" : "/api/v1/personas/{id}/imports",
+    "responses" : {
+      "200" : [ ],
+      "400" : [ "VALIDATION_FAILED" ],
+      "401" : [ "UNAUTHENTICATED" ],
+      "404" : [ "PERSONA_NOT_FOUND" ],
+      "500" : [ "INTERNAL_ERROR" ]
+    }
+  },
+  "listPersonaProfileVersions" : {
+    "method" : "GET",
+    "path" : "/api/v1/personas/{id}/profile/versions",
+    "responses" : {
+      "200" : [ ],
+      "400" : [ "VALIDATION_FAILED" ],
+      "401" : [ "UNAUTHENTICATED" ],
+      "404" : [ "PERSONA_NOT_FOUND" ],
+      "500" : [ "INTERNAL_ERROR" ]
+    }
+  },
+  "listPersonas" : {
+    "method" : "GET",
+    "path" : "/api/v1/personas",
+    "responses" : {
+      "200" : [ ],
+      "400" : [ "VALIDATION_FAILED" ],
+      "401" : [ "UNAUTHENTICATED" ],
+      "500" : [ "INTERNAL_ERROR" ]
+    }
+  },
+  "listSpecialists" : {
+    "method" : "GET",
+    "path" : "/api/v1/specialists",
+    "responses" : {
+      "200" : [ ],
+      "400" : [ "VALIDATION_FAILED" ],
+      "500" : [ "INTERNAL_ERROR" ]
+    }
+  },
+  "listSpecializations" : {
+    "method" : "GET",
+    "path" : "/api/v1/specializations",
+    "responses" : {
+      "200" : [ ],
+      "400" : [ "VALIDATION_FAILED" ],
+      "500" : [ "INTERNAL_ERROR" ]
+    }
+  },
+  "listTags" : {
+    "method" : "GET",
+    "path" : "/api/v1/tags",
+    "responses" : {
+      "200" : [ ],
+      "400" : [ "VALIDATION_FAILED" ],
+      "500" : [ "INTERNAL_ERROR" ]
+    }
+  },
+  "listUsers" : {
+    "method" : "GET",
+    "path" : "/api/v1/users",
+    "responses" : {
+      "200" : [ ],
+      "400" : [ "VALIDATION_FAILED" ],
+      "401" : [ "UNAUTHENTICATED" ],
+      "403" : [ "FORBIDDEN" ],
+      "500" : [ "INTERNAL_ERROR" ]
+    }
+  },
+  "rebuildPersonaProfile" : {
+    "method" : "POST",
+    "path" : "/api/v1/personas/{id}/profile:rebuild",
+    "responses" : {
+      "202" : [ ],
+      "401" : [ "UNAUTHENTICATED" ],
+      "404" : [ "PERSONA_NOT_FOUND" ],
+      "409" : [ "CONCURRENT_MODIFICATION", "PERSONA_INVALID_STATE", "PERSONA_NOT_READY" ],
+      "500" : [ "INTERNAL_ERROR" ],
+      "503" : [ "LLM_UNAVAILABLE" ]
+    }
+  },
+  "replacePersonaTags" : {
+    "method" : "PUT",
+    "path" : "/api/v1/personas/{id}/tags",
+    "responses" : {
+      "200" : [ ],
+      "400" : [ "VALIDATION_FAILED" ],
+      "401" : [ "UNAUTHENTICATED" ],
+      "404" : [ "PERSONA_NOT_FOUND" ],
+      "409" : [ "CONCURRENT_MODIFICATION", "PERSONA_INVALID_STATE" ],
+      "500" : [ "INTERNAL_ERROR" ]
+    }
+  },
+  "reviewFlag" : {
+    "method" : "PATCH",
+    "path" : "/api/v1/moderation/flags/{id}",
+    "responses" : {
+      "200" : [ ],
+      "400" : [ "VALIDATION_FAILED" ],
+      "401" : [ "UNAUTHENTICATED" ],
+      "403" : [ "FORBIDDEN" ],
+      "404" : [ "FLAG_NOT_FOUND" ],
+      "409" : [ "CONCURRENT_MODIFICATION", "FLAG_INVALID_STATE" ],
+      "500" : [ "INTERNAL_ERROR" ]
+    }
+  },
+  "sendMessage" : {
+    "method" : "POST",
+    "path" : "/api/v1/conversations/{conversationId}/messages",
+    "responses" : {
+      "201" : [ ],
+      "400" : [ "VALIDATION_FAILED" ],
+      "401" : [ "UNAUTHENTICATED" ],
+      "404" : [ "CONVERSATION_NOT_FOUND", "PERSONA_NOT_FOUND" ],
+      "409" : [ "CONVERSATION_INVALID_STATE", "PERSONA_NOT_READY" ],
+      "500" : [ "INTERNAL_ERROR" ],
+      "503" : [ "LLM_UNAVAILABLE" ]
+    }
+  },
+  "updateConsultation" : {
+    "method" : "PATCH",
+    "path" : "/api/v1/consultations/{id}",
+    "responses" : {
+      "200" : [ ],
+      "400" : [ "VALIDATION_FAILED" ],
+      "401" : [ "UNAUTHENTICATED" ],
+      "403" : [ "FORBIDDEN" ],
+      "404" : [ "CONSULTATION_NOT_FOUND" ],
+      "409" : [ "CONCURRENT_MODIFICATION", "CONSULTATION_INVALID_STATE" ],
+      "500" : [ "INTERNAL_ERROR" ]
+    }
+  },
+  "updatePersona" : {
+    "method" : "PATCH",
+    "path" : "/api/v1/personas/{id}",
+    "responses" : {
+      "200" : [ ],
+      "400" : [ "VALIDATION_FAILED" ],
+      "401" : [ "UNAUTHENTICATED" ],
+      "404" : [ "PERSONA_NOT_FOUND" ],
+      "409" : [ "CONCURRENT_MODIFICATION", "PERSONA_INVALID_STATE" ],
+      "500" : [ "INTERNAL_ERROR" ]
+    }
+  },
+  "updateSpecialist" : {
+    "method" : "PATCH",
+    "path" : "/api/v1/specialists/{id}",
+    "responses" : {
+      "200" : [ ],
+      "400" : [ "VALIDATION_FAILED" ],
+      "401" : [ "UNAUTHENTICATED" ],
+      "403" : [ "FORBIDDEN" ],
+      "404" : [ "SPECIALIST_NOT_FOUND" ],
+      "409" : [ "CONCURRENT_MODIFICATION" ],
+      "500" : [ "INTERNAL_ERROR" ]
+    }
+  },
+  "updateSpecialization" : {
+    "method" : "PATCH",
+    "path" : "/api/v1/specializations/{id}",
+    "responses" : {
+      "200" : [ ],
+      "400" : [ "VALIDATION_FAILED" ],
+      "401" : [ "UNAUTHENTICATED" ],
+      "403" : [ "FORBIDDEN" ],
+      "404" : [ "SPECIALIZATION_NOT_FOUND" ],
+      "500" : [ "INTERNAL_ERROR" ]
+    }
+  },
+  "updateTag" : {
+    "method" : "PATCH",
+    "path" : "/api/v1/tags/{id}",
+    "responses" : {
+      "200" : [ ],
+      "400" : [ "VALIDATION_FAILED" ],
+      "401" : [ "UNAUTHENTICATED" ],
+      "403" : [ "FORBIDDEN" ],
+      "404" : [ "TAG_NOT_FOUND" ],
+      "500" : [ "INTERNAL_ERROR" ]
+    }
+  },
+  "updateUser" : {
+    "method" : "PATCH",
+    "path" : "/api/v1/users/{id}",
+    "responses" : {
+      "200" : [ ],
+      "400" : [ "VALIDATION_FAILED" ],
+      "401" : [ "UNAUTHENTICATED" ],
+      "403" : [ "FORBIDDEN" ],
+      "404" : [ "USER_NOT_FOUND" ],
+      "409" : [ "CONCURRENT_MODIFICATION", "USER_INVALID_STATE" ],
+      "500" : [ "INTERNAL_ERROR" ]
+    }
+  }
+}

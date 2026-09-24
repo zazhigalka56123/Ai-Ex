@@ -1,0 +1,29 @@
+databaseChangeLog:
+  - changeSet:
+      id: 010-001-create-users
+      author: platform
+      changes:
+        - createTable:
+            schemaName: iam
+            tableName: users
+            columns:
+              - column: { name: id, type: uuid, constraints: { primaryKey: true, primaryKeyName: pk_users } }
+              - column: { name: email, type: varchar(254), constraints: { nullable: false } }
+              - column: { name: display_name, type: varchar(64), constraints: { nullable: false } }
+              - column: { name: status, type: varchar(24), constraints: { nullable: false } }
+              - column: { name: created_at, type: timestamptz, constraints: { nullable: false } }
+              - column: { name: updated_at, type: timestamptz, constraints: { nullable: false } }
+              - column: { name: version, type: bigint, constraints: { nullable: false } }
+        - addUniqueConstraint:
+            schemaName: iam
+            tableName: users
+            columnNames: email
+            constraintName: uq_users_email
+        - sql:
+            sql: >-
+              ALTER TABLE iam.users
+                ADD CONSTRAINT ck_users_status CHECK (status IN ('ACTIVE', 'BLOCKED')),
+                ADD CONSTRAINT ck_users_email_lower CHECK (email = lower(email)),
+                ADD CONSTRAINT ck_users_display_name CHECK (length(trim(display_name)) > 0)
+      rollback:
+        - dropTable: { schemaName: iam, tableName: users }

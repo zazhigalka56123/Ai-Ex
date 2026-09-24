@@ -1,0 +1,44 @@
+databaseChangeLog:
+  - changeSet:
+      id: 030-001-create-chat-imports
+      author: ingest
+      changes:
+        - createTable:
+            schemaName: ingest
+            tableName: chat_imports
+            columns:
+              - column: { name: id, type: uuid, constraints: { primaryKey: true, primaryKeyName: pk_chat_imports } }
+              - column: { name: persona_id, type: uuid, constraints: { nullable: false } }
+              - column: { name: owner_id, type: uuid, constraints: { nullable: false } }
+              - column: { name: source, type: varchar(24), constraints: { nullable: false } }
+              - column: { name: status, type: varchar(24), constraints: { nullable: false } }
+              - column: { name: original_filename, type: varchar(255), constraints: { nullable: false } }
+              - column: { name: size_bytes, type: bigint, constraints: { nullable: false } }
+              - column: { name: message_count, type: int, constraints: { nullable: false } }
+              - column: { name: their_message_count, type: int, constraints: { nullable: false } }
+              - column: { name: skipped_count, type: int, constraints: { nullable: false } }
+              - column: { name: their_name, type: varchar(128) }
+              - column: { name: error_code, type: varchar(64) }
+              - column: { name: error_message, type: varchar(500) }
+              - column: { name: created_at, type: timestamptz, constraints: { nullable: false } }
+              - column: { name: finished_at, type: timestamptz }
+              - column: { name: version, type: bigint, constraints: { nullable: false } }
+        - sql:
+            sql: >-
+              ALTER TABLE ingest.chat_imports
+                ADD CONSTRAINT ck_chat_imports_source CHECK (source IN ('TELEGRAM_JSON', 'WHATSAPP_TXT', 'PLAIN_TEXT')),
+                ADD CONSTRAINT ck_chat_imports_status CHECK (status IN ('PENDING', 'PARSING', 'PARSED', 'FAILED')),
+                ADD CONSTRAINT ck_chat_imports_error_code CHECK (error_code IS NULL OR error_code IN ('MALFORMED_FILE',
+                  'EMPTY_CORPUS', 'AUTHOR_NOT_DETECTED', 'TOO_MANY_MESSAGES', 'PERSONA_BUSY', 'PROFILE_REBUILD_FAILED', 'INTERNAL')),
+                ADD CONSTRAINT ck_chat_imports_failed_has_code CHECK (status <> 'FAILED' OR error_code IS NOT NULL),
+                ADD CONSTRAINT ck_chat_imports_counts CHECK (size_bytes >= 0 AND message_count >= 0
+                  AND their_message_count BETWEEN 0 AND message_count AND skipped_count >= 0)
+        - sql:
+            sql: CREATE INDEX ix_chat_imports_persona_created ON ingest.chat_imports (persona_id, created_at DESC)
+        - createIndex:
+            schemaName: ingest
+            tableName: chat_imports
+            indexName: ix_chat_imports_owner
+            columns: [ { column: { name: owner_id } } ]
+      rollback:
+        - dropTable: { schemaName: ingest, tableName: chat_imports }
