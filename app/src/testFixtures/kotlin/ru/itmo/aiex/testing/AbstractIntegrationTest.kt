@@ -15,7 +15,7 @@ import org.springframework.test.web.servlet.post
 import org.testcontainers.postgresql.PostgreSQLContainer
 import ru.itmo.aiex.AiExApplication
 import ru.itmo.aiex.common.security.RoleCode
-import ru.itmo.aiex.web.AiExHeaders
+import ru.itmo.aiex.common.web.AiExHeaders
 import tools.jackson.databind.JsonNode
 import tools.jackson.databind.json.JsonMapper
 import java.util.UUID
