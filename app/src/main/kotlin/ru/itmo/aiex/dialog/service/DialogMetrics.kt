@@ -1,0 +1,17 @@
+package ru.itmo.aiex.dialog.service
+
+import org.springframework.stereotype.Component
+import org.springframework.transaction.annotation.Transactional
+import ru.itmo.aiex.common.metrics.MetricsContributor
+import ru.itmo.aiex.dialog.entity.ConversationStatus
+import ru.itmo.aiex.dialog.repository.ConversationRepository
+import ru.itmo.aiex.dialog.repository.MessageRepository
+@Component
+@Transactional(readOnly = true)
+class DialogMetrics(private val conversations: ConversationRepository, private val messages: MessageRepository) : MetricsContributor {
+    override fun metrics(): Map<String, Long> = mapOf(
+        "conversations.active" to conversations.countByStatus(ConversationStatus.ACTIVE),
+        "messages.total" to messages.count(),
+        "messages.flagged" to messages.countFlagged(),
+    )
+}

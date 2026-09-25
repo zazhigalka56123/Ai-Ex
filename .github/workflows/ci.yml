@@ -30,7 +30,7 @@ jobs:
       - name: Coverage summary
         if: always()
         run: |
-          report=build/reports/kover/report.xml
+          report=app/build/reports/kover/report.xml
           if [ -f "$report" ]; then
             python3 - "$report" >> "$GITHUB_STEP_SUMMARY" <<'PY'
           import sys, xml.etree.ElementTree as ET
@@ -47,7 +47,7 @@ jobs:
         with:
           name: reports
           path: |
-            build/reports/kover/
+            app/build/reports/kover/
             **/build/reports/tests/
             **/build/reports/detekt/
           retention-days: 14

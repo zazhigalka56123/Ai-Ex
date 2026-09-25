@@ -1,0 +1,8 @@
+package ru.itmo.aiex.persona.entity
+
+enum class RelationshipKind(val promptLabel: String) {
+    EX_PARTNER("бывший партнёр"),
+    EX_CRUSH("бывшая симпатия"),
+    FRIEND("друг"),
+    OTHER("знакомый человек"),
+}

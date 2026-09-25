@@ -5,32 +5,20 @@ plugins {
 }
 
 dependencies {
-    implementation(project(":common"))
-    implementation(project(":web-common"))
-
-    runtimeOnly(project(":llm"))
-    runtimeOnly(project(":iam:impl"))
-    runtimeOnly(project(":persona:impl"))
-    runtimeOnly(project(":ingest:impl"))
-    runtimeOnly(project(":agent:impl"))
-    runtimeOnly(project(":dialog:impl"))
-    runtimeOnly(project(":care:impl"))
-    runtimeOnly(project(":admin:impl"))
-    runtimeOnly(project(":notification:impl"))
-
     implementation(libs.spring.boot.starter.webmvc)
     implementation(libs.spring.boot.starter.data.jpa)
     implementation(libs.spring.boot.starter.validation)
     implementation(libs.spring.boot.starter.liquibase)
     implementation(libs.spring.boot.starter.actuator)
+    implementation(libs.spring.boot.starter.websocket)
+    implementation(libs.spring.boot.starter.restclient)
+    implementation(libs.spring.boot.starter.json)
     implementation(libs.springdoc.webmvc.ui)
     implementation(libs.jackson.module.kotlin)
     runtimeOnly(libs.postgresql)
 
     testFixturesImplementation(platform(libs.spring.boot.dependencies))
     testFixturesApi(platform(libs.spring.boot.dependencies))
-    testFixturesApi(project(":common"))
-    testFixturesApi(project(":web-common"))
     testFixturesApi(libs.spring.boot.starter.test)
     testFixturesApi(libs.spring.boot.starter.webmvc.test)
     testFixturesApi(libs.spring.boot.testcontainers)
@@ -57,7 +45,7 @@ tasks.bootJar {
 kover {
     reports {
         verify {
-            rule("Покрытие модуля app ≥ 60%") { minBound(60) }
+            rule("Общее покрытие проекта ≥ 70%") { minBound(70) }
         }
     }
 }

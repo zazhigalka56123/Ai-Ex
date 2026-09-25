@@ -10,16 +10,8 @@ plugins {
     id("org.jetbrains.kotlinx.kover")
 }
 
-// Проекты :iam:api и :agent:api называются одинаково, поэтому группа включает родителя -
-// иначе у них совпадут координаты и Gradle схлопнет их в один модуль.
-group = listOfNotNull("ru.itmo.aiex", project.path.trim(':').substringBeforeLast(':', "").takeIf { it.isNotEmpty() }).joinToString(".")
+group = "ru.itmo.aiex"
 version = "0.1.0"
-
-// ...и по той же причине jar называется iam-api.jar, а не api.jar: иначе все они
-// схлопнутся в одну запись BOOT-INF/lib при сборке bootJar.
-base {
-    archivesName.set(project.path.trim(':').replace(':', '-'))
-}
 
 kotlin {
     jvmToolchain(catalogVersion("java").toInt())

@@ -6,22 +6,6 @@ COPY gradle gradle
 COPY build-logic build-logic
 COPY config config
 COPY app/build.gradle.kts app/
-COPY common/build.gradle.kts common/
-COPY web-common/build.gradle.kts web-common/
-COPY llm/build.gradle.kts llm/
-COPY iam/api/build.gradle.kts iam/api/
-COPY iam/impl/build.gradle.kts iam/impl/
-COPY persona/api/build.gradle.kts persona/api/
-COPY persona/impl/build.gradle.kts persona/impl/
-COPY ingest/impl/build.gradle.kts ingest/impl/
-COPY agent/api/build.gradle.kts agent/api/
-COPY agent/impl/build.gradle.kts agent/impl/
-COPY dialog/api/build.gradle.kts dialog/api/
-COPY dialog/impl/build.gradle.kts dialog/impl/
-COPY care/api/build.gradle.kts care/api/
-COPY care/impl/build.gradle.kts care/impl/
-COPY admin/impl/build.gradle.kts admin/impl/
-COPY notification/impl/build.gradle.kts notification/impl/
 RUN ./gradlew --no-daemon --console=plain -q :app:dependencies --configuration runtimeClasspath > /dev/null
 
 COPY . .
