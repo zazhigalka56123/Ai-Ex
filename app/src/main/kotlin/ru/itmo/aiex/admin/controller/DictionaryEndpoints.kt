@@ -1,12 +1,12 @@
 package ru.itmo.aiex.admin.controller
 
 import org.springframework.http.ResponseEntity
-import ru.itmo.aiex.admin.service.DictionaryAdministration
-import ru.itmo.aiex.admin.service.DictionaryKind
 import ru.itmo.aiex.admin.dto.CreateDictionaryEntryRequest
 import ru.itmo.aiex.admin.dto.DictionaryEntryResponse
 import ru.itmo.aiex.admin.dto.UpdateDictionaryEntryRequest
 import ru.itmo.aiex.admin.dto.toResponse
+import ru.itmo.aiex.admin.service.DictionaryAdministration
+import ru.itmo.aiex.admin.service.DictionaryKind
 import ru.itmo.aiex.common.paging.PageQuery
 import ru.itmo.aiex.common.security.Actor
 import ru.itmo.aiex.common.web.Responses

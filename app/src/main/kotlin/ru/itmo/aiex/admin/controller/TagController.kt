@@ -14,11 +14,11 @@ import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
-import ru.itmo.aiex.admin.service.DictionaryAdministration
-import ru.itmo.aiex.admin.service.DictionaryKind
 import ru.itmo.aiex.admin.dto.CreateDictionaryEntryRequest
 import ru.itmo.aiex.admin.dto.DictionaryEntryResponse
 import ru.itmo.aiex.admin.dto.UpdateDictionaryEntryRequest
+import ru.itmo.aiex.admin.service.DictionaryAdministration
+import ru.itmo.aiex.admin.service.DictionaryKind
 import ru.itmo.aiex.common.error.ErrorCode
 import ru.itmo.aiex.common.paging.PageQuery
 import ru.itmo.aiex.common.security.Actor

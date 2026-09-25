@@ -1,7 +1,5 @@
 package ru.itmo.aiex.admin.entity
 
-import ru.itmo.aiex.admin.service.FlaggedMessage
-
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.jupiter.api.Test
@@ -12,6 +10,7 @@ import ru.itmo.aiex.admin.entity.FlagStatus.IN_REVIEW
 import ru.itmo.aiex.admin.entity.FlagStatus.OPEN
 import ru.itmo.aiex.admin.entity.FlagStatus.REJECTED
 import ru.itmo.aiex.admin.entity.FlagStatus.RESOLVED
+import ru.itmo.aiex.admin.service.FlaggedMessage
 import ru.itmo.aiex.common.error.ErrorCode
 import ru.itmo.aiex.common.error.IllegalStateTransitionException
 import ru.itmo.aiex.common.moderation.FlagReason

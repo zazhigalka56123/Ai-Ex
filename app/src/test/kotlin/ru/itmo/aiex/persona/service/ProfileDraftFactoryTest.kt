@@ -7,8 +7,8 @@ import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.jupiter.api.Test
 import ru.itmo.aiex.agent.dto.DescribePersonaCommand
-import ru.itmo.aiex.agent.service.PersonaDescriber
 import ru.itmo.aiex.agent.dto.PersonaDescription
+import ru.itmo.aiex.agent.service.PersonaDescriber
 import ru.itmo.aiex.common.error.ErrorCode
 import ru.itmo.aiex.common.error.LlmUnavailableException
 import ru.itmo.aiex.persona.testing.TestCorpus

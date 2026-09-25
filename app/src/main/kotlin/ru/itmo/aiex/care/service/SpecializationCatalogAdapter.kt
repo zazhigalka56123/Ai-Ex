@@ -3,7 +3,6 @@ package ru.itmo.aiex.care.service
 import org.springframework.dao.DataIntegrityViolationException
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
-
 import ru.itmo.aiex.care.entity.Specialization
 import ru.itmo.aiex.care.repository.SpecializationRepository
 import ru.itmo.aiex.common.dictionary.DictionaryEntry

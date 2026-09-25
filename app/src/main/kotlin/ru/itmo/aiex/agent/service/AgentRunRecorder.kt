@@ -4,7 +4,6 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import ru.itmo.aiex.agent.entity.AgentRun
 import ru.itmo.aiex.agent.entity.AgentRunStatus
-
 import ru.itmo.aiex.agent.repository.AgentRunRepository
 import ru.itmo.aiex.common.id.Ids
 import ru.itmo.aiex.common.time.nowMicros

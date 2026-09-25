@@ -1,7 +1,6 @@
 package ru.itmo.aiex.ingest.service
 
 import ru.itmo.aiex.ingest.entity.MessageAuthor
-
 import java.time.Instant
 
 data class MessageRow(val author: MessageAuthor, val body: String, val sentAt: Instant?, val ordinal: Int) {

@@ -1,12 +1,11 @@
 package ru.itmo.aiex.care.entity
 
-import ru.itmo.aiex.care.service.ConsultationChange
-
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.jupiter.api.Test
 import ru.itmo.aiex.care.entity.CareFixtures.NOW
-import ru.itmo.aiex.dialog.websocket.actor
+import ru.itmo.aiex.care.entity.CareFixtures.actor
+import ru.itmo.aiex.care.service.ConsultationChange
 import ru.itmo.aiex.common.error.ForbiddenException
 import ru.itmo.aiex.common.security.RoleCode
 import java.math.BigDecimal

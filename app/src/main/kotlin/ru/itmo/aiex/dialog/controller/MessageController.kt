@@ -16,16 +16,16 @@ import ru.itmo.aiex.common.error.ErrorCode
 import ru.itmo.aiex.common.paging.CursorPage
 import ru.itmo.aiex.common.paging.CursorQuery
 import ru.itmo.aiex.common.security.Actor
-import ru.itmo.aiex.dialog.service.ConversationService
-import ru.itmo.aiex.dialog.service.MessageExchangeService
-import ru.itmo.aiex.dialog.dto.MessageExchangeResponse
-import ru.itmo.aiex.dialog.dto.MessageResponse
-import ru.itmo.aiex.dialog.dto.SendMessageRequest
-import ru.itmo.aiex.dialog.dto.toResponse
 import ru.itmo.aiex.common.web.ApiPaths
 import ru.itmo.aiex.common.web.CursorParams
 import ru.itmo.aiex.common.web.Responses
 import ru.itmo.aiex.common.web.openapi.ApiErrors
+import ru.itmo.aiex.dialog.dto.MessageExchangeResponse
+import ru.itmo.aiex.dialog.dto.MessageResponse
+import ru.itmo.aiex.dialog.dto.SendMessageRequest
+import ru.itmo.aiex.dialog.dto.toResponse
+import ru.itmo.aiex.dialog.service.ConversationService
+import ru.itmo.aiex.dialog.service.MessageExchangeService
 import java.util.UUID
 
 @RestController

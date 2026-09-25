@@ -6,7 +6,6 @@ import org.springframework.stereotype.Repository
 import ru.itmo.aiex.common.paging.TimeIdPosition
 import ru.itmo.aiex.dialog.entity.Message
 import ru.itmo.aiex.dialog.entity.MessageScope
-
 import java.util.UUID
 
 @Repository

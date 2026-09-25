@@ -6,11 +6,10 @@ import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Repository
 import ru.itmo.aiex.common.paging.PageQuery
 import ru.itmo.aiex.common.paging.PageView
-import ru.itmo.aiex.dialog.entity.Conversation
-import ru.itmo.aiex.dialog.entity.ConversationStatus
-
 import ru.itmo.aiex.common.persistence.toPageView
 import ru.itmo.aiex.common.persistence.toPageable
+import ru.itmo.aiex.dialog.entity.Conversation
+import ru.itmo.aiex.dialog.entity.ConversationStatus
 import java.time.Instant
 import java.util.UUID
 

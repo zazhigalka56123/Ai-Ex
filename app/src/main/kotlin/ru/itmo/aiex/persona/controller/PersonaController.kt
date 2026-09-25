@@ -19,11 +19,10 @@ import org.springframework.web.bind.annotation.RestController
 import ru.itmo.aiex.common.error.ErrorCode
 import ru.itmo.aiex.common.paging.PageQuery
 import ru.itmo.aiex.common.security.Actor
-import ru.itmo.aiex.persona.service.CreatePersonaCommand
-import ru.itmo.aiex.persona.service.PersonaService
-import ru.itmo.aiex.persona.service.TagAssignment
-import ru.itmo.aiex.persona.service.UpdatePersonaCommand
-import ru.itmo.aiex.persona.entity.PersonaStatus
+import ru.itmo.aiex.common.web.ApiPaths
+import ru.itmo.aiex.common.web.PageParams
+import ru.itmo.aiex.common.web.Responses
+import ru.itmo.aiex.common.web.openapi.ApiErrors
 import ru.itmo.aiex.persona.dto.CreatePersonaRequest
 import ru.itmo.aiex.persona.dto.PersonaResponse
 import ru.itmo.aiex.persona.dto.PersonaSummaryResponse
@@ -31,10 +30,11 @@ import ru.itmo.aiex.persona.dto.ReplaceTagsRequest
 import ru.itmo.aiex.persona.dto.UpdatePersonaRequest
 import ru.itmo.aiex.persona.dto.toResponse
 import ru.itmo.aiex.persona.dto.toSummaryResponse
-import ru.itmo.aiex.common.web.ApiPaths
-import ru.itmo.aiex.common.web.PageParams
-import ru.itmo.aiex.common.web.Responses
-import ru.itmo.aiex.common.web.openapi.ApiErrors
+import ru.itmo.aiex.persona.entity.PersonaStatus
+import ru.itmo.aiex.persona.service.CreatePersonaCommand
+import ru.itmo.aiex.persona.service.PersonaService
+import ru.itmo.aiex.persona.service.TagAssignment
+import ru.itmo.aiex.persona.service.UpdatePersonaCommand
 import java.util.UUID
 
 @RestController

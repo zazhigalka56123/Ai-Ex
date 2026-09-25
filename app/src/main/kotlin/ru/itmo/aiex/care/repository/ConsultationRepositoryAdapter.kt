@@ -3,7 +3,6 @@ package ru.itmo.aiex.care.repository
 import org.springframework.stereotype.Repository
 import ru.itmo.aiex.care.entity.ConsultationSession
 import ru.itmo.aiex.care.entity.SessionStatus
-
 import ru.itmo.aiex.common.paging.PageQuery
 import ru.itmo.aiex.common.paging.PageView
 import ru.itmo.aiex.common.persistence.toPageView

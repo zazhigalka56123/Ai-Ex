@@ -1,7 +1,7 @@
 package ru.itmo.aiex.persona.dto
 
-import ru.itmo.aiex.persona.service.TraitItem
 import ru.itmo.aiex.persona.entity.TraitSource
+import ru.itmo.aiex.persona.service.TraitItem
 import java.math.BigDecimal
 
 data class TraitResponse(val key: String, val value: String, val weight: BigDecimal, val source: TraitSource)

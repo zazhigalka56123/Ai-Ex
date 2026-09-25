@@ -10,9 +10,9 @@ import org.springframework.web.socket.WebSocketHandler
 import org.springframework.web.socket.server.HandshakeInterceptor
 import org.springframework.web.util.UriComponentsBuilder
 import ru.itmo.aiex.common.error.AiExException
-import ru.itmo.aiex.dialog.service.ConversationService
 import ru.itmo.aiex.common.web.ActorLookup
 import ru.itmo.aiex.common.web.AiExHeaders
+import ru.itmo.aiex.dialog.service.ConversationService
 import java.util.UUID
 
 /**

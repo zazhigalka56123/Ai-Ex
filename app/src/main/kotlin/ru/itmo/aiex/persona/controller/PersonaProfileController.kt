@@ -13,16 +13,16 @@ import org.springframework.web.bind.annotation.RestController
 import ru.itmo.aiex.common.error.ErrorCode
 import ru.itmo.aiex.common.paging.PageQuery
 import ru.itmo.aiex.common.security.Actor
-import ru.itmo.aiex.persona.service.PersonaProfileService
-import ru.itmo.aiex.persona.service.ProfileRebuildService
-import ru.itmo.aiex.persona.dto.ProfileRebuildResponse
-import ru.itmo.aiex.persona.dto.ProfileResponse
-import ru.itmo.aiex.persona.dto.ProfileVersionResponse
-import ru.itmo.aiex.persona.dto.toResponse
 import ru.itmo.aiex.common.web.ApiPaths
 import ru.itmo.aiex.common.web.PageParams
 import ru.itmo.aiex.common.web.Responses
 import ru.itmo.aiex.common.web.openapi.ApiErrors
+import ru.itmo.aiex.persona.dto.ProfileRebuildResponse
+import ru.itmo.aiex.persona.dto.ProfileResponse
+import ru.itmo.aiex.persona.dto.ProfileVersionResponse
+import ru.itmo.aiex.persona.dto.toResponse
+import ru.itmo.aiex.persona.service.PersonaProfileService
+import ru.itmo.aiex.persona.service.ProfileRebuildService
 import java.util.UUID
 
 @RestController

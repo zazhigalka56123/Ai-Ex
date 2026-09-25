@@ -7,7 +7,6 @@ import org.springframework.stereotype.Repository
 import ru.itmo.aiex.admin.entity.FlagSource
 import ru.itmo.aiex.admin.entity.FlagStatus
 import ru.itmo.aiex.admin.entity.ModerationFlag
-
 import ru.itmo.aiex.common.moderation.FlagReason
 import ru.itmo.aiex.common.paging.PageQuery
 import ru.itmo.aiex.common.paging.PageView

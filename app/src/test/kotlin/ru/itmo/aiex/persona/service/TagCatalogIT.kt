@@ -12,7 +12,6 @@ import ru.itmo.aiex.common.error.ValidationException
 import ru.itmo.aiex.common.paging.PageQuery
 import ru.itmo.aiex.common.paging.SortDirection
 import ru.itmo.aiex.common.paging.SortOrder
-
 import ru.itmo.aiex.persona.testing.PersonaIntegrationTest
 import java.util.UUID
 

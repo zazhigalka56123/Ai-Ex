@@ -5,11 +5,9 @@ import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Propagation
 import org.springframework.transaction.annotation.Transactional
 import ru.itmo.aiex.agent.dto.DescribePersonaCommand
-
 import ru.itmo.aiex.agent.dto.PersonaDescription
 import ru.itmo.aiex.agent.entity.AgentRunKind
 import ru.itmo.aiex.agent.entity.AgentRunStatus
-
 import ru.itmo.aiex.common.error.LlmUnavailableException
 import ru.itmo.aiex.common.time.nowMicros
 import ru.itmo.aiex.llm.LlmClient

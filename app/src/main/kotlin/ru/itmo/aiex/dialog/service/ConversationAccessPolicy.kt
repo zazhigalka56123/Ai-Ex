@@ -1,8 +1,7 @@
 package ru.itmo.aiex.dialog.service
 
-import ru.itmo.aiex.dialog.entity.MessageScope
-
 import ru.itmo.aiex.common.security.Actor
+import ru.itmo.aiex.dialog.entity.MessageScope
 import java.util.UUID
 
 object ConversationAccessPolicy {

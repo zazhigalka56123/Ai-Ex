@@ -5,7 +5,6 @@ import org.springframework.data.domain.Sort
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Repository
 import ru.itmo.aiex.care.entity.Specialization
-
 import ru.itmo.aiex.common.paging.PageQuery
 import ru.itmo.aiex.common.paging.PageView
 import ru.itmo.aiex.common.persistence.toPageView

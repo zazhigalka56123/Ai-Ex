@@ -4,10 +4,8 @@ import org.springframework.context.annotation.Lazy
 import org.springframework.stereotype.Component
 import ru.itmo.aiex.care.service.ConsultationQuery
 import ru.itmo.aiex.common.security.Actor
-
 import ru.itmo.aiex.dialog.dto.MessageView
 import ru.itmo.aiex.dialog.dto.SenderKind
-
 import ru.itmo.aiex.dialog.entity.Message
 import ru.itmo.aiex.dialog.entity.MessageScope
 import ru.itmo.aiex.dialog.entity.MessageSender

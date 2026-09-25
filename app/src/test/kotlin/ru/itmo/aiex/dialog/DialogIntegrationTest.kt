@@ -9,12 +9,12 @@ import org.springframework.test.web.servlet.post
 import ru.itmo.aiex.care.service.ConsultationQuery
 import ru.itmo.aiex.common.error.ErrorCode
 import ru.itmo.aiex.common.error.NotFoundException
-import ru.itmo.aiex.persona.service.PersonaAccess
-import ru.itmo.aiex.persona.service.PersonaProfileQuery
 import ru.itmo.aiex.persona.dto.PersonaProfileView
 import ru.itmo.aiex.persona.dto.PersonaState
 import ru.itmo.aiex.persona.dto.PersonaSummaryView
 import ru.itmo.aiex.persona.dto.StyleView
+import ru.itmo.aiex.persona.service.PersonaAccess
+import ru.itmo.aiex.persona.service.PersonaProfileQuery
 import ru.itmo.aiex.testing.AbstractIntegrationTest
 import java.time.Duration
 import java.time.Instant

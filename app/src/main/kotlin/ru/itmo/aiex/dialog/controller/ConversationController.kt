@@ -17,16 +17,16 @@ import org.springframework.web.bind.annotation.RestController
 import ru.itmo.aiex.common.error.ErrorCode
 import ru.itmo.aiex.common.paging.PageQuery
 import ru.itmo.aiex.common.security.Actor
-import ru.itmo.aiex.dialog.service.ConversationService
-import ru.itmo.aiex.dialog.service.CreateConversationCommand
-import ru.itmo.aiex.dialog.entity.ConversationStatus
-import ru.itmo.aiex.dialog.dto.ConversationResponse
-import ru.itmo.aiex.dialog.dto.CreateConversationRequest
-import ru.itmo.aiex.dialog.dto.toResponse
 import ru.itmo.aiex.common.web.ApiPaths
 import ru.itmo.aiex.common.web.PageParams
 import ru.itmo.aiex.common.web.Responses
 import ru.itmo.aiex.common.web.openapi.ApiErrors
+import ru.itmo.aiex.dialog.dto.ConversationResponse
+import ru.itmo.aiex.dialog.dto.CreateConversationRequest
+import ru.itmo.aiex.dialog.dto.toResponse
+import ru.itmo.aiex.dialog.entity.ConversationStatus
+import ru.itmo.aiex.dialog.service.ConversationService
+import ru.itmo.aiex.dialog.service.CreateConversationCommand
 import java.util.UUID
 
 @RestController

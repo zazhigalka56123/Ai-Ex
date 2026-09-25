@@ -4,7 +4,6 @@ import jakarta.persistence.EntityManager
 import org.springframework.stereotype.Repository
 import ru.itmo.aiex.persona.entity.PersonaTrait
 import ru.itmo.aiex.persona.entity.TraitSource
-
 import java.util.UUID
 
 @Repository

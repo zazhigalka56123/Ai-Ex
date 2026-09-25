@@ -14,7 +14,6 @@ import ru.itmo.aiex.llm.LlmClient
 import ru.itmo.aiex.llm.LlmException
 import ru.itmo.aiex.llm.LlmRequest
 import ru.itmo.aiex.llm.StubLlmClient
-
 import ru.itmo.aiex.persona.dto.PersonaState
 import ru.itmo.aiex.persona.testing.PersonaIntegrationTest
 import ru.itmo.aiex.persona.testing.TestCorpus

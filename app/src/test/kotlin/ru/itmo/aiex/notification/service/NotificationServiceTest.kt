@@ -12,9 +12,7 @@ import ru.itmo.aiex.common.security.Actor
 import ru.itmo.aiex.notification.entity.Notification
 import ru.itmo.aiex.notification.entity.NotificationStatus
 import ru.itmo.aiex.notification.entity.NotificationType
-
 import ru.itmo.aiex.notification.repository.NotificationRepository
-
 import tools.jackson.databind.json.JsonMapper
 import java.time.Clock
 import java.time.Instant

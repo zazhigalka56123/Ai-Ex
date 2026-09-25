@@ -1,8 +1,7 @@
 package ru.itmo.aiex.dialog.service
 
-import ru.itmo.aiex.dialog.dto.MessageView
-
 import ru.itmo.aiex.common.security.Actor
+import ru.itmo.aiex.dialog.dto.MessageView
 import java.util.UUID
 
 interface DialogQuery {

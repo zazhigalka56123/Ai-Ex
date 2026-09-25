@@ -13,7 +13,6 @@ import ru.itmo.aiex.common.paging.PageQuery
 import ru.itmo.aiex.common.paging.PageView
 import ru.itmo.aiex.common.paging.SortDirection
 import ru.itmo.aiex.common.paging.SortOrder
-
 import ru.itmo.aiex.persona.entity.Tag
 import ru.itmo.aiex.persona.repository.PersonaTagRepository
 import ru.itmo.aiex.persona.repository.TagRepository

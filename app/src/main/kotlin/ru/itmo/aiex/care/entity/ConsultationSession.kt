@@ -1,8 +1,5 @@
 package ru.itmo.aiex.care.entity
 
-import ru.itmo.aiex.care.service.ConsultationChange
-import ru.itmo.aiex.care.service.ConsultationRules
-
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.EnumType
@@ -16,6 +13,8 @@ import jakarta.persistence.Version
 import jakarta.validation.constraints.Max
 import jakarta.validation.constraints.Min
 import jakarta.validation.constraints.Size
+import ru.itmo.aiex.care.service.ConsultationChange
+import ru.itmo.aiex.care.service.ConsultationRules
 import ru.itmo.aiex.common.security.Actor
 import java.time.Instant
 import java.util.UUID

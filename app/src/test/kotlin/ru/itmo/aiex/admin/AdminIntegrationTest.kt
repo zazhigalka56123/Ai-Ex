@@ -5,9 +5,9 @@ import io.mockk.every
 import org.springframework.http.MediaType
 import org.springframework.test.web.servlet.ResultActionsDsl
 import org.springframework.test.web.servlet.post
-import ru.itmo.aiex.dialog.service.DialogQuery
 import ru.itmo.aiex.dialog.dto.MessageView
 import ru.itmo.aiex.dialog.dto.SenderKind
+import ru.itmo.aiex.dialog.service.DialogQuery
 import ru.itmo.aiex.persona.service.PersonaLifecycle
 import ru.itmo.aiex.persona.service.TagCatalog
 import ru.itmo.aiex.testing.AbstractIntegrationTest

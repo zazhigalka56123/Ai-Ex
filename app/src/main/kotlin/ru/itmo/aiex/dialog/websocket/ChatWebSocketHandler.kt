@@ -9,10 +9,10 @@ import org.springframework.web.socket.handler.ConcurrentWebSocketSessionDecorato
 import org.springframework.web.socket.handler.TextWebSocketHandler
 import ru.itmo.aiex.common.error.AiExException
 import ru.itmo.aiex.common.error.ErrorCode
-import ru.itmo.aiex.dialog.service.MessageExchangeService
 import ru.itmo.aiex.dialog.dto.ChatCommand
 import ru.itmo.aiex.dialog.dto.ChatEvent
 import ru.itmo.aiex.dialog.dto.toResponse
+import ru.itmo.aiex.dialog.service.MessageExchangeService
 import tools.jackson.core.JacksonException
 import tools.jackson.databind.json.JsonMapper
 

@@ -1,8 +1,5 @@
 package ru.itmo.aiex.care.service
 
-import ru.itmo.aiex.care.entity.ConsultationRole
-import ru.itmo.aiex.care.entity.SessionStatus
-
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.jupiter.api.Nested
@@ -11,9 +8,11 @@ import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.Arguments
 import org.junit.jupiter.params.provider.EnumSource
 import org.junit.jupiter.params.provider.MethodSource
+import ru.itmo.aiex.care.entity.ConsultationRole
 import ru.itmo.aiex.care.entity.ConsultationRole.ADMIN
 import ru.itmo.aiex.care.entity.ConsultationRole.CLIENT
 import ru.itmo.aiex.care.entity.ConsultationRole.SPECIALIST
+import ru.itmo.aiex.care.entity.SessionStatus
 import ru.itmo.aiex.care.entity.SessionStatus.CANCELLED
 import ru.itmo.aiex.care.entity.SessionStatus.CONFIRMED
 import ru.itmo.aiex.care.entity.SessionStatus.DONE

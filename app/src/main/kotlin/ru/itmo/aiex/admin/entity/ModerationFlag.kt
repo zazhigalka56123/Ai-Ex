@@ -1,7 +1,5 @@
 package ru.itmo.aiex.admin.entity
 
-import ru.itmo.aiex.admin.service.FlaggedMessage
-
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.EnumType
@@ -10,6 +8,7 @@ import jakarta.persistence.Id
 import jakarta.persistence.Table
 import jakarta.persistence.Version
 import jakarta.validation.constraints.Size
+import ru.itmo.aiex.admin.service.FlaggedMessage
 import ru.itmo.aiex.common.error.ErrorCode
 import ru.itmo.aiex.common.error.IllegalStateTransitionException
 import ru.itmo.aiex.common.moderation.FlagReason

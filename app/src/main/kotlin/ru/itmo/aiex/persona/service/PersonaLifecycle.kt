@@ -1,9 +1,8 @@
 package ru.itmo.aiex.persona.service
 
+import ru.itmo.aiex.common.security.Actor
 import ru.itmo.aiex.persona.dto.CorpusSnapshot
 import ru.itmo.aiex.persona.dto.ProfileRebuildResult
-
-import ru.itmo.aiex.common.security.Actor
 import java.util.UUID
 
 interface PersonaLifecycle {

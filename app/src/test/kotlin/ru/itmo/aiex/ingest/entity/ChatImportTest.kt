@@ -1,13 +1,12 @@
 package ru.itmo.aiex.ingest.entity
 
-import ru.itmo.aiex.ingest.service.MessageRow
-import ru.itmo.aiex.ingest.service.ParseResult
-
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.jupiter.api.Test
 import ru.itmo.aiex.common.error.ErrorCode
 import ru.itmo.aiex.common.error.IllegalStateTransitionException
+import ru.itmo.aiex.ingest.service.MessageRow
+import ru.itmo.aiex.ingest.service.ParseResult
 import java.time.Instant
 import java.util.UUID
 

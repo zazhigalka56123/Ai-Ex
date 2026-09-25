@@ -1,10 +1,10 @@
 package ru.itmo.aiex.admin.dto
 
 import io.swagger.v3.oas.annotations.media.Schema
-import ru.itmo.aiex.admin.service.FlagView
 import ru.itmo.aiex.admin.entity.FlagSource
 import ru.itmo.aiex.admin.entity.FlagStatus
 import ru.itmo.aiex.admin.entity.ModerationFlag
+import ru.itmo.aiex.admin.service.FlagView
 import ru.itmo.aiex.common.moderation.FlagReason
 import ru.itmo.aiex.dialog.dto.MessageView
 import java.time.Instant

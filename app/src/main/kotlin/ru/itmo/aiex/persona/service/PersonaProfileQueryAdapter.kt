@@ -2,7 +2,6 @@ package ru.itmo.aiex.persona.service
 
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
-
 import ru.itmo.aiex.persona.dto.PersonaProfileView
 import ru.itmo.aiex.persona.dto.TraitView
 import ru.itmo.aiex.persona.entity.PersonaStatus

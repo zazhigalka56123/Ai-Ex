@@ -6,11 +6,10 @@ import org.springframework.data.domain.Sort
 import org.springframework.stereotype.Repository
 import ru.itmo.aiex.common.paging.PageQuery
 import ru.itmo.aiex.common.paging.PageView
-import ru.itmo.aiex.notification.entity.Notification
-import ru.itmo.aiex.notification.entity.NotificationStatus
-
 import ru.itmo.aiex.common.persistence.toPageView
 import ru.itmo.aiex.common.persistence.toPageable
+import ru.itmo.aiex.notification.entity.Notification
+import ru.itmo.aiex.notification.entity.NotificationStatus
 import java.util.UUID
 
 @Repository

@@ -12,14 +12,14 @@ import org.springframework.transaction.PlatformTransactionManager
 import org.springframework.transaction.support.TransactionTemplate
 import ru.itmo.aiex.agent.dto.GenerateReplyCommand
 import ru.itmo.aiex.agent.dto.HistoryMessage
-import ru.itmo.aiex.agent.service.ReplyGenerator
 import ru.itmo.aiex.agent.dto.Speaker
+import ru.itmo.aiex.agent.service.ReplyGenerator
 import ru.itmo.aiex.common.error.LlmUnavailableException
 import ru.itmo.aiex.common.metrics.MetricsContributor
 import ru.itmo.aiex.llm.StubLlmClient
-import ru.itmo.aiex.persona.service.PersonaProfileQuery
 import ru.itmo.aiex.persona.dto.PersonaProfileView
 import ru.itmo.aiex.persona.dto.StyleView
+import ru.itmo.aiex.persona.service.PersonaProfileQuery
 import ru.itmo.aiex.testing.AbstractIntegrationTest
 import java.time.Instant
 import java.util.UUID

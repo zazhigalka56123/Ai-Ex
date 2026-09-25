@@ -4,7 +4,6 @@ import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
 import ru.itmo.aiex.common.error.ErrorCode
 import ru.itmo.aiex.common.error.NotFoundException
-
 import ru.itmo.aiex.persona.dto.PersonaSummaryView
 import ru.itmo.aiex.persona.entity.Persona
 import ru.itmo.aiex.persona.repository.PersonaRepository

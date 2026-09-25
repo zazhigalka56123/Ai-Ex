@@ -3,7 +3,6 @@ package ru.itmo.aiex.persona.service
 import org.springframework.stereotype.Component
 import ru.itmo.aiex.common.security.Actor
 import ru.itmo.aiex.persona.dto.CorpusSnapshot
-
 import ru.itmo.aiex.persona.dto.ProfileRebuildResult
 import java.util.UUID
 

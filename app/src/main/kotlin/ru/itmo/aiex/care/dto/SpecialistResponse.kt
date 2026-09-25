@@ -1,8 +1,8 @@
 package ru.itmo.aiex.care.dto
 
 import io.swagger.v3.oas.annotations.media.Schema
-import ru.itmo.aiex.care.service.SpecialistCard
 import ru.itmo.aiex.care.entity.SpecialistStatus
+import ru.itmo.aiex.care.service.SpecialistCard
 import java.math.BigDecimal
 import java.time.Instant
 import java.util.UUID

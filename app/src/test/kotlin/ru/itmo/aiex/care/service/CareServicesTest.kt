@@ -12,7 +12,6 @@ import org.junit.jupiter.api.Test
 import org.springframework.dao.DataIntegrityViolationException
 import ru.itmo.aiex.care.entity.CareFixtures
 import ru.itmo.aiex.care.entity.CareFixtures.NOW
-
 import ru.itmo.aiex.care.entity.ConsultationSession
 import ru.itmo.aiex.care.entity.SessionStatus
 import ru.itmo.aiex.care.entity.Specialist

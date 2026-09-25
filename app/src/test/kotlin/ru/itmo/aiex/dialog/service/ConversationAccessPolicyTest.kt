@@ -1,11 +1,10 @@
 package ru.itmo.aiex.dialog.service
 
-import ru.itmo.aiex.dialog.entity.MessageScope
-
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import ru.itmo.aiex.common.security.Actor
 import ru.itmo.aiex.common.security.RoleCode
+import ru.itmo.aiex.dialog.entity.MessageScope
 import java.util.UUID
 
 class ConversationAccessPolicyTest {

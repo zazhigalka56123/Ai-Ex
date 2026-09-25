@@ -2,7 +2,6 @@ package ru.itmo.aiex.care.service
 
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
-
 import ru.itmo.aiex.care.repository.ConsultationRepository
 import java.util.UUID
 

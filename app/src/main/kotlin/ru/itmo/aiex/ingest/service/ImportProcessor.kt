@@ -10,7 +10,6 @@ import ru.itmo.aiex.ingest.entity.ChatImport
 import ru.itmo.aiex.ingest.entity.ImportErrorCode
 import ru.itmo.aiex.ingest.entity.ImportSource
 import ru.itmo.aiex.ingest.entity.MessageAuthor
-
 import ru.itmo.aiex.ingest.service.corpus.AuthorResolver
 import ru.itmo.aiex.ingest.service.corpus.CorpusAnalyzer
 import ru.itmo.aiex.ingest.service.corpus.CorpusInput

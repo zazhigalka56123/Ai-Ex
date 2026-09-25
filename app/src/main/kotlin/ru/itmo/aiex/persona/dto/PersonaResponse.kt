@@ -1,9 +1,9 @@
 package ru.itmo.aiex.persona.dto
 
 import io.swagger.v3.oas.annotations.media.Schema
-import ru.itmo.aiex.persona.service.PersonaDetails
 import ru.itmo.aiex.persona.entity.PersonaStatus
 import ru.itmo.aiex.persona.entity.RelationshipKind
+import ru.itmo.aiex.persona.service.PersonaDetails
 import java.time.Instant
 import java.util.UUID
 

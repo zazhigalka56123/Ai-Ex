@@ -6,7 +6,6 @@ import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import ru.itmo.aiex.care.CareIntegrationTest
-
 import ru.itmo.aiex.common.error.AiExException
 import ru.itmo.aiex.common.error.ConflictException
 import ru.itmo.aiex.common.error.ErrorCode

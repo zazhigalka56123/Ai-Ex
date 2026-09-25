@@ -2,7 +2,6 @@ package ru.itmo.aiex.care.service
 
 import ru.itmo.aiex.care.entity.ConsultationRole
 import ru.itmo.aiex.care.entity.SessionStatus
-
 import ru.itmo.aiex.common.error.ConflictException
 import ru.itmo.aiex.common.error.ErrorCode
 import ru.itmo.aiex.common.error.ForbiddenException

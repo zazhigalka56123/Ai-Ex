@@ -7,7 +7,6 @@ import ru.itmo.aiex.common.paging.PageQuery
 import ru.itmo.aiex.common.paging.PageView
 import ru.itmo.aiex.common.persistence.toPageView
 import ru.itmo.aiex.persona.entity.PersonaProfileVersion
-
 import java.util.UUID
 
 @Repository

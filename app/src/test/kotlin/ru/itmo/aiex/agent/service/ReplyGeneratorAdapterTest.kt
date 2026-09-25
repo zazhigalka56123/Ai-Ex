@@ -15,7 +15,6 @@ import ru.itmo.aiex.agent.dto.HistoryMessage
 import ru.itmo.aiex.agent.dto.Speaker
 import ru.itmo.aiex.agent.entity.AgentRun
 import ru.itmo.aiex.agent.entity.AgentRunStatus
-
 import ru.itmo.aiex.common.error.ConflictException
 import ru.itmo.aiex.common.error.ErrorCode
 import ru.itmo.aiex.common.error.LlmUnavailableException
@@ -25,9 +24,9 @@ import ru.itmo.aiex.llm.LlmException
 import ru.itmo.aiex.llm.LlmRequest
 import ru.itmo.aiex.llm.LlmResponse
 import ru.itmo.aiex.llm.LlmRole
-import ru.itmo.aiex.persona.service.PersonaProfileQuery
 import ru.itmo.aiex.persona.dto.PersonaProfileView
 import ru.itmo.aiex.persona.dto.StyleView
+import ru.itmo.aiex.persona.service.PersonaProfileQuery
 import java.time.Clock
 import java.time.Instant
 import java.time.ZoneOffset

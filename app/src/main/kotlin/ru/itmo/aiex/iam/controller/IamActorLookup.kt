@@ -2,8 +2,8 @@ package ru.itmo.aiex.iam.controller
 
 import org.springframework.stereotype.Component
 import ru.itmo.aiex.common.security.Actor
-import ru.itmo.aiex.iam.service.UserQuery
 import ru.itmo.aiex.common.web.ActorLookup
+import ru.itmo.aiex.iam.service.UserQuery
 import java.util.UUID
 
 @Component

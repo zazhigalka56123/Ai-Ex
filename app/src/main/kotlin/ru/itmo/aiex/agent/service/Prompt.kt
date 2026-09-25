@@ -1,8 +1,7 @@
 package ru.itmo.aiex.agent.service
 
-import ru.itmo.aiex.agent.entity.AgentRun
-
 import ru.itmo.aiex.agent.dto.HistoryMessage
+import ru.itmo.aiex.agent.entity.AgentRun
 import java.security.MessageDigest
 import java.util.HexFormat
 

@@ -17,18 +17,18 @@ import org.springframework.web.bind.annotation.RestController
 import ru.itmo.aiex.common.error.ErrorCode
 import ru.itmo.aiex.common.paging.PageQuery
 import ru.itmo.aiex.common.security.Actor
-import ru.itmo.aiex.iam.service.RegisterUserCommand
-import ru.itmo.aiex.iam.service.UpdateUserCommand
-import ru.itmo.aiex.iam.service.UserService
-import ru.itmo.aiex.iam.entity.UserStatus
-import ru.itmo.aiex.iam.dto.CreateUserRequest
-import ru.itmo.aiex.iam.dto.UpdateUserRequest
-import ru.itmo.aiex.iam.dto.UserResponse
-import ru.itmo.aiex.iam.dto.toResponse
 import ru.itmo.aiex.common.web.ApiPaths
 import ru.itmo.aiex.common.web.PageParams
 import ru.itmo.aiex.common.web.Responses
 import ru.itmo.aiex.common.web.openapi.ApiErrors
+import ru.itmo.aiex.iam.dto.CreateUserRequest
+import ru.itmo.aiex.iam.dto.UpdateUserRequest
+import ru.itmo.aiex.iam.dto.UserResponse
+import ru.itmo.aiex.iam.dto.toResponse
+import ru.itmo.aiex.iam.entity.UserStatus
+import ru.itmo.aiex.iam.service.RegisterUserCommand
+import ru.itmo.aiex.iam.service.UpdateUserCommand
+import ru.itmo.aiex.iam.service.UserService
 import java.util.UUID
 
 @RestController

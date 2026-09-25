@@ -3,7 +3,6 @@ package ru.itmo.aiex.ingest.service.parsing
 import org.springframework.stereotype.Component
 import ru.itmo.aiex.ingest.entity.ImportErrorCode
 import ru.itmo.aiex.ingest.entity.ImportSource
-
 import tools.jackson.core.JacksonException
 import tools.jackson.databind.JsonNode
 import tools.jackson.databind.json.JsonMapper

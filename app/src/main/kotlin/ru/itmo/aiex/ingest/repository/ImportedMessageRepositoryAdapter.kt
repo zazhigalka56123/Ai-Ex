@@ -7,7 +7,6 @@ import ru.itmo.aiex.common.id.Ids
 import ru.itmo.aiex.ingest.entity.ChatImport
 import ru.itmo.aiex.ingest.entity.ImportedMessage
 import ru.itmo.aiex.ingest.service.MessageRow
-
 import java.util.UUID
 
 @Repository

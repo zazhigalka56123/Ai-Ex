@@ -2,7 +2,6 @@ package ru.itmo.aiex.iam.service
 
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
-
 import ru.itmo.aiex.iam.dto.UserView
 import ru.itmo.aiex.iam.entity.User
 import ru.itmo.aiex.iam.repository.UserRepository

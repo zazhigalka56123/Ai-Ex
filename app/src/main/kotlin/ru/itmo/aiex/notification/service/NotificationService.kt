@@ -10,9 +10,7 @@ import ru.itmo.aiex.common.security.Actor
 import ru.itmo.aiex.common.time.nowMicros
 import ru.itmo.aiex.notification.entity.Notification
 import ru.itmo.aiex.notification.entity.NotificationStatus
-
 import ru.itmo.aiex.notification.repository.NotificationRepository
-
 import tools.jackson.databind.json.JsonMapper
 import java.time.Clock
 import java.util.UUID

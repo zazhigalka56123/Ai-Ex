@@ -3,7 +3,6 @@ package ru.itmo.aiex.care.service
 import org.springframework.dao.DataIntegrityViolationException
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-
 import ru.itmo.aiex.care.entity.Specialist
 import ru.itmo.aiex.care.entity.SpecialistSlot
 import ru.itmo.aiex.care.repository.SlotRepository

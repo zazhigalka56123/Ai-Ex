@@ -6,8 +6,8 @@ import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
-import ru.itmo.aiex.admin.service.MetricsBoard
 import ru.itmo.aiex.admin.dto.MetricsResponse
+import ru.itmo.aiex.admin.service.MetricsBoard
 import ru.itmo.aiex.common.error.ErrorCode
 import ru.itmo.aiex.common.security.Actor
 import ru.itmo.aiex.common.web.ApiPaths

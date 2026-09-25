@@ -11,7 +11,6 @@ import ru.itmo.aiex.agent.dto.DescribePersonaCommand
 import ru.itmo.aiex.agent.dto.PersonaTraitLine
 import ru.itmo.aiex.agent.entity.AgentRunKind
 import ru.itmo.aiex.agent.entity.AgentRunStatus
-
 import ru.itmo.aiex.common.error.ErrorCode
 import ru.itmo.aiex.common.error.LlmUnavailableException
 import ru.itmo.aiex.llm.LlmClient

@@ -1,7 +1,5 @@
 package ru.itmo.aiex.care.entity
 
-import ru.itmo.aiex.care.service.SlotSchedule
-
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.FetchType
@@ -11,6 +9,7 @@ import jakarta.persistence.ManyToOne
 import jakarta.persistence.Table
 import jakarta.validation.constraints.Max
 import jakarta.validation.constraints.Min
+import ru.itmo.aiex.care.service.SlotSchedule
 import java.time.Instant
 import java.util.UUID
 

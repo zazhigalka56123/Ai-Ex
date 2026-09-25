@@ -6,7 +6,6 @@ import org.springframework.stereotype.Repository
 import ru.itmo.aiex.agent.entity.AgentRun
 import ru.itmo.aiex.agent.entity.AgentRunStatus
 import ru.itmo.aiex.agent.service.SafetyReplies
-
 import java.util.UUID
 
 @Repository

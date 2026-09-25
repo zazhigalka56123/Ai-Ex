@@ -2,8 +2,8 @@ package ru.itmo.aiex.persona.service
 
 import org.springframework.stereotype.Component
 import ru.itmo.aiex.agent.dto.DescribePersonaCommand
-import ru.itmo.aiex.agent.service.PersonaDescriber
 import ru.itmo.aiex.agent.dto.PersonaTraitLine
+import ru.itmo.aiex.agent.service.PersonaDescriber
 import ru.itmo.aiex.persona.dto.CorpusSnapshot
 import ru.itmo.aiex.persona.dto.StyleView
 import ru.itmo.aiex.persona.service.profile.AutoTagger

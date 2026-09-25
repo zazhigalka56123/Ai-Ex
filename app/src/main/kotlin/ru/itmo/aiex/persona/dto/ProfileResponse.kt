@@ -1,7 +1,6 @@
 package ru.itmo.aiex.persona.dto
 
 import io.swagger.v3.oas.annotations.media.Schema
-
 import ru.itmo.aiex.persona.service.ProfileDetails
 import java.time.Instant
 import java.util.UUID

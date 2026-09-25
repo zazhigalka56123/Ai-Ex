@@ -19,7 +19,6 @@ import ru.itmo.aiex.common.events.PersonaProfileActivated
 import ru.itmo.aiex.common.metrics.MetricsContributor
 import ru.itmo.aiex.common.security.Actor
 import ru.itmo.aiex.common.security.RoleCode
-
 import ru.itmo.aiex.persona.dto.PersonaState
 import ru.itmo.aiex.persona.testing.PersonaIntegrationTest
 import ru.itmo.aiex.persona.testing.TestCorpus

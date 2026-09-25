@@ -5,7 +5,6 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Propagation
 import org.springframework.transaction.annotation.Transactional
 import ru.itmo.aiex.admin.entity.FlagStatus
-
 import ru.itmo.aiex.admin.entity.ModerationFlag
 import ru.itmo.aiex.admin.repository.ModerationFlagRepository
 import ru.itmo.aiex.common.error.ConflictException

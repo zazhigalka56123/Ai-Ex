@@ -8,7 +8,6 @@ import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.jupiter.api.Test
 import org.springframework.dao.DataIntegrityViolationException
 import ru.itmo.aiex.admin.entity.FlagStatus
-
 import ru.itmo.aiex.admin.repository.ModerationFlagRepository
 import ru.itmo.aiex.common.error.AiExException
 import ru.itmo.aiex.common.error.ConflictException
@@ -20,9 +19,9 @@ import ru.itmo.aiex.common.metrics.MetricsContributor
 import ru.itmo.aiex.common.moderation.FlagReason
 import ru.itmo.aiex.common.security.Actor
 import ru.itmo.aiex.common.security.RoleCode
-import ru.itmo.aiex.dialog.service.DialogQuery
 import ru.itmo.aiex.dialog.dto.MessageView
 import ru.itmo.aiex.dialog.dto.SenderKind
+import ru.itmo.aiex.dialog.service.DialogQuery
 import java.time.Clock
 import java.time.Instant
 import java.time.ZoneOffset

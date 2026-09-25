@@ -4,8 +4,8 @@ import io.swagger.v3.oas.annotations.media.Schema
 import jakarta.validation.constraints.Max
 import jakarta.validation.constraints.Min
 import jakarta.validation.constraints.Size
-import ru.itmo.aiex.care.service.ConsultationChange
 import ru.itmo.aiex.care.entity.SessionStatus
+import ru.itmo.aiex.care.service.ConsultationChange
 data class UpdateConsultationRequest(
     @field:Schema(description = "Клиент: CANCELLED. Специалист: CONFIRMED, DONE, CANCELLED. Администратор: DONE, CANCELLED")
     val status: SessionStatus? = null,
