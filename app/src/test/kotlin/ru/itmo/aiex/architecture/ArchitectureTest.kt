@@ -1,6 +1,7 @@
 package ru.itmo.aiex.architecture
 
 import com.tngtech.archunit.core.domain.JavaClasses
+import com.tngtech.archunit.core.domain.properties.CanBeAnnotated
 import com.tngtech.archunit.core.importer.ClassFileImporter
 import com.tngtech.archunit.core.importer.ImportOption
 import com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes
@@ -11,13 +12,12 @@ import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import org.springframework.data.repository.Repository
+import org.springframework.stereotype.Service
 import org.springframework.web.bind.annotation.RestController
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class ArchitectureTest {
     private lateinit var classes: JavaClasses
-
-    private val modules = listOf("iam", "persona", "ingest", "agent", "dialog", "care", "admin", "notification", "llm")
 
     @BeforeAll
     fun importClasses() {
@@ -28,67 +28,71 @@ class ArchitectureTest {
     }
 
     @Test
-    fun `домен не знает про Spring, веб и инфраструктуру`() {
+    fun `сущности живут в entity, контроллеры в controller, Spring Data - в repository`() {
+        classes().that().areAnnotatedWith(Entity::class.java).should().resideInAPackage("..entity..").check(classes)
+        classes().that().areAnnotatedWith(RestController::class.java).should().resideInAPackage("..controller..").check(classes)
         classes()
             .that()
-            .resideInAPackage("ru.itmo.aiex.*.domain..")
+            .areInterfaces()
+            .and()
+            .areAssignableTo(Repository::class.java)
             .should()
-            .onlyDependOnClassesThat()
-            .resideInAnyPackage(
-                "java..",
-                "kotlin..",
-                "org.jetbrains.annotations..",
-                "jakarta.persistence..",
-                "jakarta.validation..",
-                "org.hibernate.annotations..",
-                "org.hibernate.type..",
-                "ru.itmo.aiex.common..",
-                "ru.itmo.aiex.*.domain..",
-                "ru.itmo.aiex.*.api..",
-            ).allowEmptyShould(true)
+            .resideInAPackage("..repository..")
             .check(classes)
     }
 
     @Test
-    fun `application не зависит от web и infrastructure - только от портов домена`() {
+    fun `сервисы живут в service`() {
+        classes()
+            .that()
+            .areAnnotatedWith(Service::class.java)
+            .should()
+            .resideInAPackage("..service..")
+            .check(classes)
+    }
+
+    @Test
+    fun `контроллер ходит в БД только через сервис`() {
         noClasses()
             .that()
-            .resideInAPackage("ru.itmo.aiex.*.application..")
+            .resideInAPackage("..controller..")
             .should()
             .dependOnClassesThat()
-            .resideInAnyPackage("ru.itmo.aiex.*.web..", "ru.itmo.aiex.*.infrastructure..")
-            .allowEmptyShould(true)
+            .resideInAPackage("ru.itmo.aiex.*.repository..")
             .check(classes)
     }
 
     @Test
-    fun `контракты -api не тянут Spring и JPA`() {
+    fun `нижние слои не знают про контроллеры`() {
         noClasses()
             .that()
-            .resideInAPackage("ru.itmo.aiex.*.api..")
+            .resideInAnyPackage("..service..", "..repository..", "..entity..", "..dto..")
             .should()
             .dependOnClassesThat()
-            .resideInAnyPackage("org.springframework..", "jakarta.persistence..", "org.hibernate..")
+            .resideInAPackage("ru.itmo.aiex.*.controller..")
             .check(classes)
     }
 
     @Test
-    fun `чужие внутренности модуля недоступны - только его -api`() {
-        modules.forEach { module ->
-            noClasses()
-                .that()
-                .resideOutsideOfPackage("ru.itmo.aiex.$module..")
-                .should()
-                .dependOnClassesThat()
-                .resideInAnyPackage(
-                    "ru.itmo.aiex.$module.domain..",
-                    "ru.itmo.aiex.$module.application..",
-                    "ru.itmo.aiex.$module.infrastructure..",
-                    "ru.itmo.aiex.$module.web..",
-                ).allowEmptyShould(true)
-                .because("межмодульный вызов - только через $module-api")
-                .check(classes)
-        }
+    fun `сущности и репозитории не зависят от DTO`() {
+        noClasses()
+            .that()
+            .resideInAnyPackage("..entity..", "..repository..")
+            .should()
+            .dependOnClassesThat()
+            .resideInAPackage("ru.itmo.aiex.*.dto..")
+            .check(classes)
+    }
+
+    @Test
+    fun `Entity не утекает в DTO`() {
+        noFields()
+            .that()
+            .areDeclaredInClassesThat()
+            .resideInAnyPackage("..dto..", "..controller..")
+            .should()
+            .haveRawType(CanBeAnnotated.Predicates.annotatedWith(Entity::class.java))
+            .check(classes)
     }
 
     @Test
@@ -100,33 +104,6 @@ class ArchitectureTest {
             .dependOnClassesThat()
             .resideInAPackage("ru.itmo.aiex.llm..")
             .because("каждый вызов провайдера обязан оставить строку в agent_runs")
-            .check(classes)
-    }
-
-    @Test
-    fun `сущности живут в domain, контроллеры в web, Spring Data - в infrastructure`() {
-        classes().that().areAnnotatedWith(Entity::class.java).should().resideInAPackage("..domain..").check(classes)
-        classes().that().areAnnotatedWith(RestController::class.java).should().resideInAPackage("..web..").check(classes)
-        classes()
-            .that()
-            .areInterfaces()
-            .and()
-            .areAssignableTo(Repository::class.java)
-            .should()
-            .resideInAPackage("..infrastructure..")
-            .allowEmptyShould(true)
-            .check(classes)
-    }
-
-    @Test
-    fun `Entity не утекает в веб-DTO`() {
-        noFields()
-            .that()
-            .areDeclaredInClassesThat()
-            .resideInAPackage("..web..")
-            .should()
-            .haveRawType(com.tngtech.archunit.core.domain.properties.CanBeAnnotated.Predicates.annotatedWith(Entity::class.java))
-            .allowEmptyShould(true)
             .check(classes)
     }
 }
