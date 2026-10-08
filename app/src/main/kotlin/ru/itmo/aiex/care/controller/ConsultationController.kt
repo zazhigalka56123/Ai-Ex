@@ -45,8 +45,8 @@ class ConsultationController(private val booking: ConsultationBooking, private v
     )
     @ApiResponse(responseCode = "201", description = "Запись создана", headers = [Header(name = "Location", description = "URI консультации")])
     @ApiErrors(ErrorCode.VALIDATION_FAILED, ErrorCode.FORBIDDEN, ErrorCode.SLOT_NOT_FOUND, ErrorCode.CONVERSATION_NOT_FOUND, ErrorCode.SLOT_TAKEN)
-    fun book(actor: Actor, @Valid @RequestBody request: BookConsultationRequest): ResponseEntity<ConsultationResponse> {
-        val session = booking.book(actor, BookConsultationCommand(request.slotId, request.sharedConversationId))
+    fun scheduleConsultation(actor: Actor, @Valid @RequestBody request: BookConsultationRequest): ResponseEntity<ConsultationResponse> {
+        val session = booking.scheduleConsultation(actor, BookConsultationCommand(request.slotId, request.sharedConversationId))
         return Responses.created(session.toResponse(), "${ApiPaths.V1}/consultations/{id}", session.id)
     }
 
@@ -58,11 +58,11 @@ class ConsultationController(private val booking: ConsultationBooking, private v
     )
     @ApiResponse(responseCode = "200", description = "Страница консультаций")
     @ApiErrors(ErrorCode.VALIDATION_FAILED)
-    fun list(
+    fun getConsultations(
         actor: Actor,
         @RequestParam(required = false) status: SessionStatus?,
         @PageParams(sortable = ["startsAt", "createdAt"], defaultSort = "startsAt,desc") page: PageQuery,
-    ): ResponseEntity<List<ConsultationResponse>> = Responses.page(consultations.list(actor, status, page).map { it.toResponse() })
+    ): ResponseEntity<List<ConsultationResponse>> = Responses.page(consultations.getConsultations(actor, status, page).map { it.toResponse() })
 
     @GetMapping("/{id}")
     @Operation(operationId = "getConsultation", summary = "Консультация по id", description = "Клиенту, специалисту консультации и администратору.")

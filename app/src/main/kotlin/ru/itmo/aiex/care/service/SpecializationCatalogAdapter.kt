@@ -15,7 +15,7 @@ import ru.itmo.aiex.common.paging.PageView
 @Component
 @Transactional(readOnly = true)
 class SpecializationCatalogAdapter(private val specializations: SpecializationRepository) : SpecializationCatalog {
-    override fun list(page: PageQuery): PageView<DictionaryEntry> = specializations.findPage(page).map { it.toEntry() }
+    override fun getEntries(page: PageQuery): PageView<DictionaryEntry> = specializations.findPage(page).map { it.toEntry() }
 
     override fun get(id: Long): DictionaryEntry = find(id).toEntry()
 

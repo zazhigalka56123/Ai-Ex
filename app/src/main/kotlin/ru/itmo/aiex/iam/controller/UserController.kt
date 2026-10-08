@@ -56,11 +56,11 @@ class UserController(private val users: UserService) {
     )
     @ApiResponse(responseCode = "200", description = "Страница пользователей")
     @ApiErrors(ErrorCode.FORBIDDEN)
-    fun list(
+    fun getUsers(
         actor: Actor,
         @PageParams(sortable = ["createdAt", "email", "displayName"], defaultSort = "createdAt,desc") page: PageQuery,
         @RequestParam(required = false) status: UserStatus?,
-    ): ResponseEntity<List<UserResponse>> = Responses.page(users.list(actor, status, page).map { it.toResponse() })
+    ): ResponseEntity<List<UserResponse>> = Responses.page(users.getUsers(actor, status, page).map { it.toResponse() })
 
     @GetMapping("/{id}")
     @Operation(operationId = "getUser", summary = "Пользователь по id", description = "Администратор - любой, остальные - только себя.")

@@ -49,7 +49,7 @@ class CareServicesTest {
         every { sessions.existsActiveOnSlot(slot.id) } returns false
         every { sessions.saveAndFlush(any()) } throws DataIntegrityViolationException("ux_consultation_sessions_active_slot")
 
-        assertThatThrownBy { consultations.book(CareFixtures.actor(), BookConsultationCommand(slot.id)) }
+        assertThatThrownBy { consultations.scheduleConsultation(CareFixtures.actor(), BookConsultationCommand(slot.id)) }
             .isInstanceOf(SlotAlreadyBookedException::class.java)
             .satisfies({ assertThat(it.suppressed.single()).isInstanceOf(DataIntegrityViolationException::class.java) })
         verify(exactly = 0) { specialists.incrementBookedCount(any()) }
@@ -66,7 +66,7 @@ class CareServicesTest {
         every { sessions.existsActiveOnSlot(slot.id) } returns false
         every { sessions.saveAndFlush(capture(saved)) } answers { saved.captured }
 
-        val session = consultations.book(client, BookConsultationCommand(slot.id, sharedConversationId = UUID.randomUUID()))
+        val session = consultations.scheduleConsultation(client, BookConsultationCommand(slot.id, sharedConversationId = UUID.randomUUID()))
 
         assertThat(session.status).isEqualTo(SessionStatus.REQUESTED)
         assertThat(session.userId).isEqualTo(client.userId)
@@ -134,9 +134,9 @@ class CareServicesTest {
         val actor = CareFixtures.actor()
         val command = BookConsultationCommand(UUID.randomUUID())
         val session = CareFixtures.session()
-        every { service.book(actor, command) } returns session
+        every { service.scheduleConsultation(actor, command) } returns session
 
-        assertThat(booking.book(actor, command)).isSameAs(session)
+        assertThat(booking.scheduleConsultation(actor, command)).isSameAs(session)
     }
 
     @Test

@@ -19,7 +19,7 @@ import ru.itmo.aiex.persona.repository.TagRepository
 @Component
 @Transactional(readOnly = true)
 class TagCatalogAdapter(private val tags: TagRepository, private val personaTags: PersonaTagRepository) : TagCatalog {
-    override fun list(page: PageQuery): PageView<DictionaryEntry> {
+    override fun getEntries(page: PageQuery): PageView<DictionaryEntry> {
         val sort = page.sort.filter { it.property in SORTABLE }.ifEmpty { listOf(SortOrder("code", SortDirection.ASC)) }
         return tags.findPage(page.copy(sort = sort)).map { it.toEntry() }
     }

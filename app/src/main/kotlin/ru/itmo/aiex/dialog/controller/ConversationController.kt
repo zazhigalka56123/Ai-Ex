@@ -56,12 +56,16 @@ class ConversationController(private val conversations: ConversationService) {
     )
     @ApiResponse(responseCode = "200", description = "Страница бесед")
     @ApiErrors(ErrorCode.VALIDATION_FAILED)
-    fun list(
+    fun getConversations(
         actor: Actor,
         @PageParams(sortable = ["lastMessageAt", "createdAt"], defaultSort = "lastMessageAt,desc") page: PageQuery,
         @RequestParam(required = false) status: ConversationStatus?,
         @RequestParam(required = false) personaId: UUID?,
-    ): ResponseEntity<List<ConversationResponse>> = Responses.page(conversations.list(actor, status, personaId, page).map { it.toResponse() })
+    ): ResponseEntity<List<ConversationResponse>> = Responses.page(
+        conversations.getConversations(actor, status, personaId, page).map {
+            it.toResponse()
+        },
+    )
 
     @GetMapping("/{id}")
     @Operation(

@@ -28,14 +28,14 @@ class TagCatalogIT : PersonaIntegrationTest() {
 
     @Test
     fun `сид справочника на месте, список отсортирован по коду`() {
-        val page = catalog.list(PageQuery(0, 50))
+        val page = catalog.getEntries(PageQuery(0, 50))
         val codes = page.items.map { it.code }
         assertThat(codes).contains("cold", "jealous", "caps", "emoji", "night-owl", "laconic", "talkative", "slow-replier", "fast-replier")
         assertThat(codes).contains("affectionate", "sarcastic", "caring")
         assertThat(codes).isSorted()
         assertThat(page.totalElements).isGreaterThanOrEqualTo(12)
 
-        val byTitle = catalog.list(PageQuery(0, 50, listOf(SortOrder("title", SortDirection.DESC), SortOrder("password", SortDirection.ASC))))
+        val byTitle = catalog.getEntries(PageQuery(0, 50, listOf(SortOrder("title", SortDirection.DESC), SortOrder("password", SortDirection.ASC))))
         assertThat(byTitle.items.map { it.title }).isSortedAccordingTo(reverseOrder())
     }
 

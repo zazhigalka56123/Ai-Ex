@@ -34,9 +34,13 @@ class NotificationController(private val notifications: NotificationService, pri
     )
     @ApiResponse(responseCode = "200", description = "Страница уведомлений")
     @ApiErrors(ErrorCode.VALIDATION_FAILED)
-    fun list(
+    fun getNotifications(
         actor: Actor,
         @PageParams(sortable = ["createdAt"], defaultSort = "createdAt,desc") page: PageQuery,
         @RequestParam(required = false) status: NotificationStatus?,
-    ): ResponseEntity<List<NotificationResponse>> = Responses.page(notifications.list(actor, status, page).map { it.toResponse(jsonMapper) })
+    ): ResponseEntity<List<NotificationResponse>> = Responses.page(
+        notifications.getNotifications(actor, status, page).map {
+            it.toResponse(jsonMapper)
+        },
+    )
 }
