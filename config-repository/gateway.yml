@@ -15,24 +15,28 @@ spring:
               predicates:
                 - Path=/v3/api-docs/account
               filters:
+                - PreserveHostHeader
                 - SetPath=/v3/api-docs
             - id: persona-api-docs
               uri: lb://persona-service
               predicates:
                 - Path=/v3/api-docs/persona
               filters:
+                - PreserveHostHeader
                 - SetPath=/v3/api-docs
             - id: dialog-api-docs
               uri: lb://dialog-service
               predicates:
                 - Path=/v3/api-docs/dialog
               filters:
+                - PreserveHostHeader
                 - SetPath=/v3/api-docs
             - id: care-api-docs
               uri: lb://care-service
               predicates:
                 - Path=/v3/api-docs/care
               filters:
+                - PreserveHostHeader
                 - SetPath=/v3/api-docs
             - id: account
               uri: lb://account-service

@@ -73,6 +73,15 @@ wait_for "$HOST/actuator/health"
 curl --fail --silent "$HOST/" >"$BODY"
 wait_for "$HOST/api/v1/personas" "$CLIENT"
 wait_for "$HOST/api/v1/notifications" "$CLIENT"
+curl --fail --silent --location --max-time 10 "$HOST/swagger-ui.html" >"$BODY"
+for service in account persona dialog care; do
+  wait_for "$HOST/v3/api-docs/$service"
+  python3 - "$BODY" <<'PY'
+import json, sys
+paths = json.load(open(sys.argv[1]))["paths"]
+assert paths and all(path.startswith("/api/") for path in paths), paths
+PY
+done
 bash "$ROOT/docs/demo.sh" "$HOST"
 
 if [[ ${1:-} == --outage ]]; then
