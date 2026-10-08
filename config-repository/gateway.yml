@@ -1,0 +1,74 @@
+server:
+  port: 8080
+
+spring:
+  cloud:
+    gateway:
+      server:
+        webflux:
+          httpclient:
+            connect-timeout: 2000
+            response-timeout: 90s
+          routes:
+            - id: account-api-docs
+              uri: lb://account-service
+              predicates:
+                - Path=/v3/api-docs/account
+              filters:
+                - SetPath=/v3/api-docs
+            - id: persona-api-docs
+              uri: lb://persona-service
+              predicates:
+                - Path=/v3/api-docs/persona
+              filters:
+                - SetPath=/v3/api-docs
+            - id: dialog-api-docs
+              uri: lb://dialog-service
+              predicates:
+                - Path=/v3/api-docs/dialog
+              filters:
+                - SetPath=/v3/api-docs
+            - id: care-api-docs
+              uri: lb://care-service
+              predicates:
+                - Path=/v3/api-docs/care
+              filters:
+                - SetPath=/v3/api-docs
+            - id: account
+              uri: lb://account-service
+              predicates:
+                - Path=/api/v1/users,/api/v1/users/**
+            - id: persona
+              uri: lb://persona-service
+              predicates:
+                - Path=/api/v1/personas,/api/v1/personas/**,/api/v1/imports/**
+            - id: dialog-websocket
+              uri: lb:ws://dialog-service
+              order: -1
+              predicates:
+                - Path=/api/v1/conversations/*/ws
+            - id: dialog
+              uri: lb://dialog-service
+              predicates:
+                - Path=/api/v1/conversations,/api/v1/conversations/**
+            - id: care
+              uri: lb://care-service
+              predicates:
+                - Path=/api/v1/specialists,/api/v1/specialists/**,/api/v1/consultations,/api/v1/consultations/**,/api/v1/moderation/**,/api/v1/admin/**,/api/v1/tags,/api/v1/tags/**,/api/v1/specializations,/api/v1/specializations/**
+            - id: notification
+              uri: lb://notification-service
+              predicates:
+                - Path=/api/v1/notifications,/api/v1/notifications/**
+
+springdoc:
+  swagger-ui:
+    urls-primary-name: persona-service
+    urls:
+      - name: account-service
+        url: /v3/api-docs/account
+      - name: persona-service
+        url: /v3/api-docs/persona
+      - name: dialog-service
+        url: /v3/api-docs/dialog
+      - name: care-service
+        url: /v3/api-docs/care

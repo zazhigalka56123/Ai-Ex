@@ -1,0 +1,9 @@
+databaseChangeLog:
+  - changeSet:
+      id: lab2-create-schemas
+      author: aiex
+      changes:
+        - sql:
+            sql: CREATE SCHEMA IF NOT EXISTS dialog
+        - sql:
+            sql: CREATE SCHEMA IF NOT EXISTS agent

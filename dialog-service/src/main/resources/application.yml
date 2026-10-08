@@ -1,0 +1,7 @@
+spring:
+  application:
+    name: dialog-service
+  profiles:
+    active: microservice
+  config:
+    import: configserver:${CONFIG_SERVER_URL:http://localhost:8888}

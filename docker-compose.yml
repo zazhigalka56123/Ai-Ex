@@ -1,35 +1,138 @@
 name: ai-ex
 
-services:
-  postgres:
-    image: postgres:17-alpine
-    environment:
-      POSTGRES_DB: ${POSTGRES_DB:-aiex}
-      POSTGRES_USER: ${POSTGRES_USER:-aiex}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-aiex}
-    volumes:
-      - pgdata:/var/lib/postgresql/data
-    ports:
-      - "127.0.0.1:${AIEX_DB_PORT:-5432}:5432"
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
-      interval: 5s
-      timeout: 3s
-      retries: 20
+x-service: &service
+  init: true
+  environment: &environment
+    CONFIG_SERVER_URL: http://config-server:8888
+    EUREKA_URL: http://discovery-server:8761/eureka/
+    JAVA_OPTS: ${JAVA_OPTS:--Xms64m -Xmx384m}
+    AIEX_INTERNAL_TOKEN: ${AIEX_INTERNAL_TOKEN:-ai-ex-local-token}
+  restart: unless-stopped
 
-  app:
+x-database: &database
+  image: postgres:17-alpine
+  healthcheck:
+    test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+    interval: 5s
+    timeout: 3s
+    retries: 20
+
+services:
+  config-server:
+    <<: *service
     build:
       context: .
       dockerfile: docker/Dockerfile
-    image: ai-ex:latest
-    depends_on:
-      postgres:
-        condition: service_healthy
+      args:
+        SERVICE: config-server
+    image: ai-ex/config-server:lab2
     environment:
-      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE:-docker}
-      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB:-aiex}
-      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER:-aiex}
-      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD:-aiex}
+      JAVA_OPTS: ${JAVA_OPTS:--Xms64m -Xmx384m}
+      SERVER_PORT: 8888
+    ports:
+      - "127.0.0.1:${CONFIG_SERVER_PORT:-8888}:8888"
+
+  discovery-server:
+    <<: *service
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+      args:
+        SERVICE: discovery-server
+    image: ai-ex/discovery-server:lab2
+    environment:
+      <<: *environment
+      SERVER_PORT: 8761
+    depends_on:
+      config-server:
+        condition: service_healthy
+    ports:
+      - "127.0.0.1:${EUREKA_PORT:-8761}:8761"
+
+  gateway:
+    <<: *service
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+      args:
+        SERVICE: gateway
+    image: ai-ex/gateway:lab2
+    environment:
+      <<: *environment
+      SERVER_PORT: 8080
+    depends_on:
+      config-server:
+        condition: service_healthy
+      discovery-server:
+        condition: service_healthy
+    ports:
+      - "${AIEX_PORT:-8080}:8080"
+
+  account-service:
+    <<: *service
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+      args:
+        SERVICE: account-service
+    image: ai-ex/account-service:lab2
+    environment:
+      <<: *environment
+      SERVER_PORT: 8081
+      SPRING_PROFILES_ACTIVE: microservice
+      DB_URL: jdbc:postgresql://account-db:5432/account
+      DB_USER: account
+      DB_PASSWORD: ${ACCOUNT_DB_PASSWORD:-account}
+      AIEX_LIQUIBASE_CONTEXTS: ${AIEX_LIQUIBASE_CONTEXTS:-demo}
+    depends_on:
+      config-server:
+        condition: service_healthy
+      discovery-server:
+        condition: service_healthy
+      account-db:
+        condition: service_healthy
+
+  persona-service:
+    <<: *service
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+      args:
+        SERVICE: persona-service
+    image: ai-ex/persona-service:lab2
+    environment:
+      <<: *environment
+      SERVER_PORT: 8082
+      SPRING_PROFILES_ACTIVE: microservice
+      DB_URL: jdbc:postgresql://persona-db:5432/persona
+      DB_USER: persona
+      DB_PASSWORD: ${PERSONA_DB_PASSWORD:-persona}
+      AIEX_LIQUIBASE_CONTEXTS: ${AIEX_LIQUIBASE_CONTEXTS:-demo}
+      AIEX_IMPORT_MAX_FILE_MB: ${AIEX_IMPORT_MAX_FILE_MB:-20}
+      AIEX_IMPORT_MAX_MESSAGES: ${AIEX_IMPORT_MAX_MESSAGES:-50000}
+    depends_on:
+      config-server:
+        condition: service_healthy
+      discovery-server:
+        condition: service_healthy
+      persona-db:
+        condition: service_healthy
+
+  dialog-service:
+    <<: *service
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+      args:
+        SERVICE: dialog-service
+    image: ai-ex/dialog-service:lab2
+    environment:
+      <<: *environment
+      SERVER_PORT: 8083
+      SPRING_PROFILES_ACTIVE: microservice
+      DB_URL: jdbc:postgresql://dialog-db:5432/dialog
+      DB_USER: dialog
+      DB_PASSWORD: ${DIALOG_DB_PASSWORD:-dialog}
       AIEX_LIQUIBASE_CONTEXTS: ${AIEX_LIQUIBASE_CONTEXTS:-demo}
       AIEX_LLM_PROVIDER: ${AIEX_LLM_PROVIDER:-stub}
       AIEX_LLM_BASE_URL: ${AIEX_LLM_BASE_URL:-}
@@ -39,25 +142,119 @@ services:
       AIEX_LLM_MAX_RETRIES: ${AIEX_LLM_MAX_RETRIES:-2}
       AIEX_AGENT_HISTORY_WINDOW: ${AIEX_AGENT_HISTORY_WINDOW:-20}
       AIEX_AGENT_MAX_OUTPUT_TOKENS: ${AIEX_AGENT_MAX_OUTPUT_TOKENS:-512}
-      AIEX_PAGINATION_MAX_SIZE: ${AIEX_PAGINATION_MAX_SIZE:-50}
-      AIEX_IMPORT_MAX_FILE_MB: ${AIEX_IMPORT_MAX_FILE_MB:-20}
-      AIEX_IMPORT_MAX_MESSAGES: ${AIEX_IMPORT_MAX_MESSAGES:-50000}
-      AIEX_LOG_FORMAT: ${AIEX_LOG_FORMAT:-ecs}
-      JAVA_OPTS: ${JAVA_OPTS:--XX:MaxRAMPercentage=75}
-    ports:
-      - "${AIEX_PORT:-8080}:8080"
-
-  pgadmin:
-    image: dpage/pgadmin4:9
-    profiles: ["tools"]
     depends_on:
-      - postgres
+      config-server:
+        condition: service_healthy
+      discovery-server:
+        condition: service_healthy
+      dialog-db:
+        condition: service_healthy
+
+  care-service:
+    <<: *service
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+      args:
+        SERVICE: care-service
+    image: ai-ex/care-service:lab2
     environment:
-      PGADMIN_DEFAULT_EMAIL: admin@ai-ex.local
-      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD:-admin}
-      PGADMIN_CONFIG_SERVER_MODE: "False"
+      <<: *environment
+      SERVER_PORT: 8084
+      SPRING_PROFILES_ACTIVE: microservice
+      DB_URL: jdbc:postgresql://care-db:5432/care
+      DB_USER: care
+      DB_PASSWORD: ${CARE_DB_PASSWORD:-care}
+      AIEX_LIQUIBASE_CONTEXTS: ${AIEX_LIQUIBASE_CONTEXTS:-demo}
+    depends_on:
+      config-server:
+        condition: service_healthy
+      discovery-server:
+        condition: service_healthy
+      care-db:
+        condition: service_healthy
+
+  notification-service:
+    <<: *service
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+      args:
+        SERVICE: notification-service
+    image: ai-ex/notification-service:lab2
+    environment:
+      <<: *environment
+      SERVER_PORT: 8085
+      SPRING_PROFILES_ACTIVE: microservice
+      DB_URL: r2dbc:postgresql://notification-db:5432/notification
+      DB_USER: notification
+      DB_PASSWORD: ${NOTIFICATION_DB_PASSWORD:-notification}
+    depends_on:
+      config-server:
+        condition: service_healthy
+      discovery-server:
+        condition: service_healthy
+      notification-db:
+        condition: service_healthy
+
+  account-db:
+    <<: *database
+    environment:
+      POSTGRES_DB: account
+      POSTGRES_USER: account
+      POSTGRES_PASSWORD: ${ACCOUNT_DB_PASSWORD:-account}
     ports:
-      - "127.0.0.1:${PGADMIN_PORT:-5050}:80"
+      - "127.0.0.1:${ACCOUNT_DB_PORT:-5432}:5432"
+    volumes:
+      - account-data:/var/lib/postgresql/data
+
+  persona-db:
+    <<: *database
+    environment:
+      POSTGRES_DB: persona
+      POSTGRES_USER: persona
+      POSTGRES_PASSWORD: ${PERSONA_DB_PASSWORD:-persona}
+    ports:
+      - "127.0.0.1:${PERSONA_DB_PORT:-5433}:5432"
+    volumes:
+      - persona-data:/var/lib/postgresql/data
+
+  dialog-db:
+    <<: *database
+    environment:
+      POSTGRES_DB: dialog
+      POSTGRES_USER: dialog
+      POSTGRES_PASSWORD: ${DIALOG_DB_PASSWORD:-dialog}
+    ports:
+      - "127.0.0.1:${DIALOG_DB_PORT:-5434}:5432"
+    volumes:
+      - dialog-data:/var/lib/postgresql/data
+
+  care-db:
+    <<: *database
+    environment:
+      POSTGRES_DB: care
+      POSTGRES_USER: care
+      POSTGRES_PASSWORD: ${CARE_DB_PASSWORD:-care}
+    ports:
+      - "127.0.0.1:${CARE_DB_PORT:-5435}:5432"
+    volumes:
+      - care-data:/var/lib/postgresql/data
+
+  notification-db:
+    <<: *database
+    environment:
+      POSTGRES_DB: notification
+      POSTGRES_USER: notification
+      POSTGRES_PASSWORD: ${NOTIFICATION_DB_PASSWORD:-notification}
+    ports:
+      - "127.0.0.1:${NOTIFICATION_DB_PORT:-5436}:5432"
+    volumes:
+      - notification-data:/var/lib/postgresql/data
 
 volumes:
-  pgdata:
+  account-data:
+  persona-data:
+  dialog-data:
+  care-data:
+  notification-data:

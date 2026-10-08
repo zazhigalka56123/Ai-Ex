@@ -1,0 +1,11 @@
+databaseChangeLog:
+  - include:
+      file: db/changelog/schemas.yaml
+  - includeAll:
+      path: db/changelog/060-care/
+  - includeAll:
+      path: db/changelog/070-admin/
+  - include:
+      file: db/changelog/090-seed/030-dictionary-specializations.yaml
+  - include:
+      file: db/changelog/090-seed/040-demo-care.yaml

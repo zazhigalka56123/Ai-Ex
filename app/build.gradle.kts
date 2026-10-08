@@ -5,6 +5,13 @@ plugins {
 }
 
 dependencies {
+    implementation(project(":contracts"))
+    implementation(project(":web-support"))
+    implementation(project(":account-service"))
+    implementation(project(":persona-service"))
+    implementation(project(":dialog-service"))
+    implementation(project(":care-service"))
+
     implementation(libs.spring.boot.starter.webmvc)
     implementation(libs.spring.boot.starter.data.jpa)
     implementation(libs.spring.boot.starter.validation)
@@ -18,6 +25,8 @@ dependencies {
     runtimeOnly(libs.postgresql)
 
     testFixturesImplementation(platform(libs.spring.boot.dependencies))
+    testFixturesApi(project(":contracts"))
+    testFixturesApi(project(":web-support"))
     testFixturesApi(platform(libs.spring.boot.dependencies))
     testFixturesApi(libs.spring.boot.starter.test)
     testFixturesApi(libs.spring.boot.starter.webmvc.test)

@@ -2,6 +2,7 @@
 java = "21"
 kotlin = "2.2.21"
 spring-boot = "4.0.8"
+spring-cloud = "2025.1.1"
 springdoc = "3.0.3"
 kover = "0.9.9"
 ktlint-gradle = "14.2.0"

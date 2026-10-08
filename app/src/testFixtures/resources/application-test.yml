@@ -1,4 +1,9 @@
 spring:
+  cloud:
+    config:
+      enabled: false
+    discovery:
+      enabled: false
   liquibase:
     contexts: test
   task:
@@ -8,6 +13,9 @@ spring:
 ai-ex:
   llm:
     provider: stub
+eureka:
+  client:
+    enabled: false
 logging:
   level:
     root: WARN

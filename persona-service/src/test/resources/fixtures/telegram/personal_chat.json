@@ -1,0 +1,307 @@
+{
+ "name": "Маша",
+ "type": "personal_chat",
+ "id": 222,
+ "messages": [
+  {
+   "id": 1001,
+   "type": "message",
+   "date": "2024-03-01T23:10:00",
+   "date_unixtime": "1709323800",
+   "from": "Алексей",
+   "from_id": "user111",
+   "text": "привет, спишь?",
+   "text_entities": []
+  },
+  {
+   "id": 1002,
+   "type": "message",
+   "date": "2024-03-01T23:40:00",
+   "date_unixtime": "1709325600",
+   "from": "Маша",
+   "from_id": "user222",
+   "text": "неа",
+   "text_entities": []
+  },
+  {
+   "id": 1003,
+   "type": "message",
+   "date": "2024-03-01T23:41:00",
+   "date_unixtime": "1709325660",
+   "from": "Маша",
+   "from_id": "user222",
+   "text": "а что случилось",
+   "text_entities": []
+  },
+  {
+   "id": 1004,
+   "type": "message",
+   "date": "2024-03-01T23:45:00",
+   "date_unixtime": "1709325900",
+   "from": "Алексей",
+   "from_id": "user111",
+   "text": "да так, соскучился",
+   "text_entities": []
+  },
+  {
+   "id": 1005,
+   "type": "message",
+   "date": "2024-03-02T00:30:00",
+   "date_unixtime": "1709328600",
+   "from": "Маша",
+   "from_id": "user222",
+   "text": "ну ок 🙂",
+   "text_entities": []
+  },
+  {
+   "id": 1006,
+   "type": "service",
+   "date": "2024-03-02T00:31:00",
+   "date_unixtime": "1709328660",
+   "text": "",
+   "actor": "Маша",
+   "action": "phone_call",
+   "duration_seconds": 12
+  },
+  {
+   "id": 1007,
+   "type": "message",
+   "date": "2024-03-02T00:32:00",
+   "date_unixtime": "1709328720",
+   "from": "Маша",
+   "from_id": "user222",
+   "text": "",
+   "text_entities": [],
+   "photo": "photos/photo_1.jpg",
+   "width": 800,
+   "height": 600
+  },
+  {
+   "id": 1008,
+   "type": "message",
+   "date": "2024-03-02T00:33:00",
+   "date_unixtime": "1709328780",
+   "from": "Алексей",
+   "from_id": "user111",
+   "text": "",
+   "text_entities": [],
+   "media_type": "sticker",
+   "sticker_emoji": "😂",
+   "file": "stickers/sticker.webp"
+  },
+  {
+   "id": 1009,
+   "type": "message",
+   "date": "2024-03-02T01:15:00",
+   "date_unixtime": "1709331300",
+   "from": "Маша",
+   "from_id": "user222",
+   "text": "ГДЕ ТЫ БЫЛ ВЧЕРА",
+   "text_entities": []
+  },
+  {
+   "id": 1010,
+   "type": "message",
+   "date": "2024-03-02T01:20:00",
+   "date_unixtime": "1709331600",
+   "from": "Алексей",
+   "from_id": "user111",
+   "text": "дома был",
+   "text_entities": []
+  },
+  {
+   "id": 1011,
+   "type": "message",
+   "date": "2024-03-02T02:05:00",
+   "date_unixtime": "1709334300",
+   "from": "Маша",
+   "from_id": "user222",
+   "text": "с кем?",
+   "text_entities": []
+  },
+  {
+   "id": 1012,
+   "type": "message",
+   "date": "2024-03-02T02:06:00",
+   "date_unixtime": "1709334360",
+   "from": "Маша",
+   "from_id": "user222",
+   "text": [
+    "смотри ",
+    {
+     "type": "link",
+     "text": "https://example.com/party"
+    }
+   ],
+   "text_entities": []
+  },
+  {
+   "id": 1013,
+   "type": "message",
+   "date": "2024-03-02T02:10:00",
+   "date_unixtime": "1709334600",
+   "from": "Алексей",
+   "from_id": "user111",
+   "text": "один, честно",
+   "text_entities": []
+  },
+  {
+   "id": 1014,
+   "type": "message",
+   "date": "2024-03-02T03:00:00",
+   "date_unixtime": "1709337600",
+   "from": "Маша",
+   "from_id": "user222",
+   "text": "ладно... спокойной ночи",
+   "text_entities": []
+  },
+  {
+   "id": 1015,
+   "type": "message",
+   "date": "2024-03-02T10:00:00",
+   "date_unixtime": "1709362800",
+   "from": "Алексей",
+   "from_id": "user111",
+   "text": "доброе утро!",
+   "text_entities": []
+  },
+  {
+   "id": 1016,
+   "type": "message",
+   "date": "2024-03-02T13:30:00",
+   "date_unixtime": "1709375400",
+   "from": "Маша",
+   "from_id": "user222",
+   "text": "утро",
+   "text_entities": []
+  },
+  {
+   "id": 1017,
+   "type": "message",
+   "date": "2024-03-02T13:31:00",
+   "date_unixtime": "1709375460",
+   "from": "Маша",
+   "from_id": "user222",
+   "text": "мой новый номер +7 999 123-45-67",
+   "text_entities": []
+  },
+  {
+   "id": 1018,
+   "type": "message",
+   "date": "2024-03-02T13:40:00",
+   "date_unixtime": "1709376000",
+   "from": "Алексей",
+   "from_id": "user111",
+   "text": "записал",
+   "text_entities": []
+  },
+  {
+   "id": 1019,
+   "type": "message",
+   "date": "2024-03-03T00:10:00",
+   "date_unixtime": "1709413800",
+   "from": "Маша",
+   "from_id": "user222",
+   "text": "скучаю по тебе ❤️",
+   "text_entities": []
+  },
+  {
+   "id": 1020,
+   "type": "message",
+   "date": "2024-03-03T00:12:00",
+   "date_unixtime": "1709413920",
+   "from": "Алексей",
+   "from_id": "user111",
+   "text": "и я",
+   "text_entities": []
+  },
+  {
+   "id": 1021,
+   "type": "message",
+   "date": "2024-03-03T00:40:00",
+   "date_unixtime": "1709415600",
+   "from": "Маша",
+   "from_id": "user222",
+   "text": [
+    "ты ",
+    {
+     "type": "bold",
+     "text": "вообще"
+    },
+    " меня слушаешь?"
+   ],
+   "text_entities": []
+  },
+  {
+   "id": 1022,
+   "type": "message",
+   "date": "2024-03-03T00:41:00",
+   "date_unixtime": "1709415660",
+   "from": "Алексей",
+   "from_id": "user111",
+   "text": "конечно",
+   "text_entities": []
+  },
+  {
+   "id": 1023,
+   "type": "message",
+   "date": "2024-03-03T01:30:00",
+   "date_unixtime": "1709418600",
+   "from": "Маша",
+   "from_id": "user222",
+   "text": "ну смотри мне 😂😂",
+   "text_entities": [],
+   "photo": "photos/photo_2.jpg"
+  },
+  {
+   "id": 1024,
+   "type": "message",
+   "date": "2024-03-03T01:31:00",
+   "date_unixtime": "1709418660",
+   "from": "Маша",
+   "from_id": "user222",
+   "text": "всё, сплю",
+   "text_entities": []
+  },
+  {
+   "id": 1025,
+   "type": "message",
+   "date": "2024-03-03T01:32:00",
+   "date_unixtime": "1709418720",
+   "from": "Алексей",
+   "from_id": "user111",
+   "text": "спокойной",
+   "text_entities": []
+  },
+  {
+   "id": 1026,
+   "type": "message",
+   "date": "2024-03-04T22:00:00",
+   "date_unixtime": "1709578800",
+   "from": "Маша",
+   "from_id": "user222",
+   "text": "эй, ты где пропал",
+   "text_entities": []
+  },
+  {
+   "id": 1027,
+   "type": "message",
+   "date": "2024-03-04T22:30:00",
+   "date_unixtime": "1709580600",
+   "from": "Алексей",
+   "from_id": "user111",
+   "text": "работал",
+   "text_entities": []
+  },
+  {
+   "id": 1028,
+   "type": "message",
+   "date": "2024-03-04T23:50:00",
+   "date_unixtime": "1709585400",
+   "from": "Маша",
+   "from_id": "user222",
+   "text": "понятно",
+   "text_entities": []
+  }
+ ]
+}

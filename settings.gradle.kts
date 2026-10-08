@@ -19,4 +19,6 @@ dependencyResolutionManagement {
 
 rootProject.name = "ai-ex"
 
-include("app")
+include("app", "contracts", "web-support", "http-clients",
+    "account-service", "persona-service", "dialog-service", "care-service", "notification-service",
+    "config-server", "discovery-server", "gateway")

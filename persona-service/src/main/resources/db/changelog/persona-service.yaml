@@ -1,0 +1,9 @@
+databaseChangeLog:
+  - include:
+      file: db/changelog/schemas.yaml
+  - includeAll:
+      path: db/changelog/020-persona/
+  - includeAll:
+      path: db/changelog/030-ingest/
+  - include:
+      file: db/changelog/090-seed/020-dictionary-tags.yaml

@@ -1,0 +1,10 @@
+server:
+  port: 8084
+
+spring:
+  liquibase:
+    change-log: classpath:db/changelog/care-service.yaml
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5435/care}
+    username: ${DB_USER:care}
+    password: ${DB_PASSWORD:care}

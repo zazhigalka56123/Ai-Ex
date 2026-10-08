@@ -2,7 +2,7 @@ name: CI
 
 on:
   push:
-    branches: [main]
+    branches: [main, classic-monolith, lab2-microservices]
   pull_request:
 
 concurrency:
@@ -56,22 +56,19 @@ jobs:
     name: docker compose up на чистой машине
     runs-on: ubuntu-latest
     needs: build
-    timeout-minutes: 20
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
 
       - name: Build and start
-        run: docker compose up -d --build --wait --wait-timeout 300
+        run: docker compose up -d --build --wait --wait-timeout 600
 
       - name: Smoke checks
-        run: |
-          curl -fsS http://localhost:8080/actuator/health | grep -q '"status":"UP"'
-          curl -fsS http://localhost:8080/v3/api-docs/all > /dev/null
-          curl -fsS -H 'X-User-Id: 00000000-0000-0000-0000-00000000a001' 'http://localhost:8080/api/v1/users?size=5' | grep -q admin@ai-ex.local
+        run: bash docs/lab2-smoke.sh --outage
 
       - name: Logs on failure
         if: failure()
-        run: docker compose logs --no-color app
+        run: docker compose logs --no-color
 
       - name: Tear down
         if: always()

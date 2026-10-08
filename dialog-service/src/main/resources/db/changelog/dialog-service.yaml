@@ -1,0 +1,7 @@
+databaseChangeLog:
+  - include:
+      file: db/changelog/schemas.yaml
+  - includeAll:
+      path: db/changelog/040-dialog/
+  - includeAll:
+      path: db/changelog/050-agent/

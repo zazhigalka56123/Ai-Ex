@@ -1,0 +1,128 @@
+spring:
+  datasource:
+    hikari:
+      maximum-pool-size: ${AIEX_DB_POOL_SIZE:10}
+      pool-name: ${spring.application.name}-db
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        jdbc:
+          batch_size: 500
+          time_zone: UTC
+        order_inserts: true
+        order_updates: true
+  liquibase:
+    liquibase-schema: public
+    change-log: classpath:db/changelog/db.changelog-master.yaml
+    contexts: ${AIEX_LIQUIBASE_CONTEXTS:demo}
+  servlet:
+    multipart:
+      max-file-size: ${ai-ex.import.max-file-mb}MB
+      max-request-size: 25MB
+  task:
+    execution:
+      thread-name-prefix: ${spring.application.name}-async-
+      pool:
+        core-size: 2
+        max-size: 4
+        queue-capacity: 50
+  cloud:
+    openfeign:
+      circuitbreaker:
+        enabled: true
+      client:
+        config:
+          default:
+            connectTimeout: 2000
+            readTimeout: 70000
+      httpclient:
+        hc5:
+          enabled: true
+    loadbalancer:
+      cache:
+        ttl: 5s
+
+server:
+  error:
+    include-stacktrace: never
+    include-message: never
+  forward-headers-strategy: framework
+
+eureka:
+  client:
+    service-url:
+      defaultZone: ${EUREKA_URL:http://localhost:8761/eureka/}
+    registry-fetch-interval-seconds: 5
+  instance:
+    prefer-ip-address: true
+    lease-renewal-interval-in-seconds: 10
+    lease-expiration-duration-in-seconds: 30
+
+resilience4j:
+  circuitbreaker:
+    configs:
+      default:
+        sliding-window-size: 10
+        minimum-number-of-calls: 5
+        failure-rate-threshold: 50
+        wait-duration-in-open-state: 10s
+        permitted-number-of-calls-in-half-open-state: 2
+        record-failure-predicate: ru.itmo.aiex.remote.RemoteFailurePredicate
+  timelimiter:
+    configs:
+      default:
+        timeout-duration: 75s
+        cancel-running-future: true
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,circuitbreakers,circuitbreakerevents
+  endpoint:
+    health:
+      probes:
+        enabled: true
+
+springdoc:
+  paths-to-match: /api/**
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    tags-sorter: alpha
+    display-request-duration: true
+  default-produces-media-type: application/json
+
+ai-ex:
+  llm:
+    provider: ${AIEX_LLM_PROVIDER:stub}
+    base-url: ${AIEX_LLM_BASE_URL:}
+    api-key: ${AIEX_LLM_API_KEY:}
+    model: ${AIEX_LLM_MODEL:}
+    timeout-ms: ${AIEX_LLM_TIMEOUT_MS:20000}
+    max-retries: ${AIEX_LLM_MAX_RETRIES:2}
+  agent:
+    history-window: ${AIEX_AGENT_HISTORY_WINDOW:20}
+    max-output-tokens: ${AIEX_AGENT_MAX_OUTPUT_TOKENS:512}
+    max-input-tokens: ${AIEX_AGENT_MAX_INPUT_TOKENS:4000}
+  pagination:
+    default-size: 20
+    max-size: ${AIEX_PAGINATION_MAX_SIZE:50}
+    default-cursor-limit: 30
+  import:
+    max-file-mb: ${AIEX_IMPORT_MAX_FILE_MB:20}
+    max-messages: ${AIEX_IMPORT_MAX_MESSAGES:50000}
+    async-threshold-kb: 512
+
+aiex:
+  internal-token: ${AIEX_INTERNAL_TOKEN:ai-ex-local-token}
+
+logging:
+  level:
+    root: INFO
+    ru.itmo.aiex: INFO
+    org.hibernate.orm.deprecation: WARN

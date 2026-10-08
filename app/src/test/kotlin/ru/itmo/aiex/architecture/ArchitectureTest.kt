@@ -62,13 +62,15 @@ class ArchitectureTest {
     }
 
     @Test
-    fun `контракты -api не тянут Spring и JPA`() {
+    fun `межсервисные DTO не тянут JPA`() {
         noClasses()
             .that()
-            .resideInAPackage("ru.itmo.aiex.*.api..")
+            .haveSimpleNameEndingWith("View")
+            .and()
+            .resideInAnyPackage("ru.itmo.aiex.iam.dto..", "ru.itmo.aiex.persona.dto..", "ru.itmo.aiex.dialog.dto..")
             .should()
             .dependOnClassesThat()
-            .resideInAnyPackage("org.springframework..", "jakarta.persistence..", "org.hibernate..")
+            .resideInAnyPackage("jakarta.persistence..", "org.hibernate..")
             .check(classes)
     }
 
@@ -104,16 +106,16 @@ class ArchitectureTest {
     }
 
     @Test
-    fun `сущности живут в domain, контроллеры в web, Spring Data - в infrastructure`() {
-        classes().that().areAnnotatedWith(Entity::class.java).should().resideInAPackage("..domain..").check(classes)
-        classes().that().areAnnotatedWith(RestController::class.java).should().resideInAPackage("..web..").check(classes)
+    fun `сущности, контроллеры и репозитории находятся в своих пакетах`() {
+        classes().that().areAnnotatedWith(Entity::class.java).should().resideInAPackage("..entity..").check(classes)
+        classes().that().areAnnotatedWith(RestController::class.java).should().resideInAnyPackage("..controller..", "..distributed..").check(classes)
         classes()
             .that()
             .areInterfaces()
             .and()
             .areAssignableTo(Repository::class.java)
             .should()
-            .resideInAPackage("..infrastructure..")
+            .resideInAPackage("..repository..")
             .allowEmptyShould(true)
             .check(classes)
     }

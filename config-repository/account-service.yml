@@ -1,0 +1,10 @@
+server:
+  port: 8081
+
+spring:
+  liquibase:
+    change-log: classpath:db/changelog/account-service.yaml
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/account}
+    username: ${DB_USER:account}
+    password: ${DB_PASSWORD:account}

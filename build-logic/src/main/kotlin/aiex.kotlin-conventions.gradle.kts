@@ -22,6 +22,8 @@ kotlin {
 }
 
 dependencies {
+    implementation(platform("org.springframework.cloud:spring-cloud-dependencies:${catalogVersion("spring-cloud")}"))
+    testImplementation(platform("org.springframework.cloud:spring-cloud-dependencies:${catalogVersion("spring-cloud")}"))
     implementation(platform(lib("spring-boot-dependencies")))
     testImplementation(platform(lib("spring-boot-dependencies")))
     testImplementation(lib("junit-jupiter"))

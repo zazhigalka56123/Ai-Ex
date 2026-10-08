@@ -1,0 +1,15 @@
+server:
+  port: 8085
+
+spring:
+  r2dbc:
+    url: ${DB_URL:r2dbc:postgresql://localhost:5436/notification}
+    username: ${DB_USER:notification}
+    password: ${DB_PASSWORD:notification}
+    pool:
+      initial-size: 2
+      max-size: ${AIEX_DB_POOL_SIZE:10}
+  sql:
+    init:
+      mode: always
+      schema-locations: classpath:schema.sql
