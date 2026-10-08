@@ -33,8 +33,8 @@ class ModerationDesk(
         return moderation.report(actor, message.toFlagged(), command)
     }
 
-    fun list(actor: Actor, status: FlagStatus?, reason: FlagReason?, page: PageQuery): PageView<FlagView> =
-        moderation.list(actor, status, reason, page).map { withPreview(it) }
+    fun getModerationFlags(actor: Actor, status: FlagStatus?, reason: FlagReason?, page: PageQuery): PageView<FlagView> =
+        moderation.getModerationFlags(actor, status, reason, page).map { withPreview(it) }
 
     fun get(actor: Actor, id: UUID): FlagView = withPreview(moderation.get(actor, id))
 

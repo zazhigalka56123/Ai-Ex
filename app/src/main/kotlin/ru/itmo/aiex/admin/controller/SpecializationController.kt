@@ -42,7 +42,7 @@ class SpecializationController(dictionaries: DictionaryAdministration) {
     )
     @ApiResponse(responseCode = "200", description = "Страница специализаций")
     @ApiErrors(ErrorCode.VALIDATION_FAILED)
-    fun list(actor: Actor?, @PageParams page: PageQuery): ResponseEntity<List<DictionaryEntryResponse>> = endpoints.list(page)
+    fun getSpecializations(actor: Actor?, @PageParams page: PageQuery): ResponseEntity<List<DictionaryEntryResponse>> = endpoints.getEntries(page)
 
     @Suppress("UnusedParameter")
     @GetMapping("/{id}")

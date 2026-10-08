@@ -43,7 +43,7 @@ class ModerationService(private val flags: ModerationFlagRepository, private val
         return saved
     }
 
-    fun list(actor: Actor, status: FlagStatus?, reason: FlagReason?, page: PageQuery): PageView<ModerationFlag> {
+    fun getModerationFlags(actor: Actor, status: FlagStatus?, reason: FlagReason?, page: PageQuery): PageView<ModerationFlag> {
         actor.requireRole(RoleCode.ADMIN)
         return flags.findPage(status, reason, page)
     }

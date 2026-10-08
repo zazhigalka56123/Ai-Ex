@@ -12,7 +12,7 @@ import ru.itmo.aiex.common.security.RoleCode
 import ru.itmo.aiex.persona.service.TagCatalog
 @Component
 class DictionaryAdministration(@param:Lazy private val tags: TagCatalog, private val specializations: SpecializationCatalog) {
-    fun list(kind: DictionaryKind, page: PageQuery): PageView<DictionaryEntry> = catalog(kind).list(page)
+    fun getEntries(kind: DictionaryKind, page: PageQuery): PageView<DictionaryEntry> = catalog(kind).getEntries(page)
 
     fun get(kind: DictionaryKind, id: Long): DictionaryEntry = catalog(kind).get(id)
 

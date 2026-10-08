@@ -78,8 +78,11 @@ class MessageController(private val exchanges: MessageExchangeService, private v
     )
     @ApiResponse(responseCode = "200", description = "Порция сообщений")
     @ApiErrors(ErrorCode.VALIDATION_FAILED, ErrorCode.FORBIDDEN, ErrorCode.CONVERSATION_NOT_FOUND)
-    fun list(actor: Actor, @PathVariable conversationId: UUID, @CursorParams(defaultLimit = 30) cursor: CursorQuery): CursorPage<MessageResponse> =
-        conversations.listMessages(actor, conversationId, cursor).map { it.toResponse() }
+    fun getMessages(
+        actor: Actor,
+        @PathVariable conversationId: UUID,
+        @CursorParams(defaultLimit = 30) cursor: CursorQuery,
+    ): CursorPage<MessageResponse> = conversations.listMessages(actor, conversationId, cursor).map { it.toResponse() }
 
     @GetMapping("/{id}")
     @Operation(

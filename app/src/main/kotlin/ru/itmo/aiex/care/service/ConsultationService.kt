@@ -37,7 +37,7 @@ class ConsultationService(
     private val clock: Clock,
 ) {
     @Transactional
-    fun book(actor: Actor, command: BookConsultationCommand): ConsultationSession {
+    fun scheduleConsultation(actor: Actor, command: BookConsultationCommand): ConsultationSession {
         actor.requireRole(RoleCode.USER)
         val slot = slots.findByIdForUpdate(command.slotId) ?: throw NotFoundException.of(ErrorCode.SLOT_NOT_FOUND, command.slotId)
         val now = clock.nowMicros()
@@ -62,7 +62,7 @@ class ConsultationService(
         return saved
     }
 
-    fun list(actor: Actor, status: SessionStatus?, page: PageQuery): PageView<ConsultationSession> =
+    fun getConsultations(actor: Actor, status: SessionStatus?, page: PageQuery): PageView<ConsultationSession> =
         sessions.findPageForParticipant(actor.userId, status, page)
 
     fun get(actor: Actor, id: UUID): ConsultationSession = sessions.findById(id)?.takeIf { it.roleOf(actor) != null } ?: throw notFound(id)

@@ -57,12 +57,12 @@ class ModerationController(private val desk: ModerationDesk) {
     )
     @ApiResponse(responseCode = "200", description = "Страница флагов")
     @ApiErrors(ErrorCode.VALIDATION_FAILED, ErrorCode.FORBIDDEN)
-    fun list(
+    fun getModerationFlags(
         actor: Actor,
         @RequestParam(required = false) status: FlagStatus?,
         @RequestParam(required = false) reason: FlagReason?,
         @PageParams(sortable = ["createdAt", "updatedAt"], defaultSort = "createdAt,desc") page: PageQuery,
-    ): ResponseEntity<List<FlagResponse>> = Responses.page(desk.list(actor, status, reason, page).map { it.toResponse() })
+    ): ResponseEntity<List<FlagResponse>> = Responses.page(desk.getModerationFlags(actor, status, reason, page).map { it.toResponse() })
 
     @GetMapping("/{id}")
     @Operation(operationId = "getFlag", summary = "Флаг по id", description = "Только администратор, с превью флагнутого сообщения.")

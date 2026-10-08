@@ -10,13 +10,13 @@ import ru.itmo.aiex.common.security.RoleCode
 import ru.itmo.aiex.dialog.service.DialogQuery
 @Component
 class ConsultationBooking(private val consultations: ConsultationService, @param:Lazy private val dialogs: DialogQuery) {
-    fun book(actor: Actor, command: BookConsultationCommand): ConsultationSession {
+    fun scheduleConsultation(actor: Actor, command: BookConsultationCommand): ConsultationSession {
         actor.requireRole(RoleCode.USER)
         command.sharedConversationId?.let { conversationId ->
             if (!dialogs.isConversationOwnedBy(conversationId, actor.userId)) {
                 throw NotFoundException.of(ErrorCode.CONVERSATION_NOT_FOUND, conversationId)
             }
         }
-        return consultations.book(actor, command)
+        return consultations.scheduleConsultation(actor, command)
     }
 }

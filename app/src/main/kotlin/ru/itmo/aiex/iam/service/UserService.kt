@@ -39,7 +39,7 @@ class UserService(private val users: UserRepository, private val roles: RoleRepo
         }
     }
 
-    fun list(actor: Actor, status: UserStatus?, page: PageQuery): PageView<User> {
+    fun getUsers(actor: Actor, status: UserStatus?, page: PageQuery): PageView<User> {
         actor.requireRole(RoleCode.ADMIN)
         return users.findPage(status, page)
     }

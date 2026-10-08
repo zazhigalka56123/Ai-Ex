@@ -44,7 +44,7 @@ class ConversationService(
         return transactions.write { conversations.save(conversation) }
     }
 
-    fun list(actor: Actor, status: ConversationStatus?, personaId: UUID?, page: PageQuery): PageView<Conversation> =
+    fun getConversations(actor: Actor, status: ConversationStatus?, personaId: UUID?, page: PageQuery): PageView<Conversation> =
         transactions.read { conversations.findPage(actor.userId, status, personaId, page) }
 
     fun get(actor: Actor, conversationId: UUID): Conversation {

@@ -62,7 +62,7 @@ class SpecialistController(private val directory: SpecialistDirectory, private v
     )
     @ApiResponse(responseCode = "200", description = "Страница каталога")
     @ApiErrors(ErrorCode.VALIDATION_FAILED)
-    fun list(
+    fun getSpecialists(
         actor: Actor?,
         @Parameter(description = "Код специализации, например `breakup`") @RequestParam(required = false) specialization: String?,
         @PageParams(sortable = ["pricePerHour", "createdAt"], defaultSort = "createdAt,desc") page: PageQuery,

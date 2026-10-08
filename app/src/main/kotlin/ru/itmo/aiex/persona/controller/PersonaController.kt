@@ -63,11 +63,11 @@ class PersonaController(private val personas: PersonaService) {
             "Без `status` архивные персоны не показываются; `status=ARCHIVED` - только архивные.",
     )
     @ApiResponse(responseCode = "200", description = "Страница персон")
-    fun list(
+    fun getPersonas(
         actor: Actor,
         @PageParams(sortable = ["createdAt", "updatedAt", "name"], defaultSort = "createdAt,desc") page: PageQuery,
         @RequestParam(required = false) status: PersonaStatus?,
-    ): ResponseEntity<List<PersonaSummaryResponse>> = Responses.page(personas.list(actor, status, page).map { it.toSummaryResponse() })
+    ): ResponseEntity<List<PersonaSummaryResponse>> = Responses.page(personas.getPersonas(actor, status, page).map { it.toSummaryResponse() })
 
     @GetMapping("/{id}")
     @Operation(operationId = "getPersona", summary = "Персона по id", description = "Только своя: чужая и несуществующая неотличимы (`404`).")
