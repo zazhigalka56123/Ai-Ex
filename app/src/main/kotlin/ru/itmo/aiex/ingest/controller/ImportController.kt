@@ -85,7 +85,7 @@ class ImportController(private val imports: ImportService, private val queries: 
     )
     @ApiResponse(responseCode = "200", description = "Страница импортов")
     @ApiErrors(ErrorCode.PERSONA_NOT_FOUND)
-    fun list(
+    fun getImports(
         actor: Actor,
         @PathVariable id: UUID,
         @PageParams(sortable = ["createdAt"], defaultSort = "createdAt,desc") page: PageQuery,

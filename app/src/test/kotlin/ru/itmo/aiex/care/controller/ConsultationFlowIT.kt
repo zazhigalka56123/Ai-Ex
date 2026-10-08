@@ -119,7 +119,7 @@ class ConsultationFlowIT : CareIntegrationTest() {
         val slotId = createSlot(specialist, at(10), 45)
 
         val booked =
-            book(client, slotId)
+            scheduleConsultation(client, slotId)
                 .andExpect {
                     status { isCreated() }
                     header { string("Location", containsString("/api/v1/consultations/")) }
@@ -164,7 +164,7 @@ class ConsultationFlowIT : CareIntegrationTest() {
         val first = bookOk(createUser(), slotId)
         val client = jdbcTemplate.queryForObject("SELECT user_id FROM care.consultation_sessions WHERE id = ?", UUID::class.java, first)!!
 
-        book(createUser(), slotId).andExpect {
+        scheduleConsultation(createUser(), slotId).andExpect {
             status { isConflict() }
             jsonPath("$.code") { value("SLOT_TAKEN") }
         }
@@ -245,12 +245,12 @@ class ConsultationFlowIT : CareIntegrationTest() {
         val specialist = createSpecialist(codes = listOf("breakup"), price = "100.00", RoleCode.SPECIALIST, RoleCode.USER)
         val slotId = createSlot(specialist, at(10))
 
-        book(specialist.userId, slotId).andExpect {
+        scheduleConsultation(specialist.userId, slotId).andExpect {
             status { isForbidden() }
             jsonPath("$.code") { value("FORBIDDEN") }
         }
-        book(createUser(RoleCode.SPECIALIST), slotId).andExpect { status { isForbidden() } }
-        book(createUser(), UUID.randomUUID()).andExpect {
+        scheduleConsultation(createUser(RoleCode.SPECIALIST), slotId).andExpect { status { isForbidden() } }
+        scheduleConsultation(createUser(), UUID.randomUUID()).andExpect {
             status { isNotFound() }
             jsonPath("$.code") { value("SLOT_NOT_FOUND") }
         }
@@ -264,7 +264,7 @@ class ConsultationFlowIT : CareIntegrationTest() {
             pastSlot,
             specialist.id,
         )
-        book(createUser(), pastSlot).andExpect {
+        scheduleConsultation(createUser(), pastSlot).andExpect {
             status { isBadRequest() }
             jsonPath("$.errors[0].field") { value("slotId") }
         }
@@ -275,7 +275,7 @@ class ConsultationFlowIT : CareIntegrationTest() {
                 contentType = MediaType.APPLICATION_JSON
                 content = json(mapOf("status" to "INACTIVE"))
             }.andExpect { status { isOk() } }
-        book(createUser(), slotId).andExpect { jsonPath("$.code") { value("SLOT_NOT_FOUND") } }
+        scheduleConsultation(createUser(), slotId).andExpect { jsonPath("$.code") { value("SLOT_NOT_FOUND") } }
         mockMvc.get("/api/v1/specialists/${specialist.id}/slots").andExpect { status { isNotFound() } }
         assertThat(jdbcTemplate.queryForObject("SELECT count(*) FROM care.consultation_sessions", Long::class.java)).isZero()
     }
@@ -290,14 +290,14 @@ class ConsultationFlowIT : CareIntegrationTest() {
         every { dialogs.isConversationOwnedBy(foreignConversation, client) } returns false
         every { dialogs.isConversationOwnedBy(ownConversation, client) } returns true
 
-        book(client, createSlot(specialist, at(10)), foreignConversation).andExpect {
+        scheduleConsultation(client, createSlot(specialist, at(10)), foreignConversation).andExpect {
             status { isNotFound() }
             jsonPath("$.code") { value("CONVERSATION_NOT_FOUND") }
         }
         assertThat(jdbcTemplate.queryForObject("SELECT count(*) FROM care.consultation_sessions", Long::class.java)).isZero()
 
         val id =
-            book(client, createSlot(specialist, at(12)), ownConversation)
+            scheduleConsultation(client, createSlot(specialist, at(12)), ownConversation)
                 .andExpect { jsonPath("$.sharedConversationId") { value(ownConversation.toString()) } }
                 .andReturn()
                 .json()["id"]
@@ -352,7 +352,7 @@ class ConsultationFlowIT : CareIntegrationTest() {
                     pool.submit(
                         Callable<MockHttpServletResponse> {
                             start.await()
-                            book(client, slotId).andReturn().response
+                            scheduleConsultation(client, slotId).andReturn().response
                         },
                     )
                 }

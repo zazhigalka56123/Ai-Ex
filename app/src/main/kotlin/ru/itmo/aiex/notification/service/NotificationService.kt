@@ -41,5 +41,6 @@ class NotificationService(
         return notification.id
     }
 
-    fun list(actor: Actor, status: NotificationStatus?, page: PageQuery): PageView<Notification> = notifications.findPage(actor.userId, status, page)
+    fun getNotifications(actor: Actor, status: NotificationStatus?, page: PageQuery): PageView<Notification> =
+        notifications.findPage(actor.userId, status, page)
 }

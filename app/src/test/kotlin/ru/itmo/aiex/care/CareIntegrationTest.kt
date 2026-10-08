@@ -56,14 +56,15 @@ abstract class CareIntegrationTest : AbstractIntegrationTest() {
         return UUID.fromString(result.json()["id"].asString())
     }
 
-    protected fun book(clientId: UUID, slotId: UUID, conversationId: UUID? = null): ResultActionsDsl = mockMvc.post("/api/v1/consultations") {
-        header(USER_HEADER, clientId)
-        contentType = MediaType.APPLICATION_JSON
-        content = json(mapOf("slotId" to slotId, "sharedConversationId" to conversationId))
-    }
+    protected fun scheduleConsultation(clientId: UUID, slotId: UUID, conversationId: UUID? = null): ResultActionsDsl =
+        mockMvc.post("/api/v1/consultations") {
+            header(USER_HEADER, clientId)
+            contentType = MediaType.APPLICATION_JSON
+            content = json(mapOf("slotId" to slotId, "sharedConversationId" to conversationId))
+        }
 
     protected fun bookOk(clientId: UUID, slotId: UUID, conversationId: UUID? = null): UUID {
-        val result = book(clientId, slotId, conversationId).andExpect { status { isCreated() } }.andReturn()
+        val result = scheduleConsultation(clientId, slotId, conversationId).andExpect { status { isCreated() } }.andReturn()
         return UUID.fromString(result.json()["id"].asString())
     }
 

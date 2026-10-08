@@ -60,7 +60,7 @@ class PersonaService(
         return toDetails(persona)
     }
 
-    fun list(actor: Actor, status: PersonaStatus?, page: PageQuery): PageView<Persona> = personas.findPageByOwner(actor.userId, status, page)
+    fun getPersonas(actor: Actor, status: PersonaStatus?, page: PageQuery): PageView<Persona> = personas.findPageByOwner(actor.userId, status, page)
 
     fun get(actor: Actor, personaId: UUID): PersonaDetails = toDetails(findOwned(actor, personaId))
 

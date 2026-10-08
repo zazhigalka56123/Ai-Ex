@@ -38,7 +38,7 @@ class TagController(dictionaries: DictionaryAdministration) {
     @Operation(operationId = "listTags", summary = "Справочник тегов", description = "По возрастанию кода. Общее количество - в `X-Total-Count`.")
     @ApiResponse(responseCode = "200", description = "Страница тегов")
     @ApiErrors(ErrorCode.VALIDATION_FAILED)
-    fun list(actor: Actor?, @PageParams page: PageQuery): ResponseEntity<List<DictionaryEntryResponse>> = endpoints.list(page)
+    fun getTags(actor: Actor?, @PageParams page: PageQuery): ResponseEntity<List<DictionaryEntryResponse>> = endpoints.getEntries(page)
 
     @Suppress("UnusedParameter")
     @GetMapping("/{id}")

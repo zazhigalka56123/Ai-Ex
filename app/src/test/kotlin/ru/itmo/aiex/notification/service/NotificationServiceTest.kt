@@ -73,7 +73,7 @@ class NotificationServiceTest {
     @Test
     fun `список запрашивается только для текущего пользователя`() {
         val actor = Actor(recipient, emptySet())
-        assertThat(service.list(actor, NotificationStatus.SENT, PageQuery(0, 20)).items).isEmpty()
+        assertThat(service.getNotifications(actor, NotificationStatus.SENT, PageQuery(0, 20)).items).isEmpty()
         verify { repository.findPage(recipient, NotificationStatus.SENT, PageQuery(0, 20)) }
     }
 }

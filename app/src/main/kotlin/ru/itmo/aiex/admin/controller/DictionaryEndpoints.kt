@@ -11,7 +11,8 @@ import ru.itmo.aiex.common.paging.PageQuery
 import ru.itmo.aiex.common.security.Actor
 import ru.itmo.aiex.common.web.Responses
 class DictionaryEndpoints(private val kind: DictionaryKind, private val basePath: String, private val dictionaries: DictionaryAdministration) {
-    fun list(page: PageQuery): ResponseEntity<List<DictionaryEntryResponse>> = Responses.page(dictionaries.list(kind, page).map { it.toResponse() })
+    fun getEntries(page: PageQuery): ResponseEntity<List<DictionaryEntryResponse>> =
+        Responses.page(dictionaries.getEntries(kind, page).map { it.toResponse() })
 
     fun get(id: Long): DictionaryEntryResponse = dictionaries.get(kind, id).toResponse()
 

@@ -26,12 +26,12 @@ class SpecializationCatalogIT : CareIntegrationTest() {
 
     @Test
     fun `справочник отдаётся страницами по возрастанию кода, сиды на месте`() {
-        val page = catalog.list(PageQuery(0, 50))
+        val page = catalog.getEntries(PageQuery(0, 50))
         val codes = page.items.map { it.code }
         assertThat(codes).contains("anxiety", "breakup", "grief", "relationships", "self-esteem", "sleep")
         assertThat(codes).isSorted()
         assertThat(page.items.first { it.code == "grief" }.title).isEqualTo("Горе и утрата")
-        assertThat(catalog.list(PageQuery(1, 2)).items).hasSize(2)
+        assertThat(catalog.getEntries(PageQuery(1, 2)).items).hasSize(2)
     }
 
     @Test
