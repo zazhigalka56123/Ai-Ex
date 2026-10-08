@@ -24,10 +24,10 @@ class TagCatalogAdapter(private val tags: TagRepository, private val personaTags
         return tags.findPage(page.copy(sort = sort)).map { it.toEntry() }
     }
 
-    override fun get(id: Long): DictionaryEntry = find(id).toEntry()
+    override fun getEntry(id: Long): DictionaryEntry = findTag(id).toEntry()
 
     @Transactional
-    override fun create(code: String, title: String): DictionaryEntry {
+    override fun createEntry(code: String, title: String): DictionaryEntry {
         val normalized = code.trim().lowercase()
         validate(normalized, title)
         if (tags.existsByCode(normalized)) throw codeTaken(normalized)
@@ -39,16 +39,16 @@ class TagCatalogAdapter(private val tags: TagRepository, private val personaTags
     }
 
     @Transactional
-    override fun update(id: Long, title: String): DictionaryEntry {
+    override fun updateEntry(id: Long, title: String): DictionaryEntry {
         validate(code = null, title = title)
-        val tag = find(id)
+        val tag = findTag(id)
         tag.rename(title.trim())
         return tags.saveAndFlush(tag).toEntry()
     }
 
     @Transactional
-    override fun delete(id: Long) {
-        val tag = find(id)
+    override fun deleteEntry(id: Long) {
+        val tag = findTag(id)
         if (personaTags.existsByTag(id)) throw inUse(tag)
         try {
             tags.deleteAndFlush(tag)
@@ -57,7 +57,7 @@ class TagCatalogAdapter(private val tags: TagRepository, private val personaTags
         }
     }
 
-    private fun find(id: Long): Tag = tags.findById(id) ?: throw NotFoundException.of(ErrorCode.TAG_NOT_FOUND, id)
+    private fun findTag(id: Long): Tag = tags.findById(id) ?: throw NotFoundException.of(ErrorCode.TAG_NOT_FOUND, id)
 
     private fun validate(code: String?, title: String) {
         val violations = mutableListOf<FieldViolation>()

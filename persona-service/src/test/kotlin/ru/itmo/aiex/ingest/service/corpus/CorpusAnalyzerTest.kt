@@ -78,7 +78,7 @@ class CorpusAnalyzerTest {
     }
 
     @Test
-    fun `характерные фразы - без повторов, без персональных данных, не длиннее 120 символов`() {
+    fun `характерные фразы - без повторов, без персональных данных, не длиннее 400 символов`() {
         val snapshot =
             analyze(
                 listOf(
@@ -91,11 +91,20 @@ class CorpusAnalyzerTest {
                     msg(THEM, "код 123456", 7),
                     msg(THEM, "это @masha_real", 8),
                     msg(THEM, "a", 9),
-                    msg(THEM, "x".repeat(121), 10),
+                    msg(THEM, "x".repeat(401), 10),
                     msg(THEM, "ну   ок\nпока", 11),
                 ),
             )
         assertThat(snapshot.samplePhrases).containsExactly("неа", "ну ок пока")
+    }
+
+    @Test
+    fun `развёрнутые реплики до границы лимита попадают в примеры`() {
+        val phrase = "Мне есть что сказать, но сначала я хочу понять твою точку зрения. ".repeat(4).trim()
+        val boundary = "я".repeat(400)
+        val snapshot = analyze(listOf(msg(THEM, phrase, 1), msg(THEM, boundary, 2), msg(THEM, "я".repeat(401), 3)))
+
+        assertThat(snapshot.samplePhrases).containsExactly(phrase, boundary)
     }
 
     @Test

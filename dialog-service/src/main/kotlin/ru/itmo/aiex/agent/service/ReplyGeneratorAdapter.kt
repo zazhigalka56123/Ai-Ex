@@ -38,7 +38,7 @@ class ReplyGeneratorAdapter(
     override val historyWindow: Int get() = properties.historyWindow
 
     @Transactional(propagation = Propagation.NEVER)
-    override fun generate(command: GenerateReplyCommand): GeneratedReply {
+    override fun generateReply(command: GenerateReplyCommand): GeneratedReply {
         val userMessage = command.history.lastOrNull()
         require(userMessage?.speaker == Speaker.USER) { "Последним в истории должно быть сообщение пользователя" }
         val profile =
@@ -70,20 +70,21 @@ class ReplyGeneratorAdapter(
     }
 
     private fun replyWithLlm(draft: AgentRunDraft, inputHits: List<GuardrailHit>): GeneratedReply {
-        val runId = recorder.start(draft, llm.model)
+        val runId = recorder.startRun(draft, llm.model)
+        val replyTokenLimit = if (draft.prompt.turns.last().text.length <= SHORT_MESSAGE_LENGTH) SHORT_REPLY_TOKENS else LONG_REPLY_TOKENS
         val request =
             LlmRequest(
                 operation = OPERATION,
                 systemPrompt = draft.prompt.system,
                 messages = draft.prompt.turns.map { LlmMessage(if (it.speaker == Speaker.USER) LlmRole.USER else LlmRole.ASSISTANT, it.text) },
-                maxOutputTokens = properties.maxOutputTokens,
+                maxOutputTokens = minOf(properties.maxOutputTokens, replyTokenLimit),
             )
         val startedAt = System.nanoTime()
-        val response = runCatching { llm.complete(request) }.getOrElse { failure -> throw recordFailure(runId, failure, elapsedMs(startedAt)) }
+        val response = runCatching { llm.complete(request) }.getOrElse { failure -> throw toReplyFailure(runId, failure, elapsedMs(startedAt)) }
         val latencyMs = elapsedMs(startedAt)
 
         val outputFinding = Guardrails.inspect(response.text)
-        recorder.succeed(runId, response.model, latencyMs, response.tokensIn, response.tokensOut)
+        recorder.recordSuccess(runId, response.model, latencyMs, response.tokensIn, response.tokensOut)
         logRun(runId, response.model, AgentRunStatus.SUCCESS, latencyMs, response.tokensIn, response.tokensOut)
         return GeneratedReply(
             agentRunId = runId,
@@ -102,10 +103,10 @@ class ReplyGeneratorAdapter(
         else -> response.text.trim()
     }
 
-    private fun recordFailure(runId: UUID, failure: Throwable, latencyMs: Int): Throwable {
+    private fun toReplyFailure(runId: UUID, failure: Throwable, latencyMs: Int): Throwable {
         val status = if ((failure as? LlmException)?.reason == LlmException.Reason.TIMEOUT) AgentRunStatus.TIMEOUT else AgentRunStatus.FAILED
         val errorCode = (failure as? LlmException)?.let { "LLM_${it.reason.name}" } ?: ErrorCode.INTERNAL_ERROR.name
-        recorder.fail(runId, status, errorCode, latencyMs)
+        recorder.recordFailure(runId, status, errorCode, latencyMs)
         logRun(runId, llm.model, status, latencyMs, tokensIn = null, tokensOut = null, errorCode = errorCode)
         return if (failure is LlmException) {
             val detail = if (status == AgentRunStatus.TIMEOUT) "не ответил вовремя" else "недоступен"
@@ -142,5 +143,8 @@ class ReplyGeneratorAdapter(
 
     private companion object {
         const val OPERATION = "agent.reply"
+        const val SHORT_MESSAGE_LENGTH = 120
+        const val SHORT_REPLY_TOKENS = 160
+        const val LONG_REPLY_TOKENS = 300
     }
 }

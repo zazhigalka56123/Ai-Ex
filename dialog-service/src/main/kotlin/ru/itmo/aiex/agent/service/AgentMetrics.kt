@@ -10,7 +10,7 @@ import kotlin.math.roundToLong
 @Component
 @Transactional(readOnly = true)
 class AgentMetrics(private val runs: AgentRunRepository) : MetricsContributor {
-    override fun metrics(): Map<String, Long> = mapOf(
+    override fun collectMetrics(): Map<String, Long> = mapOf(
         "agent.runs.total" to runs.count(),
         "agent.runs.success" to runs.countByStatus(AgentRunStatus.SUCCESS),
         "agent.runs.failed" to runs.countByStatus(AgentRunStatus.FAILED),

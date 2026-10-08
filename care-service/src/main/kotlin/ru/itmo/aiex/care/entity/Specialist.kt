@@ -28,12 +28,12 @@ import java.util.UUID
 class Specialist(
     @Id
     val id: UUID,
-    @Column(name = "user_id", nullable = false, unique = true, updatable = false)
+    @Column(nullable = false, unique = true, updatable = false)
     val userId: UUID,
     headline: String,
     bio: String,
     pricePerHour: BigDecimal,
-    @Column(name = "created_at", nullable = false, updatable = false)
+    @Column(nullable = false, updatable = false)
     val createdAt: Instant,
 ) {
     @field:NotBlank
@@ -50,7 +50,7 @@ class Specialist(
 
     @field:DecimalMin("0.00")
     @field:Digits(integer = 8, fraction = 2)
-    @Column(name = "price_per_hour", nullable = false, precision = 10, scale = 2)
+    @Column(nullable = false, precision = 10, scale = 2)
     var pricePerHour: BigDecimal = pricePerHour
         protected set
 
@@ -60,11 +60,11 @@ class Specialist(
         protected set
 
     @field:Min(0)
-    @Column(name = "booked_count", nullable = false, updatable = false)
+    @Column(nullable = false, updatable = false)
     var bookedCount: Int = 0
         protected set
 
-    @Column(name = "updated_at", nullable = false)
+    @Column(nullable = false)
     var updatedAt: Instant = createdAt
         protected set
 

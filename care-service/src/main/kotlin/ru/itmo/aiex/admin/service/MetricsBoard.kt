@@ -13,10 +13,10 @@ class MetricsBoard(
     private val clock: Clock,
     private val remoteMetrics: List<RemoteMetricsReader> = emptyList(),
 ) {
-    fun snapshot(actor: Actor): MetricsSnapshot {
+    fun collectMetrics(actor: Actor): MetricsSnapshot {
         actor.requireRole(RoleCode.ADMIN)
         val metrics = sortedMapOf<String, Long>()
-        contributors.forEach { metrics.putAll(it.metrics()) }
+        contributors.forEach { metrics.putAll(it.collectMetrics()) }
         remoteMetrics.forEach { metrics.putAll(it.getMetrics()) }
         return MetricsSnapshot(metrics, clock.instant())
     }

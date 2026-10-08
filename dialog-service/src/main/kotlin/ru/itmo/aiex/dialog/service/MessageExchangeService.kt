@@ -45,7 +45,7 @@ class MessageExchangeService(
      * WebSocket показывает его собеседникам сразу, не дожидаясь LLM.
      */
     @Transactional(propagation = Propagation.NEVER)
-    fun send(actor: Actor, conversationId: UUID, text: String, onAccepted: (Message) -> Unit = {}): MessageExchange {
+    fun sendMessage(actor: Actor, conversationId: UUID, text: String, onAccepted: (Message) -> Unit = {}): MessageExchange {
         val conversation = transactions.read { requireWritable(conversationId, actor) }
         val persona = personas.assertOwned(conversation.personaId, actor.userId)
         if (!persona.canChat) throw personaNotReady(persona)
@@ -53,7 +53,7 @@ class MessageExchangeService(
         val accepted = transactions.write { acceptUserMessage(conversationId, actor, text) }
         onAccepted(accepted.userMessage)
         val reply =
-            replyGenerator.generate(
+            replyGenerator.generateReply(
                 GenerateReplyCommand(conversationId = conversationId, personaId = conversation.personaId, history = accepted.history),
             )
         return transactions.write { storeReply(conversationId, accepted.userMessage.id, reply) }

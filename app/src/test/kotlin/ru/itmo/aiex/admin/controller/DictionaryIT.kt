@@ -147,11 +147,11 @@ class DictionaryIT : AdminIntegrationTest() {
         val admin = createAdmin()
         val cold = DictionaryEntry(1, "cold", "Холодная")
         every { tags.getEntries(any()) } returns PageView(listOf(cold), page = 0, size = 20, totalElements = 1)
-        every { tags.get(1) } returns cold
-        every { tags.get(404) } throws NotFoundException.of(ErrorCode.TAG_NOT_FOUND, 404)
-        every { tags.create("caps", "Пишет капсом") } returns DictionaryEntry(2, "caps", "Пишет капсом")
-        every { tags.update(1, "Ледяная") } returns cold.copy(title = "Ледяная")
-        every { tags.delete(1) } just runs
+        every { tags.getEntry(1) } returns cold
+        every { tags.getEntry(404) } throws NotFoundException.of(ErrorCode.TAG_NOT_FOUND, 404)
+        every { tags.createEntry("caps", "Пишет капсом") } returns DictionaryEntry(2, "caps", "Пишет капсом")
+        every { tags.updateEntry(1, "Ледяная") } returns cold.copy(title = "Ледяная")
+        every { tags.deleteEntry(1) } just runs
 
         mockMvc.get("/api/v1/tags").andExpect {
             status { isOk() }
@@ -174,9 +174,9 @@ class DictionaryIT : AdminIntegrationTest() {
                 content = json(mapOf("title" to "Ледяная"))
             }.andExpect { jsonPath("$.title") { value("Ледяная") } }
         mockMvc.delete("/api/v1/tags/1") { header(USER_HEADER, admin) }.andExpect { status { isNoContent() } }
-        verify(exactly = 1) { tags.delete(1) }
+        verify(exactly = 1) { tags.deleteEntry(1) }
 
         create(createUser(), "/api/v1/tags", "nope", "Нельзя").andExpect { status { isForbidden() } }
-        verify(exactly = 1) { tags.create(any(), any()) }
+        verify(exactly = 1) { tags.createEntry(any(), any()) }
     }
 }

@@ -13,14 +13,14 @@ import java.util.UUID
 @Service
 @Transactional
 class AgentRunRecorder(private val runs: AgentRunRepository, private val clock: Clock) {
-    fun start(draft: AgentRunDraft, model: String): UUID = runs.insert(newRun(draft, model)).id
+    fun startRun(draft: AgentRunDraft, model: String): UUID = runs.insert(newRun(draft, model)).id
 
-    fun succeed(runId: UUID, model: String, latencyMs: Int, tokensIn: Int, tokensOut: Int) {
-        load(runId).succeed(model, latencyMs, tokensIn, tokensOut, clock.nowMicros())
+    fun recordSuccess(runId: UUID, model: String, latencyMs: Int, tokensIn: Int, tokensOut: Int) {
+        loadRun(runId).succeed(model, latencyMs, tokensIn, tokensOut, clock.nowMicros())
     }
 
-    fun fail(runId: UUID, status: AgentRunStatus, errorCode: String, latencyMs: Int) {
-        load(runId).fail(status, errorCode, latencyMs, clock.nowMicros())
+    fun recordFailure(runId: UUID, status: AgentRunStatus, errorCode: String, latencyMs: Int) {
+        loadRun(runId).fail(status, errorCode, latencyMs, clock.nowMicros())
     }
 
     fun recordGuardrailReply(draft: AgentRunDraft): UUID {
@@ -42,5 +42,5 @@ class AgentRunRecorder(private val runs: AgentRunRepository, private val clock: 
         createdAt = clock.nowMicros(),
     )
 
-    private fun load(runId: UUID): AgentRun = runs.findById(runId) ?: error("Прогон агента $runId не найден")
+    private fun loadRun(runId: UUID): AgentRun = runs.findById(runId) ?: error("Прогон агента $runId не найден")
 }

@@ -26,11 +26,11 @@ class PersonaTrait(
     val persona: Persona,
     @field:NotBlank
     @field:Size(max = 64)
-    @Column(name = "trait_key", nullable = false, length = 64)
+    @Column(nullable = false, length = 64)
     val traitKey: String,
     @field:NotBlank
     @field:Size(max = 256)
-    @Column(name = "trait_value", nullable = false, length = 256)
+    @Column(nullable = false, length = 256)
     val traitValue: String,
     @field:DecimalMin("0.0")
     @field:DecimalMax("1.0")

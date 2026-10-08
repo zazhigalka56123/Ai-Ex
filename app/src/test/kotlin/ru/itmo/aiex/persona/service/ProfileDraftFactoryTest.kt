@@ -24,10 +24,10 @@ class ProfileDraftFactoryTest {
 
     @Test
     fun `черновик собирается из корпуса, резюме приходит от агента`() {
-        every { describer.describe(any()) } returns PersonaDescription(UUID.randomUUID(), "Сдержанная. Ревнивая.", "mock")
+        every { describer.describePersona(any()) } returns PersonaDescription(UUID.randomUUID(), "Сдержанная. Ревнивая.", "mock")
 
         val snapshot = TestCorpus.snapshot()
-        val draft = factory.create(personaId, "Маша", snapshot)
+        val draft = factory.createDraft(personaId, "Маша", snapshot)
 
         assertThat(draft.traits.map { it.key }).contains("jealousy", "reply_speed")
         assertThat(draft.autoTags.map { it.code }).contains("cold", "jealous")
@@ -40,9 +40,9 @@ class ProfileDraftFactoryTest {
     @Test
     fun `агент получает подписанные черты и характерные фразы персоны`() {
         val command = slot<DescribePersonaCommand>()
-        every { describer.describe(capture(command)) } returns PersonaDescription(UUID.randomUUID(), "Резюме.", "mock")
+        every { describer.describePersona(capture(command)) } returns PersonaDescription(UUID.randomUUID(), "Резюме.", "mock")
 
-        factory.create(personaId, "Маша", TestCorpus.snapshot())
+        factory.createDraft(personaId, "Маша", TestCorpus.snapshot())
 
         assertThat(command.captured.personaId).isEqualTo(personaId)
         assertThat(command.captured.personaName).isEqualTo("Маша")
@@ -52,9 +52,9 @@ class ProfileDraftFactoryTest {
 
     @Test
     fun `отказ агента пробрасывается как 503 LLM_UNAVAILABLE`() {
-        every { describer.describe(any()) } throws LlmUnavailableException("LLM недоступен")
+        every { describer.describePersona(any()) } throws LlmUnavailableException("LLM недоступен")
 
-        assertThatThrownBy { factory.create(personaId, "Маша", TestCorpus.snapshot()) }
+        assertThatThrownBy { factory.createDraft(personaId, "Маша", TestCorpus.snapshot()) }
             .isInstanceOf(LlmUnavailableException::class.java)
             .hasFieldOrPropertyWithValue("code", ErrorCode.LLM_UNAVAILABLE)
     }

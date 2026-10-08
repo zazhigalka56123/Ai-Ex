@@ -12,5 +12,5 @@ interface PersonaLifecycle : PersonaArchiver {
 
     fun rebuildFrom(personaId: UUID, snapshot: CorpusSnapshot): ProfileRebuildResult
 
-    override fun archive(personaId: UUID, actor: Actor)
+    override fun archivePersona(personaId: UUID, actor: Actor)
 }

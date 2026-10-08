@@ -14,14 +14,14 @@ import java.util.UUID
 class StoredCorpusSnapshot(
     @Id
     val id: UUID,
-    @Column(name = "persona_id", nullable = false, updatable = false)
+    @Column(nullable = false, updatable = false)
     val personaId: UUID,
-    @Column(name = "import_id", nullable = false, updatable = false)
+    @Column(nullable = false, updatable = false)
     val importId: UUID,
     @JdbcTypeCode(SqlTypes.JSON)
     @Column(nullable = false, updatable = false, columnDefinition = "jsonb")
     val payload: String,
-    @Column(name = "created_at", nullable = false, updatable = false)
+    @Column(nullable = false, updatable = false)
     val createdAt: Instant,
 ) {
     override fun equals(other: Any?): Boolean = this === other || (other is StoredCorpusSnapshot && other.id == id)

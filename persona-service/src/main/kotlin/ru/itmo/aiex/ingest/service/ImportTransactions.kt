@@ -27,7 +27,7 @@ class ImportTransactions(private val imports: ChatImportRepository, private val 
 
     @Transactional
     fun markParsing(importId: UUID) {
-        val chatImport = find(importId)
+        val chatImport = getImport(importId)
         chatImport.startParsing()
         imports.saveAndFlush(chatImport)
     }
@@ -36,26 +36,26 @@ class ImportTransactions(private val imports: ChatImportRepository, private val 
     fun commitParsed(importId: UUID, rows: List<MessageRow>, result: ParseResult): ChatImport {
         messages.insertAll(importId, rows, BATCH_SIZE)
 
-        val chatImport = find(importId)
+        val chatImport = getImport(importId)
         chatImport.markParsed(result, clock.nowMicros())
         return imports.saveAndFlush(chatImport)
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     fun markFailed(importId: UUID, code: ImportErrorCode, message: String): ChatImport {
-        val chatImport = find(importId)
+        val chatImport = getImport(importId)
         chatImport.markFailed(code, message, clock.nowMicros())
         return imports.saveAndFlush(chatImport)
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     fun markRebuildFailed(importId: UUID, message: String): ChatImport {
-        val chatImport = find(importId)
+        val chatImport = getImport(importId)
         chatImport.markRebuildFailed(message)
         return imports.saveAndFlush(chatImport)
     }
 
-    fun find(importId: UUID): ChatImport = imports.findById(importId) ?: throw NotFoundException.of(ErrorCode.IMPORT_NOT_FOUND, importId)
+    fun getImport(importId: UUID): ChatImport = imports.findById(importId) ?: throw NotFoundException.of(ErrorCode.IMPORT_NOT_FOUND, importId)
 
     fun findStuckIds(): List<UUID> = imports.findIdsByStatus(ImportStatus.PARSING)
 

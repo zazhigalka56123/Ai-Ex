@@ -15,14 +15,14 @@ class DialogEventListeners(private val conversations: ConversationRepository, pr
 
     @TransactionalEventListener(fallbackExecution = true)
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    fun on(event: ModerationFlagRaised) {
+    fun onModerationFlagRaised(event: ModerationFlagRaised) {
         val flagged = messages.markFlagged(event.messageId)
         log.info("Флаг {} -> сообщение {} помечено: {}", event.flagId, event.messageId, flagged > 0)
     }
 
     @TransactionalEventListener(fallbackExecution = true)
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    fun on(event: PersonaArchived) {
+    fun onPersonaArchived(event: PersonaArchived) {
         val archived = conversations.archiveAllByPersona(event.personaId)
         log.info("Персона {} архивирована -> бесед переведено в архив: {}", event.personaId, archived)
     }

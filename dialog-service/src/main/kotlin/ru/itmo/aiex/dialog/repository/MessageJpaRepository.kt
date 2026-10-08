@@ -3,14 +3,13 @@ package ru.itmo.aiex.dialog.repository
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Modifying
 import org.springframework.data.jpa.repository.Query
-import org.springframework.data.repository.query.Param
 import ru.itmo.aiex.dialog.entity.Message
 import java.time.Instant
 import java.util.UUID
 
 internal interface MessageJpaRepository : JpaRepository<Message, UUID> {
     @Query("select m from Message m join fetch m.conversation where m.id = :id")
-    fun findWithConversation(@Param("id") id: UUID): Message?
+    fun findWithConversation(id: UUID): Message?
 
     @Query(
         value = """
@@ -21,7 +20,7 @@ internal interface MessageJpaRepository : JpaRepository<Message, UUID> {
         """,
         nativeQuery = true,
     )
-    fun findNewest(@Param("conversationId") conversationId: UUID, @Param("limit") limit: Int): List<Message>
+    fun findNewest(conversationId: UUID, limit: Int): List<Message>
 
     @Query(
         value = """
@@ -33,12 +32,7 @@ internal interface MessageJpaRepository : JpaRepository<Message, UUID> {
         """,
         nativeQuery = true,
     )
-    fun findOlder(
-        @Param("conversationId") conversationId: UUID,
-        @Param("createdAt") createdAt: Instant,
-        @Param("id") id: UUID,
-        @Param("limit") limit: Int,
-    ): List<Message>
+    fun findOlder(conversationId: UUID, createdAt: Instant, id: UUID, limit: Int): List<Message>
 
     @Query(
         value = """
@@ -49,7 +43,7 @@ internal interface MessageJpaRepository : JpaRepository<Message, UUID> {
         """,
         nativeQuery = true,
     )
-    fun findNewestFlagged(@Param("conversationId") conversationId: UUID, @Param("limit") limit: Int): List<Message>
+    fun findNewestFlagged(conversationId: UUID, limit: Int): List<Message>
 
     @Query(
         value = """
@@ -61,16 +55,11 @@ internal interface MessageJpaRepository : JpaRepository<Message, UUID> {
         """,
         nativeQuery = true,
     )
-    fun findOlderFlagged(
-        @Param("conversationId") conversationId: UUID,
-        @Param("createdAt") createdAt: Instant,
-        @Param("id") id: UUID,
-        @Param("limit") limit: Int,
-    ): List<Message>
+    fun findOlderFlagged(conversationId: UUID, createdAt: Instant, id: UUID, limit: Int): List<Message>
 
     @Modifying
     @Query("update Message m set m.flagged = true where m.id = :id and m.flagged = false")
-    fun markFlagged(@Param("id") id: UUID): Int
+    fun markFlagged(id: UUID): Int
 
     fun countByFlaggedTrue(): Long
 }

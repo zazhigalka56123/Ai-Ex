@@ -9,7 +9,7 @@ import ru.itmo.aiex.ingest.repository.ImportedMessageRepository
 @Component
 @Transactional(readOnly = true)
 class IngestMetrics(private val imports: ChatImportRepository, private val messages: ImportedMessageRepository) : MetricsContributor {
-    override fun metrics(): Map<String, Long> = mapOf(
+    override fun collectMetrics(): Map<String, Long> = mapOf(
         "imports.total" to imports.count(),
         "imports.parsed" to imports.countByStatus(ImportStatus.PARSED),
         "imports.failed" to imports.countByStatus(ImportStatus.FAILED),

@@ -44,8 +44,8 @@ class ModerationController(private val desk: ModerationDesk) {
     )
     @ApiResponse(responseCode = "201", description = "Флаг создан", headers = [Header(name = "Location", description = "URI флага")])
     @ApiErrors(ErrorCode.VALIDATION_FAILED, ErrorCode.FORBIDDEN, ErrorCode.MESSAGE_NOT_FOUND, ErrorCode.FLAG_ALREADY_REPORTED)
-    fun create(actor: Actor, @Valid @RequestBody request: CreateFlagRequest): ResponseEntity<FlagResponse> {
-        val flag = desk.report(actor, ReportMessageCommand(request.messageId, request.reason, request.comment))
+    fun createFlag(actor: Actor, @Valid @RequestBody request: CreateFlagRequest): ResponseEntity<FlagResponse> {
+        val flag = desk.reportMessage(actor, ReportMessageCommand(request.messageId, request.reason, request.comment))
         return Responses.created(flag.toResponse(), "${ApiPaths.V1}/moderation/flags/{id}", flag.id)
     }
 
@@ -68,7 +68,7 @@ class ModerationController(private val desk: ModerationDesk) {
     @Operation(operationId = "getFlag", summary = "Флаг по id", description = "Только администратор, с превью флагнутого сообщения.")
     @ApiResponse(responseCode = "200", description = "Флаг")
     @ApiErrors(ErrorCode.FORBIDDEN, ErrorCode.FLAG_NOT_FOUND)
-    fun get(actor: Actor, @PathVariable id: UUID): FlagResponse = desk.get(actor, id).toResponse()
+    fun getFlag(actor: Actor, @PathVariable id: UUID): FlagResponse = desk.getFlag(actor, id).toResponse()
 
     @PatchMapping("/{id}")
     @Operation(
@@ -86,6 +86,6 @@ class ModerationController(private val desk: ModerationDesk) {
         ErrorCode.FLAG_INVALID_STATE,
         ErrorCode.CONCURRENT_MODIFICATION,
     )
-    fun review(actor: Actor, @PathVariable id: UUID, @Valid @RequestBody request: ReviewFlagRequest): FlagResponse =
-        desk.review(actor, id, ReviewFlagCommand(request.status, request.resolution, request.archivePersona)).toResponse()
+    fun reviewFlag(actor: Actor, @PathVariable id: UUID, @Valid @RequestBody request: ReviewFlagRequest): FlagResponse =
+        desk.reviewFlag(actor, id, ReviewFlagCommand(request.status, request.resolution, request.archivePersona)).toResponse()
 }

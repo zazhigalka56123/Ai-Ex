@@ -31,9 +31,9 @@ class Message(
     @field:Size(max = MAX_BODY_LENGTH)
     @Column(nullable = false, columnDefinition = "text", updatable = false)
     val body: String,
-    @Column(name = "created_at", nullable = false, updatable = false)
+    @Column(nullable = false, updatable = false)
     val createdAt: Instant,
-    @Column(name = "agent_run_id", updatable = false)
+    @Column(updatable = false)
     val agentRunId: UUID? = null,
 ) {
     @Column(name = "conversation_id", insertable = false, updatable = false)

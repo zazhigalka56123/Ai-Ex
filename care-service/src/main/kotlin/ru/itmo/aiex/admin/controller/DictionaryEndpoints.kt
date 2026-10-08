@@ -14,18 +14,18 @@ class DictionaryEndpoints(private val kind: DictionaryKind, private val basePath
     fun getEntries(page: PageQuery): ResponseEntity<List<DictionaryEntryResponse>> =
         Responses.page(dictionaries.getEntries(kind, page).map { it.toResponse() })
 
-    fun get(id: Long): DictionaryEntryResponse = dictionaries.get(kind, id).toResponse()
+    fun getEntry(id: Long): DictionaryEntryResponse = dictionaries.getEntry(kind, id).toResponse()
 
-    fun create(actor: Actor, request: CreateDictionaryEntryRequest): ResponseEntity<DictionaryEntryResponse> {
-        val entry = dictionaries.create(actor, kind, request.code, request.title)
+    fun createEntry(actor: Actor, request: CreateDictionaryEntryRequest): ResponseEntity<DictionaryEntryResponse> {
+        val entry = dictionaries.createEntry(actor, kind, request.code, request.title)
         return Responses.created(entry.toResponse(), "$basePath/{id}", entry.id)
     }
 
-    fun update(actor: Actor, id: Long, request: UpdateDictionaryEntryRequest): DictionaryEntryResponse =
-        dictionaries.update(actor, kind, id, request.title).toResponse()
+    fun updateEntry(actor: Actor, id: Long, request: UpdateDictionaryEntryRequest): DictionaryEntryResponse =
+        dictionaries.updateEntry(actor, kind, id, request.title).toResponse()
 
-    fun delete(actor: Actor, id: Long): ResponseEntity<Void> {
-        dictionaries.delete(actor, kind, id)
+    fun deleteEntry(actor: Actor, id: Long): ResponseEntity<Void> {
+        dictionaries.deleteEntry(actor, kind, id)
         return ResponseEntity.noContent().build()
     }
 }

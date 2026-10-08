@@ -383,7 +383,7 @@ class ConsultationFlowIT : CareIntegrationTest() {
         bookOk(client, createSlot(specialist, at(11)))
         patchConsultation(client, cancelled, mapOf("status" to "CANCELLED")).andExpect { status { isOk() } }
 
-        val metrics = metricsContributors.map { it.metrics() }.reduce { acc, map -> acc + map }
+        val metrics = metricsContributors.map { it.collectMetrics() }.reduce { acc, map -> acc + map }
         assertThat(metrics).containsEntry("specialists.active", 1L)
         assertThat(metrics).containsEntry("consultations.requested", 1L)
         assertThat(metrics).containsEntry("consultations.cancelled", 1L)

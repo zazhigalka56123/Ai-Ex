@@ -45,8 +45,8 @@ class UserController(private val users: UserService) {
     )
     @ApiResponse(responseCode = "201", description = "Пользователь создан", headers = [Header(name = "Location", description = "URI пользователя")])
     @ApiErrors(ErrorCode.VALIDATION_FAILED, ErrorCode.EMAIL_TAKEN)
-    fun create(@Valid @RequestBody request: CreateUserRequest): ResponseEntity<UserResponse> {
-        val user = users.register(RegisterUserCommand(request.email, request.displayName, request.roles))
+    fun createUser(@Valid @RequestBody request: CreateUserRequest): ResponseEntity<UserResponse> {
+        val user = users.registerUser(RegisterUserCommand(request.email, request.displayName, request.roles))
         return Responses.created(user.toResponse(), "${ApiPaths.V1}/users/{id}", user.id)
     }
 
@@ -68,7 +68,7 @@ class UserController(private val users: UserService) {
     @Operation(operationId = "getUser", summary = "Пользователь по id", description = "Администратор - любой, остальные - только себя.")
     @ApiResponse(responseCode = "200", description = "Пользователь")
     @ApiErrors(ErrorCode.USER_NOT_FOUND)
-    fun get(actor: Actor, @PathVariable id: UUID): UserResponse = users.get(actor, id).toResponse()
+    fun getUser(actor: Actor, @PathVariable id: UUID): UserResponse = users.getUser(actor, id).toResponse()
 
     @PatchMapping("/{id}")
     @Operation(
@@ -84,6 +84,6 @@ class UserController(private val users: UserService) {
         ErrorCode.USER_INVALID_STATE,
         ErrorCode.CONCURRENT_MODIFICATION,
     )
-    fun update(actor: Actor, @PathVariable id: UUID, @Valid @RequestBody request: UpdateUserRequest): UserResponse =
-        users.update(actor, id, UpdateUserCommand(request.displayName, request.status, request.roles)).toResponse()
+    fun updateUser(actor: Actor, @PathVariable id: UUID, @Valid @RequestBody request: UpdateUserRequest): UserResponse =
+        users.updateUser(actor, id, UpdateUserCommand(request.displayName, request.status, request.roles)).toResponse()
 }

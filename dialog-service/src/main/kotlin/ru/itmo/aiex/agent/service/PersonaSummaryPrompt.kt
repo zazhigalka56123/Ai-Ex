@@ -15,8 +15,9 @@ object PersonaSummaryPrompt {
 
     fun assemble(command: DescribePersonaCommand, now: Instant): Prompt {
         val system = buildString {
-            appendLine("Ты - внимательный аналитик переписки. По статистике и примерам реплик опиши характер человека")
-            appendLine("по имени ${command.personaName} в 2–3 предложениях, в третьем лице, без диагнозов и оценок. Не цитируй реплики дословно.")
+            appendLine("По статистике и примерам реплик опиши, как человек по имени ${command.personaName} общается в переписке:")
+            appendLine("какими словами говорит, как шутит и реагирует на собеседника. Пиши в 2–3 предложениях, в третьем лице.")
+            appendLine("Не угадывай скрытые мотивы, страхи и потребности, не ставь диагнозов и не цитируй реплики дословно.")
             appendLine()
             appendLine("### Черты")
             command.traits.forEach { appendLine("- ${it.label}: ${it.value} (${"%.2f".format(Locale.ROOT, it.weight)})") }
@@ -24,7 +25,7 @@ object PersonaSummaryPrompt {
             appendLine("### Примеры реплик")
             command.samplePhrases.forEach { appendLine("- «$it»") }
         }
-        val question = "Опиши характер и манеру общения человека по имени ${command.personaName} в 2–3 предложениях."
+        val question = "Опиши манеру переписки человека по имени ${command.personaName} в 2–3 предложениях."
         return Prompt(system, listOf(HistoryMessage(Speaker.USER, question, now)))
     }
 

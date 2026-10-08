@@ -105,7 +105,7 @@ class NotificationIT : AbstractIntegrationTest() {
     fun `метрики уведомлений`() {
         publish(PersonaArchived(UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID(), byAdmin = false, occurredAt = now))
 
-        val notificationMetrics = metrics.map { it.metrics() }.first { it.containsKey("notifications.sent") }
+        val notificationMetrics = metrics.map { it.collectMetrics() }.first { it.containsKey("notifications.sent") }
         assertThat(notificationMetrics)
             .containsEntry("notifications.sent", 1L)
             .containsEntry("notifications.failed", 0L)

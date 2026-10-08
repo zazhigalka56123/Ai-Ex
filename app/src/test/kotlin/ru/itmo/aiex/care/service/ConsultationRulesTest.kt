@@ -34,15 +34,15 @@ class ConsultationRulesTest {
         val change = ConsultationChange(status = to)
         when (expected) {
             Outcome.ALLOWED -> {
-                assertThat(ConsultationRules.check(role, from, change)).isEqualTo(to)
+                assertThat(ConsultationRules.validateChange(role, from, change)).isEqualTo(to)
             }
 
             Outcome.FORBIDDEN -> {
-                assertThatThrownBy { ConsultationRules.check(role, from, change) }.isInstanceOf(ForbiddenException::class.java)
+                assertThatThrownBy { ConsultationRules.validateChange(role, from, change) }.isInstanceOf(ForbiddenException::class.java)
             }
 
             Outcome.CONFLICT -> {
-                assertThatThrownBy { ConsultationRules.check(role, from, change) }
+                assertThatThrownBy { ConsultationRules.validateChange(role, from, change) }
                     .isInstanceOf(IllegalStateTransitionException::class.java)
                     .extracting { (it as AiExException).code }
                     .isEqualTo(ErrorCode.CONSULTATION_INVALID_STATE)
@@ -64,22 +64,23 @@ class ConsultationRulesTest {
         @EnumSource(ConsultationRole::class, names = ["CLIENT", "ADMIN"])
         fun `пишет только специалист`(role: ConsultationRole) {
             assertThatThrownBy {
-                ConsultationRules.check(role, CONFIRMED, ConsultationChange(summary = "x"))
+                ConsultationRules.validateChange(role, CONFIRMED, ConsultationChange(summary = "x"))
             }.isInstanceOf(ForbiddenException::class.java)
-            assertThatThrownBy { ConsultationRules.check(role, DONE, ConsultationChange(recommendations = "x")) }
+            assertThatThrownBy { ConsultationRules.validateChange(role, DONE, ConsultationChange(recommendations = "x")) }
                 .isInstanceOf(ForbiddenException::class.java)
         }
 
         @ParameterizedTest
         @EnumSource(SessionStatus::class, names = ["CONFIRMED", "DONE"])
         fun `специалист ведёт их в CONFIRMED и DONE`(status: SessionStatus) {
-            assertThat(ConsultationRules.check(SPECIALIST, status, ConsultationChange(summary = "s", recommendations = "r"))).isEqualTo(status)
+            assertThat(ConsultationRules.validateChange(SPECIALIST, status, ConsultationChange(summary = "s", recommendations = "r")))
+                .isEqualTo(status)
         }
 
         @ParameterizedTest
         @EnumSource(SessionStatus::class, names = ["REQUESTED", "CANCELLED"])
         fun `в остальных статусах - 409`(status: SessionStatus) {
-            assertThatThrownBy { ConsultationRules.check(SPECIALIST, status, ConsultationChange(summary = "s")) }
+            assertThatThrownBy { ConsultationRules.validateChange(SPECIALIST, status, ConsultationChange(summary = "s")) }
                 .isInstanceOf(ConflictException::class.java)
                 .extracting { (it as AiExException).code }
                 .isEqualTo(ErrorCode.CONSULTATION_INVALID_STATE)
@@ -87,9 +88,10 @@ class ConsultationRulesTest {
 
         @Test
         fun `проверяются по итоговому статусу запроса`() {
-            assertThat(ConsultationRules.check(SPECIALIST, REQUESTED, ConsultationChange(status = CONFIRMED, summary = "s"))).isEqualTo(CONFIRMED)
-            assertThat(ConsultationRules.check(SPECIALIST, CONFIRMED, ConsultationChange(status = DONE, summary = "s"))).isEqualTo(DONE)
-            assertThatThrownBy { ConsultationRules.check(SPECIALIST, CONFIRMED, ConsultationChange(status = CANCELLED, summary = "s")) }
+            assertThat(ConsultationRules.validateChange(SPECIALIST, REQUESTED, ConsultationChange(status = CONFIRMED, summary = "s")))
+                .isEqualTo(CONFIRMED)
+            assertThat(ConsultationRules.validateChange(SPECIALIST, CONFIRMED, ConsultationChange(status = DONE, summary = "s"))).isEqualTo(DONE)
+            assertThatThrownBy { ConsultationRules.validateChange(SPECIALIST, CONFIRMED, ConsultationChange(status = CANCELLED, summary = "s")) }
                 .isInstanceOf(ConflictException::class.java)
         }
     }
@@ -99,34 +101,39 @@ class ConsultationRulesTest {
         @ParameterizedTest
         @EnumSource(ConsultationRole::class, names = ["SPECIALIST", "ADMIN"])
         fun `ставит только клиент`(role: ConsultationRole) {
-            assertThatThrownBy { ConsultationRules.check(role, DONE, ConsultationChange(rating = 5)) }.isInstanceOf(ForbiddenException::class.java)
+            assertThatThrownBy { ConsultationRules.validateChange(role, DONE, ConsultationChange(rating = 5)) }
+                .isInstanceOf(ForbiddenException::class.java)
         }
 
         @ParameterizedTest
         @EnumSource(SessionStatus::class, names = ["REQUESTED", "CONFIRMED", "CANCELLED"])
         fun `только после DONE`(status: SessionStatus) {
-            assertThatThrownBy { ConsultationRules.check(CLIENT, status, ConsultationChange(rating = 4)) }.isInstanceOf(ConflictException::class.java)
+            assertThatThrownBy { ConsultationRules.validateChange(CLIENT, status, ConsultationChange(rating = 4)) }
+                .isInstanceOf(ConflictException::class.java)
         }
 
         @Test
         fun `клиент оценивает проведённую консультацию`() {
-            assertThat(ConsultationRules.check(CLIENT, DONE, ConsultationChange(rating = 4))).isEqualTo(DONE)
+            assertThat(ConsultationRules.validateChange(CLIENT, DONE, ConsultationChange(rating = 4))).isEqualTo(DONE)
         }
     }
 
     @Test
     fun `причина отмены - только вместе с отменой`() {
-        assertThatThrownBy { ConsultationRules.check(CLIENT, REQUESTED, ConsultationChange(cancelReason = "причина")) }
+        assertThatThrownBy { ConsultationRules.validateChange(CLIENT, REQUESTED, ConsultationChange(cancelReason = "причина")) }
             .isInstanceOf(ValidationException::class.java)
             .extracting { (it as ValidationException).violations.single().field }
             .isEqualTo("cancelReason")
-        assertThat(ConsultationRules.check(CLIENT, REQUESTED, ConsultationChange(status = CANCELLED, cancelReason = "причина"))).isEqualTo(CANCELLED)
+        assertThat(ConsultationRules.validateChange(CLIENT, REQUESTED, ConsultationChange(status = CANCELLED, cancelReason = "причина")))
+            .isEqualTo(CANCELLED)
     }
 
     @Test
     fun `пустое изменение допустимо и ничего не меняет`() {
         SessionStatus.entries.forEach { status ->
-            ConsultationRole.entries.forEach { role -> assertThat(ConsultationRules.check(role, status, ConsultationChange())).isEqualTo(status) }
+            ConsultationRole.entries.forEach { role ->
+                assertThat(ConsultationRules.validateChange(role, status, ConsultationChange())).isEqualTo(status)
+            }
         }
     }
 

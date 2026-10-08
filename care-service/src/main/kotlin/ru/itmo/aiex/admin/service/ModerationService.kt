@@ -28,7 +28,7 @@ import java.util.UUID
 @Transactional(readOnly = true)
 class ModerationService(private val flags: ModerationFlagRepository, private val events: DomainEventPublisher, private val clock: Clock) {
     @Transactional
-    fun report(actor: Actor, message: FlaggedMessage, command: ReportMessageCommand): ModerationFlag {
+    fun reportMessage(actor: Actor, message: FlaggedMessage, command: ReportMessageCommand): ModerationFlag {
         actor.requireAnyRole(RoleCode.USER, RoleCode.SPECIALIST)
         if (flags.existsByMessageAndReporter(message.messageId, actor.userId)) throw alreadyReported(message.messageId)
         val now = clock.nowMicros()
@@ -48,14 +48,14 @@ class ModerationService(private val flags: ModerationFlagRepository, private val
         return flags.findPage(status, reason, page)
     }
 
-    fun get(actor: Actor, id: UUID): ModerationFlag {
+    fun getFlag(actor: Actor, id: UUID): ModerationFlag {
         actor.requireRole(RoleCode.ADMIN)
         return flags.findById(id) ?: throw NotFoundException.of(ErrorCode.FLAG_NOT_FOUND, id)
     }
 
     @Transactional
-    fun review(actor: Actor, id: UUID, command: ReviewFlagCommand): ModerationFlag {
-        val flag = get(actor, id)
+    fun reviewFlag(actor: Actor, id: UUID, command: ReviewFlagCommand): ModerationFlag {
+        val flag = getFlag(actor, id)
         if (command.archivePersona && command.status != FlagStatus.RESOLVED) {
             throw ValidationException("archivePersona", "status.resolved", "Архивировать персону можно только вместе с вердиктом RESOLVED")
         }

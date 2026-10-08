@@ -27,7 +27,7 @@ class UserServiceTest {
         every { users.existsByEmail("race@example.com") } returns false
         every { users.saveAndFlush(any()) } throws race
 
-        assertThatThrownBy { service.register(RegisterUserCommand("Race@Example.com ", "Гонка", emptySet())) }
+        assertThatThrownBy { service.registerUser(RegisterUserCommand("Race@Example.com ", "Гонка", emptySet())) }
             .isInstanceOf(ConflictException::class.java)
             .hasCause(race)
             .extracting("code")
@@ -39,7 +39,7 @@ class UserServiceTest {
         every { users.existsByEmail("masha@example.com") } returns false
         every { users.saveAndFlush(any()) } answers { firstArg() }
 
-        val user = service.register(RegisterUserCommand("  Masha@Example.COM", " Маша ", emptySet()))
+        val user = service.registerUser(RegisterUserCommand("  Masha@Example.COM", " Маша ", emptySet()))
 
         assertThat(user.email).isEqualTo("masha@example.com")
         assertThat(user.displayName).isEqualTo("Маша")
