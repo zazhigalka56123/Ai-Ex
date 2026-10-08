@@ -67,9 +67,9 @@ ai-ex:
     timeout-ms: 20000
     max-retries: 2
   agent:
-    history-window: 20
+    history-window: 60
     max-output-tokens: 512
-    max-input-tokens: 4000
+    max-input-tokens: 6000
   pagination:
     default-size: 20
     max-size: 50

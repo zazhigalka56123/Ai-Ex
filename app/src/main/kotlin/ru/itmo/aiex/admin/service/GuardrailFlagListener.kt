@@ -12,7 +12,7 @@ class GuardrailFlagListener(private val moderation: ModerationService, @param:La
     private val log = LoggerFactory.getLogger(javaClass)
 
     @TransactionalEventListener(fallbackExecution = true)
-    fun on(event: MessageAutoFlagged) {
+    fun onMessageAutoFlagged(event: MessageAutoFlagged) {
         val message = dialogs.findMessage(event.messageId)
         if (message == null) {
             log.warn("Сообщение {} из события {} не найдено - системный флаг не создан", event.messageId, event.eventId)

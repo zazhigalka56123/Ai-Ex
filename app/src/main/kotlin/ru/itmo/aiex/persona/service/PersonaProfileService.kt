@@ -20,7 +20,7 @@ class PersonaProfileService(
     private val traits: PersonaTraitRepository,
     private val json: PersonaJson,
 ) {
-    fun activeProfile(actor: Actor, personaId: UUID): ProfileDetails {
+    fun getActiveProfile(actor: Actor, personaId: UUID): ProfileDetails {
         val persona = personaService.findOwned(actor, personaId)
         val version =
             persona.activeProfileId?.let(versions::findById)?.takeIf { it.active }
@@ -37,7 +37,7 @@ class PersonaProfileService(
         )
     }
 
-    fun versions(actor: Actor, personaId: UUID, page: PageQuery): PageView<PersonaProfileVersion> {
+    fun getProfileVersions(actor: Actor, personaId: UUID, page: PageQuery): PageView<PersonaProfileVersion> {
         personaService.findOwned(actor, personaId)
         return versions.findPageByPersona(personaId, page)
     }

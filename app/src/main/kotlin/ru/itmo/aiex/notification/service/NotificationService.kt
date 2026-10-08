@@ -26,7 +26,7 @@ class NotificationService(
     private val log = LoggerFactory.getLogger(javaClass)
 
     @Transactional
-    override fun send(command: NotificationCommand): UUID {
+    override fun sendNotification(command: NotificationCommand): UUID {
         val notification =
             notifications.insert(
                 Notification(Ids.next(), command.recipientId, command.type, jsonMapper.writeValueAsString(command.payload), clock.nowMicros()),

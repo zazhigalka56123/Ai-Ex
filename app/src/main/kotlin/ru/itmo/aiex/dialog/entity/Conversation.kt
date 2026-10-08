@@ -23,12 +23,12 @@ import java.util.UUID
 class Conversation(
     @Id
     val id: UUID,
-    @Column(name = "user_id", nullable = false, updatable = false)
+    @Column(nullable = false, updatable = false)
     val userId: UUID,
-    @Column(name = "persona_id", nullable = false, updatable = false)
+    @Column(nullable = false, updatable = false)
     val personaId: UUID,
     title: String,
-    @Column(name = "created_at", nullable = false, updatable = false)
+    @Column(nullable = false, updatable = false)
     val createdAt: Instant,
 ) {
     @field:NotBlank
@@ -42,12 +42,11 @@ class Conversation(
     var status: ConversationStatus = ConversationStatus.ACTIVE
         protected set
 
-    @Column(name = "last_message_at")
     var lastMessageAt: Instant? = null
         protected set
 
     @field:PositiveOrZero
-    @Column(name = "message_count", nullable = false)
+    @Column(nullable = false)
     var messageCount: Int = 0
         protected set
 

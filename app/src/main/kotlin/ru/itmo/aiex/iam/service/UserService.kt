@@ -26,7 +26,7 @@ import java.util.UUID
 @Transactional(readOnly = true)
 class UserService(private val users: UserRepository, private val roles: RoleRepository, private val clock: Clock) {
     @Transactional
-    fun register(command: RegisterUserCommand): User {
+    fun registerUser(command: RegisterUserCommand): User {
         val email = normalizeEmail(command.email)
         if (users.existsByEmail(email)) throw emailTaken(email)
         val now = clock.nowMicros()
@@ -44,14 +44,14 @@ class UserService(private val users: UserRepository, private val roles: RoleRepo
         return users.findPage(status, page)
     }
 
-    fun get(actor: Actor, userId: UUID): User {
+    fun getUser(actor: Actor, userId: UUID): User {
         if (actor.userId != userId && !actor.isAdmin) throw NotFoundException.of(ErrorCode.USER_NOT_FOUND, userId)
         return users.findById(userId) ?: throw NotFoundException.of(ErrorCode.USER_NOT_FOUND, userId)
     }
 
     @Transactional
-    fun update(actor: Actor, userId: UUID, command: UpdateUserCommand): User {
-        val user = get(actor, userId)
+    fun updateUser(actor: Actor, userId: UUID, command: UpdateUserCommand): User {
+        val user = getUser(actor, userId)
         if ((command.status != null || command.roles != null) && !actor.isAdmin) {
             throw ForbiddenException("Статус и роли меняет только администратор")
         }

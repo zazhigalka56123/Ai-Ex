@@ -31,11 +31,11 @@ class User(
     var email: String,
     @field:NotBlank
     @field:Size(max = 64)
-    @Column(name = "display_name", nullable = false, length = 64)
+    @Column(nullable = false, length = 64)
     var displayName: String,
-    @Column(name = "created_at", nullable = false, updatable = false)
+    @Column(nullable = false, updatable = false)
     val createdAt: Instant,
-    @Column(name = "updated_at", nullable = false)
+    @Column(nullable = false)
     var updatedAt: Instant,
 ) {
     @Enumerated(EnumType.STRING)

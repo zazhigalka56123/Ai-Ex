@@ -24,7 +24,7 @@ import java.util.UUID
 class ConsultationSession(
     @Id
     val id: UUID,
-    @Column(name = "user_id", nullable = false, updatable = false)
+    @Column(nullable = false, updatable = false)
     val userId: UUID,
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "specialist_id", nullable = false, updatable = false)
@@ -32,17 +32,17 @@ class ConsultationSession(
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "slot_id", nullable = false, updatable = false)
     val slot: SpecialistSlot,
-    @Column(name = "shared_conversation_id", updatable = false)
+    @Column(updatable = false)
     val sharedConversationId: UUID?,
-    @Column(name = "created_at", nullable = false, updatable = false)
+    @Column(nullable = false, updatable = false)
     val createdAt: Instant,
 ) {
-    @Column(name = "starts_at", nullable = false, updatable = false)
+    @Column(nullable = false, updatable = false)
     val startsAt: Instant = slot.startsAt
 
     @field:Min(15)
     @field:Max(240)
-    @Column(name = "duration_min", nullable = false, updatable = false)
+    @Column(nullable = false, updatable = false)
     val durationMin: Int = slot.durationMin
 
     @Enumerated(EnumType.STRING)
@@ -52,26 +52,23 @@ class ConsultationSession(
 
     @field:Min(1)
     @field:Max(5)
-    @Column
     var rating: Short? = null
         protected set
 
     @field:Size(max = NOTES_MAX_LENGTH)
-    @Column
     var summary: String? = null
         protected set
 
     @field:Size(max = NOTES_MAX_LENGTH)
-    @Column
     var recommendations: String? = null
         protected set
 
     @field:Size(max = CANCEL_REASON_MAX_LENGTH)
-    @Column(name = "cancel_reason", length = CANCEL_REASON_MAX_LENGTH)
+    @Column(length = CANCEL_REASON_MAX_LENGTH)
     var cancelReason: String? = null
         protected set
 
-    @Column(name = "updated_at", nullable = false)
+    @Column(nullable = false)
     var updatedAt: Instant = createdAt
         protected set
 
@@ -87,7 +84,7 @@ class ConsultationSession(
     }
 
     fun applyChange(role: ConsultationRole, change: ConsultationChange, now: Instant): Boolean {
-        val target = ConsultationRules.check(role, status, change)
+        val target = ConsultationRules.validateChange(role, status, change)
         change.summary?.let { summary = it }
         change.recommendations?.let { recommendations = it }
         change.rating?.let { rating = it }

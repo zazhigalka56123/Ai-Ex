@@ -17,10 +17,10 @@ import ru.itmo.aiex.common.paging.PageView
 class SpecializationCatalogAdapter(private val specializations: SpecializationRepository) : SpecializationCatalog {
     override fun getEntries(page: PageQuery): PageView<DictionaryEntry> = specializations.findPage(page).map { it.toEntry() }
 
-    override fun get(id: Long): DictionaryEntry = find(id).toEntry()
+    override fun getEntry(id: Long): DictionaryEntry = findSpecialization(id).toEntry()
 
     @Transactional
-    override fun create(code: String, title: String): DictionaryEntry {
+    override fun createEntry(code: String, title: String): DictionaryEntry {
         val normalized = code.trim().lowercase()
         if (normalized.length > Specialization.CODE_MAX_LENGTH || !CODE_REGEX.matches(normalized)) {
             throw ValidationException("code", "pattern", "Код - от 1 до ${Specialization.CODE_MAX_LENGTH} символов: латиница, цифры, дефис")
@@ -35,15 +35,15 @@ class SpecializationCatalogAdapter(private val specializations: SpecializationRe
     }
 
     @Transactional
-    override fun update(id: Long, title: String): DictionaryEntry {
-        val specialization = find(id)
+    override fun updateEntry(id: Long, title: String): DictionaryEntry {
+        val specialization = findSpecialization(id)
         specialization.rename(requireTitle(title))
         return specializations.saveAndFlush(specialization).toEntry()
     }
 
     @Transactional
-    override fun delete(id: Long) {
-        val specialization = find(id)
+    override fun deleteEntry(id: Long) {
+        val specialization = findSpecialization(id)
         if (specializations.isInUse(id)) throw inUse(specialization.code)
         try {
             specializations.deleteAndFlush(specialization)
@@ -52,7 +52,8 @@ class SpecializationCatalogAdapter(private val specializations: SpecializationRe
         }
     }
 
-    private fun find(id: Long): Specialization = specializations.findById(id) ?: throw NotFoundException.of(ErrorCode.SPECIALIZATION_NOT_FOUND, id)
+    private fun findSpecialization(id: Long): Specialization =
+        specializations.findById(id) ?: throw NotFoundException.of(ErrorCode.SPECIALIZATION_NOT_FOUND, id)
 
     private fun requireTitle(title: String): String {
         val trimmed = title.trim()

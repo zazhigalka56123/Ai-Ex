@@ -29,7 +29,7 @@ class SpecialistService(
     private val clock: Clock,
 ) {
     @Transactional
-    fun create(actor: Actor, command: CreateSpecialistCommand): Specialist {
+    fun createSpecialist(actor: Actor, command: CreateSpecialistCommand): Specialist {
         actor.requireRole(RoleCode.SPECIALIST)
         if (specialists.existsByUserId(actor.userId)) throw profileExists(actor.userId)
         val now = clock.nowMicros()
@@ -50,13 +50,13 @@ class SpecialistService(
         }
     }
 
-    fun catalog(specializationCode: String?, page: PageQuery): PageView<Specialist> =
+    fun getSpecialists(specializationCode: String?, page: PageQuery): PageView<Specialist> =
         specialists.findActivePage(specializationCode?.trim()?.lowercase()?.takeIf { it.isNotEmpty() }, page)
 
-    fun get(actor: Actor?, id: UUID): Specialist = findVisible(actor, id)
+    fun getSpecialist(actor: Actor?, id: UUID): Specialist = findVisible(actor, id)
 
     @Transactional
-    fun update(actor: Actor, id: UUID, command: UpdateSpecialistCommand): Specialist {
+    fun updateSpecialist(actor: Actor, id: UUID, command: UpdateSpecialistCommand): Specialist {
         val specialist = findVisible(actor, id)
         if (!specialist.canBeManagedBy(actor)) throw ForbiddenException("Профиль специалиста правит только его владелец или администратор")
         val now = clock.nowMicros()

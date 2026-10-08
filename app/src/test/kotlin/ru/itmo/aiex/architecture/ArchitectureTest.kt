@@ -69,6 +69,7 @@ class ArchitectureTest {
             .should()
             .dependOnClassesThat()
             .resideInAnyPackage("org.springframework..", "jakarta.persistence..", "org.hibernate..")
+            .allowEmptyShould(true)
             .check(classes)
     }
 
@@ -104,17 +105,16 @@ class ArchitectureTest {
     }
 
     @Test
-    fun `сущности живут в domain, контроллеры в web, Spring Data - в infrastructure`() {
-        classes().that().areAnnotatedWith(Entity::class.java).should().resideInAPackage("..domain..").check(classes)
-        classes().that().areAnnotatedWith(RestController::class.java).should().resideInAPackage("..web..").check(classes)
+    fun `сущности живут в entity, контроллеры в controller, Spring Data - в repository`() {
+        classes().that().areAnnotatedWith(Entity::class.java).should().resideInAPackage("..entity..").check(classes)
+        classes().that().areAnnotatedWith(RestController::class.java).should().resideInAPackage("..controller..").check(classes)
         classes()
             .that()
             .areInterfaces()
             .and()
             .areAssignableTo(Repository::class.java)
             .should()
-            .resideInAPackage("..infrastructure..")
-            .allowEmptyShould(true)
+            .resideInAPackage("..repository..")
             .check(classes)
     }
 

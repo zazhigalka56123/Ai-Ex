@@ -23,10 +23,10 @@ class PersonaDescriberAdapter(private val llm: LlmClient, private val recorder: 
     private val log = LoggerFactory.getLogger(javaClass)
 
     @Transactional(propagation = Propagation.NEVER)
-    override fun describe(command: DescribePersonaCommand): PersonaDescription {
+    override fun describePersona(command: DescribePersonaCommand): PersonaDescription {
         val prompt = PersonaSummaryPrompt.assemble(command, clock.nowMicros())
         val draft = AgentRunDraft(AgentRunKind.PERSONA_SUMMARY, null, command.personaId, null, prompt)
-        val runId = recorder.start(draft, llm.model)
+        val runId = recorder.startRun(draft, llm.model)
         val request =
             LlmRequest(
                 operation = OPERATION,
@@ -41,12 +41,12 @@ class PersonaDescriberAdapter(private val llm: LlmClient, private val recorder: 
                 llm.complete(request)
             } catch (ex: LlmException) {
                 val status = if (ex.reason == LlmException.Reason.TIMEOUT) AgentRunStatus.TIMEOUT else AgentRunStatus.FAILED
-                recorder.fail(runId, status, "LLM_${ex.reason.name}", elapsedMs(startedAt))
+                recorder.recordFailure(runId, status, "LLM_${ex.reason.name}", elapsedMs(startedAt))
                 log.info("agent_run id={} kind={} status={} errorCode=LLM_{}", runId, AgentRunKind.PERSONA_SUMMARY, status, ex.reason)
                 throw LlmUnavailableException("Не удалось описать характер персоны: LLM недоступен (${ex.reason})", ex)
             }
         val latencyMs = elapsedMs(startedAt)
-        recorder.succeed(runId, response.model, latencyMs, response.tokensIn, response.tokensOut)
+        recorder.recordSuccess(runId, response.model, latencyMs, response.tokensIn, response.tokensOut)
         log.info(
             "agent_run id={} kind={} status=SUCCESS model={} latencyMs={} tokensIn={} tokensOut={}",
             runId,

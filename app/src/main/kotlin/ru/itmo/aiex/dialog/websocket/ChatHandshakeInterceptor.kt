@@ -33,7 +33,7 @@ class ChatHandshakeInterceptor(private val actorLookup: ObjectProvider<ActorLook
         val conversationId = conversationIdOf(request) ?: return reject(response, HttpStatus.NOT_FOUND)
         val actor = userIdOf(request)?.let { actorLookup.getObject().findActor(it) } ?: return reject(response, HttpStatus.UNAUTHORIZED)
         try {
-            conversations.get(actor, conversationId)
+            conversations.getConversation(actor, conversationId)
         } catch (ex: AiExException) {
             log.info("WebSocket беседы {} для {} отклонён: {}", conversationId, actor.userId, ex.code)
             return reject(response, HttpStatus.valueOf(ex.code.httpStatus))

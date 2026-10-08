@@ -37,7 +37,7 @@ class PersonaProfileController(private val profiles: PersonaProfileService, priv
     )
     @ApiResponse(responseCode = "200", description = "Активная версия профиля")
     @ApiErrors(ErrorCode.PERSONA_NOT_FOUND, ErrorCode.PERSONA_NOT_READY)
-    fun get(actor: Actor, @PathVariable id: UUID): ProfileResponse = profiles.activeProfile(actor, id).toResponse()
+    fun getActiveProfile(actor: Actor, @PathVariable id: UUID): ProfileResponse = profiles.getActiveProfile(actor, id).toResponse()
 
     @GetMapping("/profile/versions")
     @Operation(
@@ -47,11 +47,11 @@ class PersonaProfileController(private val profiles: PersonaProfileService, priv
     )
     @ApiResponse(responseCode = "200", description = "Страница версий")
     @ApiErrors(ErrorCode.PERSONA_NOT_FOUND)
-    fun versions(
+    fun getProfileVersions(
         actor: Actor,
         @PathVariable id: UUID,
         @PageParams(sortable = ["versionNo", "createdAt"], defaultSort = "versionNo,desc") page: PageQuery,
-    ): ResponseEntity<List<ProfileVersionResponse>> = Responses.page(profiles.versions(actor, id, page).map { it.toResponse() })
+    ): ResponseEntity<List<ProfileVersionResponse>> = Responses.page(profiles.getProfileVersions(actor, id, page).map { it.toResponse() })
 
     @PostMapping("/profile:rebuild")
     @Operation(
@@ -73,7 +73,7 @@ class PersonaProfileController(private val profiles: PersonaProfileService, priv
         ErrorCode.CONCURRENT_MODIFICATION,
         ErrorCode.LLM_UNAVAILABLE,
     )
-    fun rebuild(actor: Actor, @PathVariable id: UUID): ResponseEntity<ProfileRebuildResponse> {
+    fun rebuildProfile(actor: Actor, @PathVariable id: UUID): ResponseEntity<ProfileRebuildResponse> {
         val result = rebuilds.rebuildManually(actor, id)
         return Responses.accepted(result.toResponse(), "${ApiPaths.V1}/personas/{id}/profile", id)
     }

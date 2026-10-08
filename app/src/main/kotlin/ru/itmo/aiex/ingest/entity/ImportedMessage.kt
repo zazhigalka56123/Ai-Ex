@@ -26,7 +26,7 @@ class ImportedMessage(
     val author: MessageAuthor,
     @Column(nullable = false, updatable = false, columnDefinition = "text")
     val body: String,
-    @Column(name = "sent_at", updatable = false)
+    @Column(updatable = false)
     val sentAt: Instant?,
     @field:PositiveOrZero
     @Column(nullable = false, updatable = false)

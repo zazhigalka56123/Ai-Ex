@@ -18,7 +18,7 @@ import java.util.UUID
 class Notification(
     @Id
     val id: UUID,
-    @Column(name = "recipient_id", nullable = false, updatable = false)
+    @Column(nullable = false, updatable = false)
     val recipientId: UUID,
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 48, updatable = false)
@@ -27,7 +27,7 @@ class Notification(
     @JdbcTypeCode(SqlTypes.JSON)
     @Column(nullable = false, columnDefinition = "jsonb", updatable = false)
     val payload: String,
-    @Column(name = "created_at", nullable = false, updatable = false)
+    @Column(nullable = false, updatable = false)
     val createdAt: Instant,
 ) {
     @Enumerated(EnumType.STRING)
@@ -40,7 +40,6 @@ class Notification(
     var attempts: Int = 0
         protected set
 
-    @Column(name = "sent_at")
     var sentAt: Instant? = null
         protected set
 

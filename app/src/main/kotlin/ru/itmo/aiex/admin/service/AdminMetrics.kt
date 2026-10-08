@@ -8,5 +8,5 @@ import ru.itmo.aiex.common.metrics.MetricsContributor
 @Component
 @Transactional(readOnly = true)
 class AdminMetrics(private val flags: ModerationFlagRepository) : MetricsContributor {
-    override fun metrics(): Map<String, Long> = FlagStatus.entries.associate { "flags.${it.name.lowercase()}" to flags.countByStatus(it) }
+    override fun collectMetrics(): Map<String, Long> = FlagStatus.entries.associate { "flags.${it.name.lowercase()}" to flags.countByStatus(it) }
 }

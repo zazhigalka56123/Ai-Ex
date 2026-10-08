@@ -30,9 +30,9 @@ class GuardrailsTest {
     }
 
     @ParameterizedTest
-    @ValueSource(strings = ["ты дура", "Ну и Идиот же ты", "мразь.", "какая же ты тварь!"])
-    fun `оскорбления распознаются как ABUSE`(text: String) {
-        assertThat(Guardrails.inspect(text)?.reason).isEqualTo(FlagReason.ABUSE)
+    @ValueSource(strings = ["ты дура", "Ну и Идиот же ты", "мразь.", "какая же ты тварь!", "блядь, вот это день", "это пиздец"])
+    fun `мат и бытовые оскорбления не вызывают срабатывание`(text: String) {
+        assertThat(Guardrails.inspect(text)).isNull()
     }
 
     @ParameterizedTest

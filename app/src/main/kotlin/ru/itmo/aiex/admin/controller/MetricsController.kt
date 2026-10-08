@@ -24,5 +24,5 @@ class MetricsController(private val board: MetricsBoard) {
     )
     @ApiResponse(responseCode = "200", description = "Снимок метрик")
     @ApiErrors(ErrorCode.FORBIDDEN)
-    fun get(actor: Actor): MetricsResponse = board.snapshot(actor).let { MetricsResponse(it.metrics, it.generatedAt) }
+    fun getMetrics(actor: Actor): MetricsResponse = board.collectMetrics(actor).let { MetricsResponse(it.metrics, it.generatedAt) }
 }

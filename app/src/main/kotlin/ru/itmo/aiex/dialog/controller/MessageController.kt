@@ -53,12 +53,12 @@ class MessageController(private val exchanges: MessageExchangeService, private v
         ErrorCode.PERSONA_NOT_READY,
         ErrorCode.LLM_UNAVAILABLE,
     )
-    fun send(
+    fun sendMessage(
         actor: Actor,
         @PathVariable conversationId: UUID,
         @Valid @RequestBody request: SendMessageRequest,
     ): ResponseEntity<MessageExchangeResponse> {
-        val exchange = exchanges.send(actor, conversationId, request.text)
+        val exchange = exchanges.sendMessage(actor, conversationId, request.text)
         return Responses.created(
             exchange.toResponse(),
             "${ApiPaths.V1}/conversations/{conversationId}/messages/{id}",
@@ -82,7 +82,7 @@ class MessageController(private val exchanges: MessageExchangeService, private v
         actor: Actor,
         @PathVariable conversationId: UUID,
         @CursorParams(defaultLimit = 30) cursor: CursorQuery,
-    ): CursorPage<MessageResponse> = conversations.listMessages(actor, conversationId, cursor).map { it.toResponse() }
+    ): CursorPage<MessageResponse> = conversations.getMessages(actor, conversationId, cursor).map { it.toResponse() }
 
     @GetMapping("/{id}")
     @Operation(
@@ -92,6 +92,6 @@ class MessageController(private val exchanges: MessageExchangeService, private v
     )
     @ApiResponse(responseCode = "200", description = "Сообщение")
     @ApiErrors(ErrorCode.FORBIDDEN, ErrorCode.CONVERSATION_NOT_FOUND, ErrorCode.MESSAGE_NOT_FOUND)
-    fun get(actor: Actor, @PathVariable conversationId: UUID, @PathVariable id: UUID): MessageResponse =
+    fun getMessage(actor: Actor, @PathVariable conversationId: UUID, @PathVariable id: UUID): MessageResponse =
         conversations.getMessage(actor, conversationId, id).toResponse()
 }

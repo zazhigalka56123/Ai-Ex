@@ -48,7 +48,7 @@ class PersonaDescriberAdapterTest {
         val request = slot<LlmRequest>()
         every { llm.complete(capture(request)) } returns LlmResponse("  Сдержанная.\n Ревнивая.  ", "provider-model", 120, 30)
 
-        val description = describer.describe(command())
+        val description = describer.describePersona(command())
 
         assertThat(description.text).isEqualTo("Сдержанная. Ревнивая.")
         assertThat(description.model).isEqualTo("provider-model")
@@ -68,7 +68,7 @@ class PersonaDescriberAdapterTest {
         val request = slot<LlmRequest>()
         every { llm.complete(capture(request)) } returns LlmResponse("Резюме.", "provider-model", 1, 1)
 
-        describer.describe(command())
+        describer.describePersona(command())
 
         assertThat(request.captured.operation).isEqualTo("persona.summary")
         assertThat(request.captured.systemPrompt).contains("Маша", "- ревность: high (0.90)", "- «неа»")
@@ -81,7 +81,7 @@ class PersonaDescriberAdapterTest {
     fun `таймаут провайдера - прогон TIMEOUT и 503 LLM_UNAVAILABLE`() {
         every { llm.complete(any()) } throws LlmException(LlmException.Reason.TIMEOUT, "timeout")
 
-        assertThatThrownBy { describer.describe(command()) }
+        assertThatThrownBy { describer.describePersona(command()) }
             .isInstanceOf(LlmUnavailableException::class.java)
             .hasFieldOrPropertyWithValue("code", ErrorCode.LLM_UNAVAILABLE)
             .hasCauseInstanceOf(LlmException::class.java)
@@ -96,7 +96,7 @@ class PersonaDescriberAdapterTest {
     fun `недоступность провайдера - прогон FAILED`() {
         every { llm.complete(any()) } throws LlmException(LlmException.Reason.UNAVAILABLE, "провайдер лежит")
 
-        assertThatThrownBy { describer.describe(command()) }.isInstanceOf(LlmUnavailableException::class.java)
+        assertThatThrownBy { describer.describePersona(command()) }.isInstanceOf(LlmUnavailableException::class.java)
 
         assertThat(runs.all().single().status).isEqualTo(AgentRunStatus.FAILED)
         assertThat(runs.all().single().errorCode).isEqualTo("LLM_UNAVAILABLE")
@@ -106,6 +106,6 @@ class PersonaDescriberAdapterTest {
     fun `слишком длинное резюме обрезается`() {
         every { llm.complete(any()) } returns LlmResponse("а".repeat(PersonaSummaryPrompt.MAX_CHARS * 2), "provider-model", 1, 1)
 
-        assertThat(describer.describe(command()).text).hasSize(PersonaSummaryPrompt.MAX_CHARS)
+        assertThat(describer.describePersona(command()).text).hasSize(PersonaSummaryPrompt.MAX_CHARS)
     }
 }

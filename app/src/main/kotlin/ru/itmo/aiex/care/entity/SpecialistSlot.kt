@@ -21,13 +21,13 @@ class SpecialistSlot(
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "specialist_id", nullable = false, updatable = false)
     val specialist: Specialist,
-    @Column(name = "starts_at", nullable = false, updatable = false)
+    @Column(nullable = false, updatable = false)
     val startsAt: Instant,
     @field:Min(15)
     @field:Max(240)
-    @Column(name = "duration_min", nullable = false, updatable = false)
+    @Column(nullable = false, updatable = false)
     val durationMin: Int,
-    @Column(name = "created_at", nullable = false, updatable = false)
+    @Column(nullable = false, updatable = false)
     val createdAt: Instant,
 ) {
     val endsAt: Instant get() = SlotSchedule.end(startsAt, durationMin)

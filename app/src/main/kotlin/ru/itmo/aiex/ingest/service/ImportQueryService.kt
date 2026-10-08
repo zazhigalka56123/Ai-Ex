@@ -25,16 +25,16 @@ class ImportQueryService(
     private val messages: ImportedMessageRepository,
     private val personaAccess: PersonaAccess,
 ) {
-    fun get(actor: Actor, importId: UUID): ChatImport =
+    fun getImport(actor: Actor, importId: UUID): ChatImport =
         imports.findById(importId)?.takeIf { it.ownerId == actor.userId } ?: throw NotFoundException.of(ErrorCode.IMPORT_NOT_FOUND, importId)
 
-    fun listByPersona(actor: Actor, personaId: UUID, page: PageQuery): PageView<ChatImport> {
+    fun getPersonaImports(actor: Actor, personaId: UUID, page: PageQuery): PageView<ChatImport> {
         personaAccess.assertOwned(personaId, actor.userId)
         return imports.findPageByPersona(personaId, page)
     }
 
-    fun messages(actor: Actor, importId: UUID, cursor: CursorQuery): CursorPage<ImportedMessage> {
-        get(actor, importId)
+    fun getImportMessages(actor: Actor, importId: UUID, cursor: CursorQuery): CursorPage<ImportedMessage> {
+        getImport(actor, importId)
         val after = cursor.cursor?.let(::decodeOrdinal) ?: -1
         val rows = messages.findAfter(importId, after, cursor.limit + 1)
         return CursorPage.fromOverfetch(rows, cursor.limit) { CursorCodec.encodeOrdinal(it.ordinal.toLong()) }
@@ -42,9 +42,7 @@ class ImportQueryService(
 
     private fun decodeOrdinal(cursor: String): Int {
         val ordinal = CursorCodec.decodeOrdinal(cursor)
-        if (ordinal !in
-            -1L..Int.MAX_VALUE.toLong()
-        ) {
+        if (ordinal !in -1L..Int.MAX_VALUE.toLong()) {
             throw ValidationException("cursor", "cursor.invalid", "Курсор повреждён или получен не от этого API")
         }
         return ordinal.toInt()

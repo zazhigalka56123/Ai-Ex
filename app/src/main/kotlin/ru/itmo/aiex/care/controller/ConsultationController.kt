@@ -68,7 +68,7 @@ class ConsultationController(private val booking: ConsultationBooking, private v
     @Operation(operationId = "getConsultation", summary = "Консультация по id", description = "Клиенту, специалисту консультации и администратору.")
     @ApiResponse(responseCode = "200", description = "Консультация")
     @ApiErrors(ErrorCode.CONSULTATION_NOT_FOUND)
-    fun get(actor: Actor, @PathVariable id: UUID): ConsultationResponse = consultations.get(actor, id).toResponse()
+    fun getConsultation(actor: Actor, @PathVariable id: UUID): ConsultationResponse = consultations.getConsultation(actor, id).toResponse()
 
     @PatchMapping("/{id}")
     @Operation(
@@ -87,6 +87,6 @@ class ConsultationController(private val booking: ConsultationBooking, private v
         ErrorCode.CONSULTATION_INVALID_STATE,
         ErrorCode.CONCURRENT_MODIFICATION,
     )
-    fun update(actor: Actor, @PathVariable id: UUID, @Valid @RequestBody request: UpdateConsultationRequest): ConsultationResponse =
-        consultations.update(actor, id, request.toChange()).toResponse()
+    fun updateConsultation(actor: Actor, @PathVariable id: UUID, @Valid @RequestBody request: UpdateConsultationRequest): ConsultationResponse =
+        consultations.updateConsultation(actor, id, request.toChange()).toResponse()
 }

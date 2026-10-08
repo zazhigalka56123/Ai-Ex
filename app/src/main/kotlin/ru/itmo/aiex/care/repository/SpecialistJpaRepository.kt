@@ -7,7 +7,6 @@ import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Lock
 import org.springframework.data.jpa.repository.Modifying
 import org.springframework.data.jpa.repository.Query
-import org.springframework.data.repository.query.Param
 import ru.itmo.aiex.care.entity.Specialist
 import ru.itmo.aiex.care.entity.SpecialistStatus
 import java.util.UUID
@@ -31,23 +30,19 @@ internal interface SpecialistJpaRepository : JpaRepository<Specialist, UUID> {
               and exists (select 1 from Specialist f join f.specializations sp where f = s and sp.code = :code)
         """,
     )
-    fun findAllByStatusAndSpecialization(
-        @Param("status") status: SpecialistStatus,
-        @Param("code") code: String,
-        pageable: Pageable,
-    ): Page<Specialist>
+    fun findAllByStatusAndSpecialization(status: SpecialistStatus, code: String, pageable: Pageable): Page<Specialist>
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("select s from Specialist s where s.id = :id")
-    fun findLockedById(@Param("id") id: UUID): Specialist?
+    fun findLockedById(id: UUID): Specialist?
 
     @Modifying
     @Query(value = "UPDATE care.specialists SET booked_count = booked_count + 1 WHERE id = :id", nativeQuery = true)
-    fun incrementBookedCount(@Param("id") id: UUID): Int
+    fun incrementBookedCount(id: UUID): Int
 
     @Modifying
     @Query(value = "UPDATE care.specialists SET booked_count = booked_count - 1 WHERE id = :id AND booked_count > 0", nativeQuery = true)
-    fun decrementBookedCount(@Param("id") id: UUID): Int
+    fun decrementBookedCount(id: UUID): Int
 
     fun existsBySpecializationsId(specializationId: Long): Boolean
 }

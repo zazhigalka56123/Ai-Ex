@@ -40,7 +40,7 @@ class PersonaService(
     private val log = LoggerFactory.getLogger(javaClass)
 
     @Transactional
-    fun create(actor: Actor, command: CreatePersonaCommand): PersonaDetails {
+    fun createPersona(actor: Actor, command: CreatePersonaCommand): PersonaDetails {
         actor.requireRole(RoleCode.USER)
         val codes = command.tagCodes.map(::normalizeCode).toSet()
         val resolved = resolveTags(codes, field = "tagCodes")
@@ -62,10 +62,10 @@ class PersonaService(
 
     fun getPersonas(actor: Actor, status: PersonaStatus?, page: PageQuery): PageView<Persona> = personas.findPageByOwner(actor.userId, status, page)
 
-    fun get(actor: Actor, personaId: UUID): PersonaDetails = toDetails(findOwned(actor, personaId))
+    fun getPersona(actor: Actor, personaId: UUID): PersonaDetails = toDetails(findOwned(actor, personaId))
 
     @Transactional
-    fun update(actor: Actor, personaId: UUID, command: UpdatePersonaCommand): PersonaDetails {
+    fun updatePersona(actor: Actor, personaId: UUID, command: UpdatePersonaCommand): PersonaDetails {
         val persona = findOwned(actor, personaId)
         val description = command.description?.trim()
         persona.edit(
@@ -79,7 +79,7 @@ class PersonaService(
     }
 
     @Transactional
-    fun replaceTags(actor: Actor, personaId: UUID, assignments: List<TagAssignment>): PersonaDetails {
+    fun replacePersonaTags(actor: Actor, personaId: UUID, assignments: List<TagAssignment>): PersonaDetails {
         val persona = findOwned(actor, personaId)
         persona.ensureEditable()
         val requested = assignments.associate { normalizeCode(it.code) to (it.weight ?: FULL_WEIGHT) }
@@ -102,7 +102,7 @@ class PersonaService(
     }
 
     @Transactional
-    fun archive(personaId: UUID, actor: Actor) {
+    fun archivePersona(personaId: UUID, actor: Actor) {
         val persona =
             personas.findById(personaId)?.takeIf { it.isOwnedBy(actor.userId) || actor.isAdmin }
                 ?: throw NotFoundException.of(ErrorCode.PERSONA_NOT_FOUND, personaId)

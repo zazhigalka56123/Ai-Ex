@@ -5,11 +5,11 @@ import ru.itmo.aiex.common.paging.PageView
 interface DictionaryCatalog {
     fun getEntries(page: PageQuery): PageView<DictionaryEntry>
 
-    fun get(id: Long): DictionaryEntry
+    fun getEntry(id: Long): DictionaryEntry
 
-    fun create(code: String, title: String): DictionaryEntry
+    fun createEntry(code: String, title: String): DictionaryEntry
 
-    fun update(id: Long, title: String): DictionaryEntry
+    fun updateEntry(id: Long, title: String): DictionaryEntry
 
-    fun delete(id: Long)
+    fun deleteEntry(id: Long)
 }

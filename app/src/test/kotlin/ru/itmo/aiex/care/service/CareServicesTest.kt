@@ -85,13 +85,14 @@ class CareServicesTest {
         every { sessions.findById(session.id) } returns session
         every { sessions.saveAndFlush(session) } returns session
 
-        consultations.update(
+        consultations.updateConsultation(
             CareFixtures.actor(specialist.userId, RoleCode.SPECIALIST),
             session.id,
             ConsultationChange(status = SessionStatus.CONFIRMED),
         )
-        consultations.update(CareFixtures.actor(specialist.userId, RoleCode.SPECIALIST), session.id, ConsultationChange(summary = "резюме"))
-        consultations.update(CareFixtures.actor(client), session.id, ConsultationChange(status = SessionStatus.CANCELLED))
+        val specialistActor = CareFixtures.actor(specialist.userId, RoleCode.SPECIALIST)
+        consultations.updateConsultation(specialistActor, session.id, ConsultationChange(summary = "резюме"))
+        consultations.updateConsultation(CareFixtures.actor(client), session.id, ConsultationChange(status = SessionStatus.CANCELLED))
 
         assertThat(published.map { (it as ConsultationStatusChanged).status }).containsExactly("CONFIRMED", "CANCELLED")
         verify(exactly = 1) { specialists.decrementBookedCount(specialist.id) }
@@ -106,7 +107,7 @@ class CareServicesTest {
         every { specializations.findByCodes(setOf("breakup")) } returns listOf(CareFixtures.specialization())
         every { specialists.saveAndFlush(any<Specialist>()) } throws DataIntegrityViolationException("uq_specialists_user")
 
-        assertThatThrownBy { service.create(actor, CreateSpecialistCommand("Психолог", "Био", BigDecimal.TEN, setOf(" Breakup "))) }
+        assertThatThrownBy { service.createSpecialist(actor, CreateSpecialistCommand("Психолог", "Био", BigDecimal.TEN, setOf(" Breakup "))) }
             .isInstanceOf(ConflictException::class.java)
             .extracting { (it as AiExException).code }
             .isEqualTo(ErrorCode.SPECIALIST_PROFILE_EXISTS)
@@ -121,7 +122,11 @@ class CareServicesTest {
         every { slots.add(any()) } throws DataIntegrityViolationException("uq_specialist_slots_start")
 
         assertThatThrownBy {
-            service.create(CareFixtures.actor(specialist.userId, RoleCode.SPECIALIST), specialist.id, CreateSlotCommand(NOW.plusSeconds(3600), 60))
+            service.createSlot(
+                CareFixtures.actor(specialist.userId, RoleCode.SPECIALIST),
+                specialist.id,
+                CreateSlotCommand(NOW.plusSeconds(3600), 60),
+            )
         }.isInstanceOf(ConflictException::class.java)
             .extracting { (it as AiExException).code }
             .isEqualTo(ErrorCode.SLOT_OVERLAP)
@@ -145,7 +150,7 @@ class CareServicesTest {
         val catalog = SpecializationCatalogAdapter(specializations)
         every { specializations.existsByCode("dup") } returns false
         every { specializations.saveAndFlush(any()) } throws DataIntegrityViolationException("uq_specializations_code")
-        assertThatThrownBy { catalog.create("dup", "Дубль") }
+        assertThatThrownBy { catalog.createEntry("dup", "Дубль") }
             .extracting { (it as AiExException).code }
             .isEqualTo(ErrorCode.DICTIONARY_CODE_TAKEN)
 
@@ -153,10 +158,10 @@ class CareServicesTest {
         every { specializations.findById(7) } returns used
         every { specializations.isInUse(7) } returns false
         every { specializations.deleteAndFlush(used) } throws DataIntegrityViolationException("fk_specialist_specializations_specialization")
-        assertThatThrownBy { catalog.delete(7) }
+        assertThatThrownBy { catalog.deleteEntry(7) }
             .extracting { (it as AiExException).code }
             .isEqualTo(ErrorCode.CONSTRAINT_VIOLATED)
         every { specializations.deleteAndFlush(used) } just runs
-        catalog.delete(7)
+        catalog.deleteEntry(7)
     }
 }
