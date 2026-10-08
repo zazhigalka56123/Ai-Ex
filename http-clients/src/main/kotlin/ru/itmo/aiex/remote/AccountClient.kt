@@ -12,5 +12,5 @@ interface AccountClient {
     fun findActive(@PathVariable("userId") userId: UUID): UserView?
 
     @GetMapping("/internal/metrics")
-    fun metrics(): Map<String, Long>
+    fun getMetrics(): Map<String, Long>
 }

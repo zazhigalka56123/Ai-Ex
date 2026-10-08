@@ -23,5 +23,5 @@ interface CareClient {
     fun messageAutoFlagged(@RequestBody event: MessageAutoFlagged)
 
     @GetMapping("/internal/metrics")
-    fun metrics(): Map<String, Long>
+    fun getMetrics(): Map<String, Long>
 }

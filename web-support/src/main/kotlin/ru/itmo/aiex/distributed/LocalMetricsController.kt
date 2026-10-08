@@ -9,5 +9,5 @@ import ru.itmo.aiex.common.metrics.MetricsContributor
 @Profile("microservice")
 class LocalMetricsController(private val contributors: List<MetricsContributor>) {
     @GetMapping("/internal/metrics")
-    fun getMetrics(): Map<String, Long> = contributors.flatMap { it.metrics().entries }.associate { it.toPair() }
+    fun getMetrics(): Map<String, Long> = contributors.flatMap { it.collectMetrics().entries }.associate { it.toPair() }
 }

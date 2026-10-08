@@ -33,11 +33,11 @@ class DialogInternalController(
     fun isConversationOwned(@PathVariable id: UUID, @RequestParam userId: UUID) = dialogs.isConversationOwnedBy(id, userId)
 
     @PostMapping("/internal/persona-descriptions")
-    fun describePersona(@RequestBody command: DescribePersonaCommand) = descriptions.describe(command)
+    fun describePersona(@RequestBody command: DescribePersonaCommand) = descriptions.describePersona(command)
 
     @PostMapping("/internal/events/persona-archived")
-    fun archivePersonaConversations(@RequestBody event: PersonaArchived) = listeners.on(event)
+    fun archivePersonaConversations(@RequestBody event: PersonaArchived) = listeners.onPersonaArchived(event)
 
     @PostMapping("/internal/events/moderation-raised")
-    fun flagMessage(@RequestBody event: ModerationFlagRaised) = listeners.on(event)
+    fun flagMessage(@RequestBody event: ModerationFlagRaised) = listeners.onModerationFlagRaised(event)
 }

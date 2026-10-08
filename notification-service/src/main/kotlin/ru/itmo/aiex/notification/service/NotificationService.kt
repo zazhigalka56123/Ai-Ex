@@ -26,7 +26,7 @@ class NotificationService(
     private val log = LoggerFactory.getLogger(javaClass)
 
     @Transactional
-    fun send(command: NotificationCommand): Mono<UUID> = Mono.defer {
+    fun sendNotification(command: NotificationCommand): Mono<UUID> = Mono.defer {
         val notification = Notification(
             Ids.next(),
             command.recipientId,

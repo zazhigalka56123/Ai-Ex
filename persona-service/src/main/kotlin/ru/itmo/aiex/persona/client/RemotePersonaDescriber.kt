@@ -10,5 +10,5 @@ import ru.itmo.aiex.remote.DialogClient
 @Component
 @Profile("microservice")
 class RemotePersonaDescriber(private val dialogs: DialogClient) : PersonaDescriber {
-    override fun describe(command: DescribePersonaCommand): PersonaDescription = dialogs.describe(command)
+    override fun describePersona(command: DescribePersonaCommand): PersonaDescription = dialogs.describePersona(command)
 }

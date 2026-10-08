@@ -34,7 +34,7 @@ import java.util.UUID
 class ReactiveUserController(private val users: UserService) {
     @PostMapping
     fun createUser(@Valid @RequestBody request: CreateUserRequest): Mono<ResponseEntity<UserResponse>> = query {
-        val user = users.register(RegisterUserCommand(request.email, request.displayName, request.roles))
+        val user = users.registerUser(RegisterUserCommand(request.email, request.displayName, request.roles))
         ResponseEntity.created(URI.create("/api/v1/users/${user.id}")).body(user.toResponse())
     }
 
@@ -48,11 +48,11 @@ class ReactiveUserController(private val users: UserService) {
     }
 
     @GetMapping("/{id}")
-    fun getUser(actor: Actor, @PathVariable id: UUID): Mono<UserResponse> = query { users.get(actor, id).toResponse() }
+    fun getUser(actor: Actor, @PathVariable id: UUID): Mono<UserResponse> = query { users.getUser(actor, id).toResponse() }
 
     @PatchMapping("/{id}")
     fun updateUser(actor: Actor, @PathVariable id: UUID, @Valid @RequestBody request: UpdateUserRequest): Mono<UserResponse> = query {
-        users.update(actor, id, UpdateUserCommand(request.displayName, request.status, request.roles)).toResponse()
+        users.updateUser(actor, id, UpdateUserCommand(request.displayName, request.status, request.roles)).toResponse()
     }
 
     private fun <T : Any> query(action: () -> T): Mono<T> = Mono.fromCallable(action).subscribeOn(Schedulers.boundedElastic())

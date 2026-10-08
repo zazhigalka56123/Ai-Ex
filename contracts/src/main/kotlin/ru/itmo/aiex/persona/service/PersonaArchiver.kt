@@ -4,5 +4,5 @@ import ru.itmo.aiex.common.security.Actor
 import java.util.UUID
 
 fun interface PersonaArchiver {
-    fun archive(personaId: UUID, actor: Actor)
+    fun archivePersona(personaId: UUID, actor: Actor)
 }

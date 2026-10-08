@@ -26,7 +26,7 @@ interface DialogClient {
     fun isConversationOwnedBy(@PathVariable("id") id: UUID, @RequestParam("userId") userId: UUID): Boolean
 
     @PostMapping("/internal/persona-descriptions")
-    fun describe(@RequestBody command: DescribePersonaCommand): PersonaDescription
+    fun describePersona(@RequestBody command: DescribePersonaCommand): PersonaDescription
 
     @PostMapping("/internal/events/persona-archived")
     fun personaArchived(@RequestBody event: PersonaArchived)
@@ -35,5 +35,5 @@ interface DialogClient {
     fun moderationRaised(@RequestBody event: ModerationFlagRaised)
 
     @GetMapping("/internal/metrics")
-    fun metrics(): Map<String, Long>
+    fun getMetrics(): Map<String, Long>
 }

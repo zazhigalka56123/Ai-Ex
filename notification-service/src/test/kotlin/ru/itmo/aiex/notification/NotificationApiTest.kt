@@ -129,14 +129,15 @@ class NotificationApiTest {
         val clock = Clock.fixed(Instant.parse("2026-10-08T12:00:00Z"), ZoneOffset.UTC)
         val sender = NotificationSender { reactor.core.publisher.Mono.error(NotificationDeliveryException("Канал недоступен")) }
         val service = NotificationService(repository, sender, mapper, clock)
-        val result = service.send(NotificationCommand(me, NotificationType.IMPORT_FAILED, mapOf("errorCode" to "INVALID_JSON"), UUID.randomUUID()))
+        val command = NotificationCommand(me, NotificationType.IMPORT_FAILED, mapOf("errorCode" to "INVALID_JSON"), UUID.randomUUID())
+        val result = service.sendNotification(command)
             .flatMap { service.list(me, NotificationStatus.FAILED, PageQuery(0, 20)) }
         StepVerifier.create(result).assertNext { page ->
             assertThat(page.totalElements).isEqualTo(1)
             assertThat(page.items.single().attempts).isEqualTo(1)
             assertThat(page.items.single().sentAt).isNull()
         }.verifyComplete()
-        StepVerifier.create(repository.metrics()).assertNext { metrics ->
+        StepVerifier.create(repository.countByStatus()).assertNext { metrics ->
             assertThat(metrics).containsEntry("notifications.failed", 1L).containsEntry("notifications.sent", 0L)
         }.verifyComplete()
     }

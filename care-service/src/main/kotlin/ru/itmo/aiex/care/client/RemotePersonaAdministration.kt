@@ -18,15 +18,15 @@ import java.util.UUID
 class RemotePersonaAdministration(private val personas: PersonaClient) :
     PersonaArchiver,
     TagCatalog {
-    override fun archive(personaId: UUID, actor: Actor) = personas.archive(personaId, actor)
+    override fun archivePersona(personaId: UUID, actor: Actor) = personas.archivePersona(personaId, actor)
 
     override fun getEntries(page: PageQuery): PageView<DictionaryEntry> = personas.getEntries(page)
 
-    override fun get(id: Long): DictionaryEntry = personas.getEntry(id)
+    override fun getEntry(id: Long): DictionaryEntry = personas.getEntry(id)
 
-    override fun create(code: String, title: String): DictionaryEntry = personas.createEntry(DictionaryCreate(code, title))
+    override fun createEntry(code: String, title: String): DictionaryEntry = personas.createEntry(DictionaryCreate(code, title))
 
-    override fun update(id: Long, title: String): DictionaryEntry = personas.updateEntry(id, DictionaryUpdate(title))
+    override fun updateEntry(id: Long, title: String): DictionaryEntry = personas.updateEntry(id, DictionaryUpdate(title))
 
-    override fun delete(id: Long) = personas.deleteEntry(id)
+    override fun deleteEntry(id: Long) = personas.deleteEntry(id)
 }

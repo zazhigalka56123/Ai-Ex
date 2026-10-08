@@ -19,8 +19,8 @@ import java.util.UUID
 @Profile("microservice")
 class RemoteEventRelay(private val notifications: NotificationClient, private val dialogs: DialogClient, private val care: CareClient) {
     @TransactionalEventListener(fallbackExecution = true)
-    fun on(event: ChatImportParsed) {
-        send(
+    fun onChatImportParsed(event: ChatImportParsed) {
+        notifyRecipient(
             event,
             event.ownerId,
             "IMPORT_PARSED",
@@ -31,27 +31,41 @@ class RemoteEventRelay(private val notifications: NotificationClient, private va
     }
 
     @TransactionalEventListener(fallbackExecution = true)
-    fun on(event: ChatImportFailed) {
-        send(event, event.ownerId, "IMPORT_FAILED", "importId" to event.importId, "personaId" to event.personaId, "errorCode" to event.errorCode)
+    fun onChatImportFailed(event: ChatImportFailed) {
+        notifyRecipient(
+            event,
+            event.ownerId,
+            "IMPORT_FAILED",
+            "importId" to event.importId,
+            "personaId" to event.personaId,
+            "errorCode" to event.errorCode,
+        )
     }
 
     @TransactionalEventListener(fallbackExecution = true)
-    fun on(event: PersonaProfileActivated) {
-        send(event, event.ownerId, "PERSONA_READY", "personaId" to event.personaId, "profileId" to event.profileId, "versionNo" to event.versionNo)
+    fun onPersonaProfileActivated(event: PersonaProfileActivated) {
+        notifyRecipient(
+            event,
+            event.ownerId,
+            "PERSONA_READY",
+            "personaId" to event.personaId,
+            "profileId" to event.profileId,
+            "versionNo" to event.versionNo,
+        )
     }
 
     @TransactionalEventListener(fallbackExecution = true)
-    fun on(event: PersonaArchived) {
+    fun onPersonaArchived(event: PersonaArchived) {
         try {
             dialogs.personaArchived(event)
         } finally {
-            send(event, event.ownerId, "PERSONA_ARCHIVED", "personaId" to event.personaId, "byAdmin" to event.byAdmin)
+            notifyRecipient(event, event.ownerId, "PERSONA_ARCHIVED", "personaId" to event.personaId, "byAdmin" to event.byAdmin)
         }
     }
 
     @TransactionalEventListener(fallbackExecution = true)
-    fun on(event: ConsultationRequested) {
-        send(
+    fun onConsultationRequested(event: ConsultationRequested) {
+        notifyRecipient(
             event,
             event.specialistUserId,
             "CONSULTATION_REQUESTED",
@@ -62,27 +76,27 @@ class RemoteEventRelay(private val notifications: NotificationClient, private va
     }
 
     @TransactionalEventListener(fallbackExecution = true)
-    fun on(event: ConsultationStatusChanged) {
-        send(event, event.clientId, "CONSULTATION_STATUS_CHANGED", "sessionId" to event.sessionId, "status" to event.status)
+    fun onConsultationStatusChanged(event: ConsultationStatusChanged) {
+        notifyRecipient(event, event.clientId, "CONSULTATION_STATUS_CHANGED", "sessionId" to event.sessionId, "status" to event.status)
     }
 
     @TransactionalEventListener(fallbackExecution = true)
-    fun on(event: ModerationFlagResolved) {
+    fun onModerationFlagResolved(event: ModerationFlagResolved) {
         val reporter = event.reporterId ?: return
-        send(event, reporter, "FLAG_RESOLVED", "flagId" to event.flagId, "messageId" to event.messageId, "status" to event.status)
+        notifyRecipient(event, reporter, "FLAG_RESOLVED", "flagId" to event.flagId, "messageId" to event.messageId, "status" to event.status)
     }
 
     @TransactionalEventListener(fallbackExecution = true)
-    fun on(event: MessageAutoFlagged) {
+    fun onMessageAutoFlagged(event: MessageAutoFlagged) {
         care.messageAutoFlagged(event)
     }
 
     @TransactionalEventListener(fallbackExecution = true)
-    fun on(event: ModerationFlagRaised) {
+    fun onModerationFlagRaised(event: ModerationFlagRaised) {
         dialogs.moderationRaised(event)
     }
 
-    private fun send(event: DomainEvent, recipientId: UUID, type: String, vararg payload: Pair<String, Any?>) {
-        notifications.send(NotificationDelivery(event.eventId, recipientId, type, mapOf(*payload)))
+    private fun notifyRecipient(event: DomainEvent, recipientId: UUID, type: String, vararg payload: Pair<String, Any?>) {
+        notifications.sendNotification(NotificationDelivery(event.eventId, recipientId, type, mapOf(*payload)))
     }
 }

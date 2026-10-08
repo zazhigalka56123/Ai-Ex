@@ -22,5 +22,5 @@ class CareInternalController(private val consultations: ConsultationQuery, priva
     fun hasActiveConsultation(@RequestParam userId: UUID, @RequestParam specialistId: UUID) = consultations.hasActiveSession(userId, specialistId)
 
     @PostMapping("/internal/events/message-auto-flagged")
-    fun registerGuardrailFlag(@RequestBody event: MessageAutoFlagged) = guardrails.on(event)
+    fun registerGuardrailFlag(@RequestBody event: MessageAutoFlagged) = guardrails.onMessageAutoFlagged(event)
 }

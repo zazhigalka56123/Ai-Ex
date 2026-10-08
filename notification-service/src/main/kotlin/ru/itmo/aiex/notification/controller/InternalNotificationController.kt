@@ -15,8 +15,8 @@ import java.util.UUID
 @RequestMapping("/internal")
 class InternalNotificationController(private val notifications: NotificationService, private val repository: NotificationRepository) {
     @PostMapping("/notifications")
-    fun send(@RequestBody command: NotificationCommand): Mono<UUID> = notifications.send(command)
+    fun sendNotification(@RequestBody command: NotificationCommand): Mono<UUID> = notifications.sendNotification(command)
 
     @GetMapping("/metrics")
-    fun metrics(): Mono<Map<String, Long>> = repository.metrics()
+    fun getMetrics(): Mono<Map<String, Long>> = repository.countByStatus()
 }

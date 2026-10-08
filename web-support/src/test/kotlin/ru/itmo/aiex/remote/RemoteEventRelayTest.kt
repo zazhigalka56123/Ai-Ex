@@ -25,13 +25,13 @@ class RemoteEventRelayTest {
         val dialogs = mockk<DialogClient>()
         val event = PersonaArchived(UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID(), false, Instant.now())
         every { dialogs.personaArchived(event) } throws IllegalStateException("Dialog unavailable")
-        every { notifications.send(any()) } returns UUID.randomUUID()
+        every { notifications.sendNotification(any()) } returns UUID.randomUUID()
         val relay = RemoteEventRelay(notifications, dialogs, mockk())
 
-        assertThatThrownBy { relay.on(event) }.isInstanceOf(IllegalStateException::class.java).hasMessage("Dialog unavailable")
+        assertThatThrownBy { relay.onPersonaArchived(event) }.isInstanceOf(IllegalStateException::class.java).hasMessage("Dialog unavailable")
 
         verify(exactly = 1) {
-            notifications.send(
+            notifications.sendNotification(
                 NotificationDelivery(
                     event.eventId,
                     event.ownerId,
@@ -54,7 +54,7 @@ class RemoteEventRelayTest {
             "IMPORT_PARSED",
             mapOf("importId" to event.importId, "personaId" to event.personaId, "messageCount" to 12),
         )
-        every { notifications.send(delivery) } returns UUID.randomUUID()
+        every { notifications.sendNotification(delivery) } returns UUID.randomUUID()
 
         AnnotationConfigApplicationContext().use { context ->
             context.environment.setActiveProfiles("microservice")
@@ -68,16 +68,16 @@ class RemoteEventRelayTest {
 
             transactions.executeWithoutResult { status ->
                 context.publishEvent(event)
-                verify(exactly = 0) { notifications.send(any()) }
+                verify(exactly = 0) { notifications.sendNotification(any()) }
                 status.setRollbackOnly()
             }
-            verify(exactly = 0) { notifications.send(any()) }
+            verify(exactly = 0) { notifications.sendNotification(any()) }
 
             transactions.executeWithoutResult {
                 context.publishEvent(event)
-                verify(exactly = 0) { notifications.send(any()) }
+                verify(exactly = 0) { notifications.sendNotification(any()) }
             }
-            verify(exactly = 1) { notifications.send(delivery) }
+            verify(exactly = 1) { notifications.sendNotification(delivery) }
         }
     }
 

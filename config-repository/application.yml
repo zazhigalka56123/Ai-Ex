@@ -106,9 +106,9 @@ ai-ex:
     timeout-ms: ${AIEX_LLM_TIMEOUT_MS:20000}
     max-retries: ${AIEX_LLM_MAX_RETRIES:2}
   agent:
-    history-window: ${AIEX_AGENT_HISTORY_WINDOW:20}
+    history-window: ${AIEX_AGENT_HISTORY_WINDOW:60}
     max-output-tokens: ${AIEX_AGENT_MAX_OUTPUT_TOKENS:512}
-    max-input-tokens: ${AIEX_AGENT_MAX_INPUT_TOKENS:4000}
+    max-input-tokens: ${AIEX_AGENT_MAX_INPUT_TOKENS:6000}
   pagination:
     default-size: 20
     max-size: ${AIEX_PAGINATION_MAX_SIZE:50}

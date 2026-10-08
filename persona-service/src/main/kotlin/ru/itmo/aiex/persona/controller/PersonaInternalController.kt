@@ -37,20 +37,20 @@ class PersonaInternalController(
     fun findActiveProfile(@PathVariable id: UUID) = profiles.findActiveProfile(id)
 
     @PostMapping("/internal/personas/{id}/archive")
-    fun archivePersona(@PathVariable id: UUID, @RequestBody actor: Actor) = lifecycle.archive(id, actor)
+    fun archivePersona(@PathVariable id: UUID, @RequestBody actor: Actor) = lifecycle.archivePersona(id, actor)
 
     @PostMapping("/internal/tags/search")
     fun getTags(@RequestBody page: PageQuery) = tags.getEntries(page)
 
     @GetMapping("/internal/tags/{id}")
-    fun getTag(@PathVariable id: Long) = tags.get(id)
+    fun getTag(@PathVariable id: Long) = tags.getEntry(id)
 
     @PostMapping("/internal/tags")
-    fun createTag(@RequestBody request: DictionaryCreate) = tags.create(request.code, request.title)
+    fun createTag(@RequestBody request: DictionaryCreate) = tags.createEntry(request.code, request.title)
 
     @PutMapping("/internal/tags/{id}")
-    fun updateTag(@PathVariable id: Long, @RequestBody request: DictionaryUpdate) = tags.update(id, request.title)
+    fun updateTag(@PathVariable id: Long, @RequestBody request: DictionaryUpdate) = tags.updateEntry(id, request.title)
 
     @DeleteMapping("/internal/tags/{id}")
-    fun deleteTag(@PathVariable id: Long) = tags.delete(id)
+    fun deleteTag(@PathVariable id: Long) = tags.deleteEntry(id)
 }

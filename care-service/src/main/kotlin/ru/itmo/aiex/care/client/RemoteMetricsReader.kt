@@ -15,5 +15,5 @@ class RemoteMetricsReader(
     private val dialogs: DialogClient,
     private val notifications: NotificationClient,
 ) {
-    fun getMetrics(): Map<String, Long> = accounts.metrics() + personas.metrics() + dialogs.metrics() + notifications.metrics()
+    fun getMetrics(): Map<String, Long> = accounts.getMetrics() + personas.getMetrics() + dialogs.getMetrics() + notifications.getMetrics()
 }

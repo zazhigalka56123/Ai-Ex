@@ -9,8 +9,8 @@ import java.util.UUID
 @FeignClient(name = "notification-service", configuration = [InternalFeignConfiguration::class])
 interface NotificationClient {
     @PostMapping("/internal/notifications")
-    fun send(@RequestBody delivery: NotificationDelivery): UUID
+    fun sendNotification(@RequestBody delivery: NotificationDelivery): UUID
 
     @GetMapping("/internal/metrics")
-    fun metrics(): Map<String, Long>
+    fun getMetrics(): Map<String, Long>
 }

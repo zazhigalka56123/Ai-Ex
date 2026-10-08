@@ -41,7 +41,7 @@ class NotificationRepository(private val database: DatabaseClient) {
         .map { row, _ -> row.toNotification() }
         .one()
 
-    fun metrics(): Mono<Map<String, Long>> = database
+    fun countByStatus(): Mono<Map<String, Long>> = database
         .sql("SELECT status, COUNT(*) AS total FROM notifications GROUP BY status")
         .map { row, _ -> row.get("status", String::class.java)!!.lowercase() to row.get("total", Long::class.javaObjectType)!! }
         .all()

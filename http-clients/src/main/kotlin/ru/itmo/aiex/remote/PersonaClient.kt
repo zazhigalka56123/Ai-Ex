@@ -28,7 +28,7 @@ interface PersonaClient {
     fun findActiveProfile(@PathVariable("id") id: UUID): PersonaProfileView?
 
     @PostMapping("/internal/personas/{id}/archive")
-    fun archive(@PathVariable("id") id: UUID, @RequestBody actor: Actor)
+    fun archivePersona(@PathVariable("id") id: UUID, @RequestBody actor: Actor)
 
     @PostMapping("/internal/tags/search")
     fun getEntries(@RequestBody page: PageQuery): PageView<DictionaryEntry>
@@ -46,5 +46,5 @@ interface PersonaClient {
     fun deleteEntry(@PathVariable("id") id: Long)
 
     @GetMapping("/internal/metrics")
-    fun metrics(): Map<String, Long>
+    fun getMetrics(): Map<String, Long>
 }
