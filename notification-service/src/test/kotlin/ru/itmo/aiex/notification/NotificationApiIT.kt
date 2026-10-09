@@ -9,7 +9,12 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.context.ApplicationContext
 import org.springframework.r2dbc.core.DatabaseClient
+import org.springframework.test.context.DynamicPropertyRegistry
+import org.springframework.test.context.DynamicPropertySource
 import org.springframework.test.web.reactive.server.WebTestClient
+import org.testcontainers.junit.jupiter.Container
+import org.testcontainers.junit.jupiter.Testcontainers
+import org.testcontainers.postgresql.PostgreSQLContainer
 import reactor.test.StepVerifier
 import ru.itmo.aiex.common.paging.PageQuery
 import ru.itmo.aiex.iam.dto.UserView
@@ -35,11 +40,11 @@ import java.util.UUID
         "spring.cloud.config.enabled=false",
         "spring.cloud.discovery.enabled=false",
         "eureka.client.enabled=false",
-        "spring.r2dbc.url=r2dbc:h2:mem:///notifications;DB_CLOSE_DELAY=-1;MODE=PostgreSQL",
-        "spring.sql.init.mode=always",
+        "spring.liquibase.change-log=classpath:db/changelog/notification-service.yaml",
     ],
 )
-class NotificationApiTest {
+@Testcontainers
+class NotificationApiIT {
     @Autowired
     private lateinit var context: ApplicationContext
 
@@ -118,6 +123,30 @@ class NotificationApiTest {
     }
 
     @Test
+    fun `схема создана Liquibase, а OpenAPI описывает API уведомлений`() {
+        val applied = database.sql("SELECT COUNT(*) FROM databasechangelog WHERE id = '010-001-create-notifications'")
+            .map { row, _ -> row.get(0, Long::class.javaObjectType)!! }
+            .one()
+            .block()
+        assertThat(applied).isEqualTo(1L)
+
+        client.get().uri("/v3/api-docs").exchange()
+            .expectStatus().isOk
+            .expectBody()
+            .jsonPath("$.paths['/api/v1/notifications'].get.operationId").isEqualTo("listNotifications")
+    }
+
+    @Test
+    fun `метрики считаются через сервис`() {
+        send(NotificationCommand(me, NotificationType.PERSONA_READY, emptyMap(), UUID.randomUUID()))
+        client.get().uri("/internal/metrics").header("X-Internal-Token", "ai-ex-local-token").exchange()
+            .expectStatus().isOk
+            .expectBody()
+            .jsonPath("$['notifications.sent']").isEqualTo(1)
+            .jsonPath("$['notifications.failed']").isEqualTo(0)
+    }
+
+    @Test
     fun `внутренний endpoint требует токен`() {
         client.post().uri("/internal/notifications")
             .bodyValue(NotificationCommand(me, NotificationType.PERSONA_ARCHIVED, emptyMap(), UUID.randomUUID()))
@@ -131,7 +160,7 @@ class NotificationApiTest {
         val service = NotificationService(repository, sender, mapper, clock)
         val command = NotificationCommand(me, NotificationType.IMPORT_FAILED, mapOf("errorCode" to "INVALID_JSON"), UUID.randomUUID())
         val result = service.sendNotification(command)
-            .flatMap { service.list(me, NotificationStatus.FAILED, PageQuery(0, 20)) }
+            .flatMap { service.getNotifications(me, NotificationStatus.FAILED, PageQuery(0, 20)) }
         StepVerifier.create(result).assertNext { page ->
             assertThat(page.totalElements).isEqualTo(1)
             assertThat(page.items.single().attempts).isEqualTo(1)
@@ -147,4 +176,21 @@ class NotificationApiTest {
         .bodyValue(command)
         .exchange().expectStatus().isOk
         .expectBody(UUID::class.java).returnResult().responseBody!!
+
+    companion object {
+        @Container
+        @JvmField
+        val postgres = PostgreSQLContainer("postgres:17-alpine")
+
+        @JvmStatic
+        @DynamicPropertySource
+        fun database(registry: DynamicPropertyRegistry) {
+            registry.add("spring.r2dbc.url") { "r2dbc:postgresql://${postgres.host}:${postgres.firstMappedPort}/${postgres.databaseName}" }
+            registry.add("spring.r2dbc.username", postgres::getUsername)
+            registry.add("spring.r2dbc.password", postgres::getPassword)
+            registry.add("spring.liquibase.url", postgres::getJdbcUrl)
+            registry.add("spring.liquibase.user", postgres::getUsername)
+            registry.add("spring.liquibase.password", postgres::getPassword)
+        }
+    }
 }

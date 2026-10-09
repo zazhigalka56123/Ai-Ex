@@ -7,7 +7,11 @@ plugins {
 dependencies {
     implementation(project(":contracts"))
     implementation(project(":web-support"))
-    implementation(project(":account-service"))
+    // account-service в микросервисной сборке работает на WebFlux; монолит лаб. 1 остаётся на Spring MVC.
+    implementation(project(":account-service")) {
+        exclude(group = "org.springframework.boot", module = "spring-boot-starter-webflux")
+        exclude(group = "org.springdoc", module = "springdoc-openapi-starter-webflux-ui")
+    }
     implementation(project(":persona-service"))
     implementation(project(":dialog-service"))
     implementation(project(":care-service"))

@@ -38,6 +38,13 @@ spring:
               filters:
                 - PreserveHostHeader
                 - SetPath=/v3/api-docs
+            - id: notification-api-docs
+              uri: lb://notification-service
+              predicates:
+                - Path=/v3/api-docs/notification
+              filters:
+                - PreserveHostHeader
+                - SetPath=/v3/api-docs
             - id: account
               uri: lb://account-service
               predicates:
@@ -76,3 +83,5 @@ springdoc:
         url: /v3/api-docs/dialog
       - name: care-service
         url: /v3/api-docs/care
+      - name: notification-service
+        url: /v3/api-docs/notification

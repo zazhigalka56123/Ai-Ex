@@ -51,6 +51,8 @@ class NotificationService(
                 .thenReturn(notification.id)
         }
 
-    fun list(recipientId: UUID, status: NotificationStatus?, page: PageQuery): Mono<PageView<Notification>> =
+    fun getNotifications(recipientId: UUID, status: NotificationStatus?, page: PageQuery): Mono<PageView<Notification>> =
         notifications.findPage(recipientId, status, page)
+
+    fun collectMetrics(): Mono<Map<String, Long>> = notifications.countByStatus()
 }

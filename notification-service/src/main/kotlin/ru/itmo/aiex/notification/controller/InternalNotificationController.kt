@@ -7,16 +7,15 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 import reactor.core.publisher.Mono
 import ru.itmo.aiex.notification.dto.NotificationCommand
-import ru.itmo.aiex.notification.repository.NotificationRepository
 import ru.itmo.aiex.notification.service.NotificationService
 import java.util.UUID
 
 @RestController
 @RequestMapping("/internal")
-class InternalNotificationController(private val notifications: NotificationService, private val repository: NotificationRepository) {
+class InternalNotificationController(private val notifications: NotificationService) {
     @PostMapping("/notifications")
     fun sendNotification(@RequestBody command: NotificationCommand): Mono<UUID> = notifications.sendNotification(command)
 
     @GetMapping("/metrics")
-    fun getMetrics(): Mono<Map<String, Long>> = repository.countByStatus()
+    fun getMetrics(): Mono<Map<String, Long>> = notifications.collectMetrics()
 }

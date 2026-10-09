@@ -187,6 +187,7 @@ services:
       SERVER_PORT: 8085
       SPRING_PROFILES_ACTIVE: microservice
       DB_URL: r2dbc:postgresql://notification-db:5432/notification
+      DB_JDBC_URL: jdbc:postgresql://notification-db:5432/notification
       DB_USER: notification
       DB_PASSWORD: ${NOTIFICATION_DB_PASSWORD:-notification}
     depends_on:

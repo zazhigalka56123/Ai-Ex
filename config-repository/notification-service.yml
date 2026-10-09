@@ -9,7 +9,9 @@ spring:
     pool:
       initial-size: 2
       max-size: ${AIEX_DB_POOL_SIZE:10}
-  sql:
-    init:
-      mode: always
-      schema-locations: classpath:schema.sql
+  liquibase:
+    # Миграции идут по JDBC при старте, запросы приложения - по R2DBC.
+    url: ${DB_JDBC_URL:jdbc:postgresql://localhost:5436/notification}
+    user: ${DB_USER:notification}
+    password: ${DB_PASSWORD:notification}
+    change-log: classpath:db/changelog/notification-service.yaml

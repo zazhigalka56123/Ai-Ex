@@ -1,19 +1,19 @@
-package ru.itmo.aiex.notification.web
+package ru.itmo.aiex.notification.client
 
 import io.mockk.every
 import io.mockk.mockk
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
-import org.springframework.web.server.ResponseStatusException
 import reactor.test.StepVerifier
+import ru.itmo.aiex.common.error.AiExException
+import ru.itmo.aiex.common.error.ErrorCode
 import ru.itmo.aiex.common.security.RoleCode
 import ru.itmo.aiex.iam.dto.UserView
-import ru.itmo.aiex.notification.client.NotificationUserClient
 import java.util.UUID
 
-class NotificationActorResolverTest {
+class NotificationActorLookupTest {
     private val users = mockk<NotificationUserClient>()
-    private val resolver = NotificationActorResolver(users)
+    private val lookup = NotificationActorLookup(users)
 
     @Test
     fun `блокирующий Feign выполняется на boundedElastic`() {
@@ -24,7 +24,7 @@ class NotificationActorResolverTest {
             UserView(userId, "Маша", setOf(RoleCode.USER), true)
         }
 
-        StepVerifier.create(resolver.resolve(userId.toString())).assertNext { actor ->
+        StepVerifier.create(lookup.findActor(userId)).assertNext { actor ->
             assertThat(actor.userId).isEqualTo(userId)
             assertThat(actor.roles).containsExactly(RoleCode.USER)
         }.verifyComplete()
@@ -32,13 +32,23 @@ class NotificationActorResolverTest {
     }
 
     @Test
+    fun `неизвестный и заблокированный пользователь не дают актора`() {
+        val missing = UUID.randomUUID()
+        val blocked = UUID.randomUUID()
+        every { users.findActive(missing) } returns null
+        every { users.findActive(blocked) } returns UserView(blocked, "Аня", emptySet(), false)
+
+        StepVerifier.create(lookup.findActor(missing)).verifyComplete()
+        StepVerifier.create(lookup.findActor(blocked)).verifyComplete()
+    }
+
+    @Test
     fun `недоступность Feign не даёт доступ к данным`() {
         val userId = UUID.randomUUID()
         every { users.findActive(userId) } throws IllegalStateException("account unavailable")
 
-        StepVerifier.create(resolver.resolve(userId.toString())).expectErrorSatisfies { error ->
-            assertThat(error).isInstanceOf(ResponseStatusException::class.java)
-            assertThat((error as ResponseStatusException).statusCode.value()).isEqualTo(503)
+        StepVerifier.create(lookup.findActor(userId)).expectErrorSatisfies { error ->
+            assertThat((error as AiExException).code).isEqualTo(ErrorCode.SERVICE_UNAVAILABLE)
         }.verify()
     }
 }

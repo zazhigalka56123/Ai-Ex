@@ -1,6 +1,9 @@
 spring:
   application:
     name: account-service
+  main:
+    # JPA остаётся, но HTTP обслуживает WebFlux на Netty; блокирующие вызовы уходят в JpaScheduler.
+    web-application-type: reactive
   profiles:
     active: microservice
   config:
