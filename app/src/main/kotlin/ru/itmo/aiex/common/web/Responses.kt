@@ -2,6 +2,9 @@ package ru.itmo.aiex.common.web
 
 import org.springframework.http.HttpHeaders
 import org.springframework.http.ResponseEntity
+import org.springframework.web.context.request.RequestContextHolder
+import org.springframework.web.context.request.ServletRequestAttributes
+import org.springframework.web.servlet.support.RequestContextUtils
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder
 import ru.itmo.aiex.common.paging.PageView
 import java.net.URI
@@ -44,9 +47,13 @@ object Responses {
         return links.takeIf { it.isNotEmpty() }?.joinToString(", ")
     }
 
-    private fun location(pathTemplate: String, vararg uriVariables: Any): URI = ServletUriComponentsBuilder
-        .fromCurrentContextPath()
-        .path(pathTemplate)
-        .buildAndExpand(*uriVariables)
-        .toUri()
+    private fun location(pathTemplate: String, vararg uriVariables: Any): URI {
+        val request = (RequestContextHolder.currentRequestAttributes() as ServletRequestAttributes).request
+        val path = RequestContextUtils.findWebApplicationContext(request)?.environment?.resolveRequiredPlaceholders(pathTemplate) ?: pathTemplate
+        return ServletUriComponentsBuilder
+            .fromCurrentContextPath()
+            .path(path)
+            .buildAndExpand(*uriVariables)
+            .toUri()
+    }
 }

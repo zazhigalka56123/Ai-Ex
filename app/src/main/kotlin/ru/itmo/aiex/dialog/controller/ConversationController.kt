@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RestController
 import ru.itmo.aiex.common.error.ErrorCode
 import ru.itmo.aiex.common.paging.PageQuery
 import ru.itmo.aiex.common.security.Actor
-import ru.itmo.aiex.common.web.ApiPaths
+import ru.itmo.aiex.common.web.API
 import ru.itmo.aiex.common.web.PageParams
 import ru.itmo.aiex.common.web.Responses
 import ru.itmo.aiex.common.web.openapi.ApiErrors
@@ -30,7 +30,7 @@ import ru.itmo.aiex.dialog.service.CreateConversationCommand
 import java.util.UUID
 
 @RestController
-@RequestMapping("${ApiPaths.V1}/conversations")
+@RequestMapping("$API/conversations")
 @Tag(name = "Беседы", description = "Беседы клиента с его ИИ-персонами")
 class ConversationController(private val conversations: ConversationService) {
     @PostMapping
@@ -44,7 +44,7 @@ class ConversationController(private val conversations: ConversationService) {
     @ApiErrors(ErrorCode.VALIDATION_FAILED, ErrorCode.PERSONA_NOT_FOUND, ErrorCode.PERSONA_NOT_READY)
     fun createConversation(actor: Actor, @Valid @RequestBody request: CreateConversationRequest): ResponseEntity<ConversationResponse> {
         val conversation = conversations.createConversation(actor, CreateConversationCommand(request.personaId, request.title))
-        return Responses.created(conversation.toResponse(), "${ApiPaths.V1}/conversations/{id}", conversation.id)
+        return Responses.created(conversation.toResponse(), "$API/conversations/{id}", conversation.id)
     }
 
     @GetMapping
@@ -73,7 +73,8 @@ class ConversationController(private val conversations: ConversationService) {
     )
     @ApiResponse(responseCode = "200", description = "Беседа")
     @ApiErrors(ErrorCode.FORBIDDEN, ErrorCode.CONVERSATION_NOT_FOUND)
-    fun getConversation(actor: Actor, @PathVariable id: UUID): ConversationResponse = conversations.getConversation(actor, id).toResponse()
+    fun getConversation(actor: Actor, @PathVariable id: UUID): ResponseEntity<ConversationResponse> =
+        ResponseEntity.ok(conversations.getConversation(actor, id).toResponse())
 
     @DeleteMapping("/{id}")
     @Operation(

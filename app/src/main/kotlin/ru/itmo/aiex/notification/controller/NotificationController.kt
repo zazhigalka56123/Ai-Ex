@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RestController
 import ru.itmo.aiex.common.error.ErrorCode
 import ru.itmo.aiex.common.paging.PageQuery
 import ru.itmo.aiex.common.security.Actor
-import ru.itmo.aiex.common.web.ApiPaths
+import ru.itmo.aiex.common.web.API
 import ru.itmo.aiex.common.web.PageParams
 import ru.itmo.aiex.common.web.Responses
 import ru.itmo.aiex.common.web.openapi.ApiErrors
@@ -22,7 +22,7 @@ import ru.itmo.aiex.notification.service.NotificationService
 import tools.jackson.databind.json.JsonMapper
 
 @RestController
-@RequestMapping("${ApiPaths.V1}/notifications")
+@RequestMapping("$API/notifications")
 @Tag(name = "Уведомления", description = "Уведомления текущего пользователя (заготовка под лаб. 4)")
 class NotificationController(private val notifications: NotificationService, private val jsonMapper: JsonMapper) {
     @GetMapping

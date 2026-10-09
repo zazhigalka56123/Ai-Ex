@@ -22,16 +22,14 @@ import ru.itmo.aiex.admin.service.DictionaryKind
 import ru.itmo.aiex.common.error.ErrorCode
 import ru.itmo.aiex.common.paging.PageQuery
 import ru.itmo.aiex.common.security.Actor
-import ru.itmo.aiex.common.web.ApiPaths
+import ru.itmo.aiex.common.web.API
 import ru.itmo.aiex.common.web.PageParams
 import ru.itmo.aiex.common.web.openapi.ApiErrors
-private const val TAGS_PATH = "${ApiPaths.V1}/tags"
-
 @RestController
-@RequestMapping(TAGS_PATH)
+@RequestMapping("$API/tags")
 @Tag(name = "Справочники", description = "Теги персон и специализации специалистов: читают все, ведёт администратор")
 class TagController(dictionaries: DictionaryAdministration) {
-    private val endpoints = DictionaryEndpoints(DictionaryKind.TAGS, TAGS_PATH, dictionaries)
+    private val endpoints = DictionaryEndpoints(DictionaryKind.TAGS, "$API/tags", dictionaries)
 
     @Suppress("UnusedParameter")
     @GetMapping
@@ -45,7 +43,7 @@ class TagController(dictionaries: DictionaryAdministration) {
     @Operation(operationId = "getTag", summary = "Тег по id")
     @ApiResponse(responseCode = "200", description = "Тег")
     @ApiErrors(ErrorCode.TAG_NOT_FOUND)
-    fun getTag(actor: Actor?, @PathVariable id: Long): DictionaryEntryResponse = endpoints.getEntry(id)
+    fun getTag(actor: Actor?, @PathVariable id: Long): ResponseEntity<DictionaryEntryResponse> = endpoints.getEntry(id)
 
     @PostMapping
     @Operation(operationId = "createTag", summary = "Добавить тег", description = "Только администратор. Код приводится к нижнему регистру.")
@@ -58,8 +56,11 @@ class TagController(dictionaries: DictionaryAdministration) {
     @Operation(operationId = "updateTag", summary = "Переименовать тег", description = "Только администратор. Код не меняется.")
     @ApiResponse(responseCode = "200", description = "Тег изменён")
     @ApiErrors(ErrorCode.VALIDATION_FAILED, ErrorCode.FORBIDDEN, ErrorCode.TAG_NOT_FOUND)
-    fun updateTag(actor: Actor, @PathVariable id: Long, @Valid @RequestBody request: UpdateDictionaryEntryRequest): DictionaryEntryResponse =
-        endpoints.updateEntry(actor, id, request)
+    fun updateTag(
+        actor: Actor,
+        @PathVariable id: Long,
+        @Valid @RequestBody request: UpdateDictionaryEntryRequest,
+    ): ResponseEntity<DictionaryEntryResponse> = endpoints.updateEntry(actor, id, request)
 
     @DeleteMapping("/{id}")
     @Operation(operationId = "deleteTag", summary = "Удалить тег", description = "Только администратор. Тег, назначенный персонам, удалить нельзя.")

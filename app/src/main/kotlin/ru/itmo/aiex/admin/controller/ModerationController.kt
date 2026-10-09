@@ -26,14 +26,14 @@ import ru.itmo.aiex.common.error.ErrorCode
 import ru.itmo.aiex.common.moderation.FlagReason
 import ru.itmo.aiex.common.paging.PageQuery
 import ru.itmo.aiex.common.security.Actor
-import ru.itmo.aiex.common.web.ApiPaths
+import ru.itmo.aiex.common.web.API
 import ru.itmo.aiex.common.web.PageParams
 import ru.itmo.aiex.common.web.Responses
 import ru.itmo.aiex.common.web.openapi.ApiErrors
 import java.util.UUID
 
 @RestController
-@RequestMapping("${ApiPaths.V1}/moderation/flags")
+@RequestMapping("$API/moderation/flags")
 @Tag(name = "Модерация", description = "Жалобы на сообщения и очередь флагов администратора")
 class ModerationController(private val desk: ModerationDesk) {
     @PostMapping
@@ -46,7 +46,7 @@ class ModerationController(private val desk: ModerationDesk) {
     @ApiErrors(ErrorCode.VALIDATION_FAILED, ErrorCode.FORBIDDEN, ErrorCode.MESSAGE_NOT_FOUND, ErrorCode.FLAG_ALREADY_REPORTED)
     fun createFlag(actor: Actor, @Valid @RequestBody request: CreateFlagRequest): ResponseEntity<FlagResponse> {
         val flag = desk.reportMessage(actor, ReportMessageCommand(request.messageId, request.reason, request.comment))
-        return Responses.created(flag.toResponse(), "${ApiPaths.V1}/moderation/flags/{id}", flag.id)
+        return Responses.created(flag.toResponse(), "$API/moderation/flags/{id}", flag.id)
     }
 
     @GetMapping
@@ -68,7 +68,7 @@ class ModerationController(private val desk: ModerationDesk) {
     @Operation(operationId = "getFlag", summary = "Флаг по id", description = "Только администратор, с превью флагнутого сообщения.")
     @ApiResponse(responseCode = "200", description = "Флаг")
     @ApiErrors(ErrorCode.FORBIDDEN, ErrorCode.FLAG_NOT_FOUND)
-    fun getFlag(actor: Actor, @PathVariable id: UUID): FlagResponse = desk.getFlag(actor, id).toResponse()
+    fun getFlag(actor: Actor, @PathVariable id: UUID): ResponseEntity<FlagResponse> = ResponseEntity.ok(desk.getFlag(actor, id).toResponse())
 
     @PatchMapping("/{id}")
     @Operation(
@@ -86,6 +86,6 @@ class ModerationController(private val desk: ModerationDesk) {
         ErrorCode.FLAG_INVALID_STATE,
         ErrorCode.CONCURRENT_MODIFICATION,
     )
-    fun reviewFlag(actor: Actor, @PathVariable id: UUID, @Valid @RequestBody request: ReviewFlagRequest): FlagResponse =
-        desk.reviewFlag(actor, id, ReviewFlagCommand(request.status, request.resolution, request.archivePersona)).toResponse()
+    fun reviewFlag(actor: Actor, @PathVariable id: UUID, @Valid @RequestBody request: ReviewFlagRequest): ResponseEntity<FlagResponse> =
+        ResponseEntity.ok(desk.reviewFlag(actor, id, ReviewFlagCommand(request.status, request.resolution, request.archivePersona)).toResponse())
 }

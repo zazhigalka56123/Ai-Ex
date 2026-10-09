@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RestController
 import ru.itmo.aiex.common.error.ErrorCode
 import ru.itmo.aiex.common.paging.PageQuery
 import ru.itmo.aiex.common.security.Actor
-import ru.itmo.aiex.common.web.ApiPaths
+import ru.itmo.aiex.common.web.API
 import ru.itmo.aiex.common.web.PageParams
 import ru.itmo.aiex.common.web.Responses
 import ru.itmo.aiex.common.web.openapi.ApiErrors
@@ -26,7 +26,7 @@ import ru.itmo.aiex.persona.service.ProfileRebuildService
 import java.util.UUID
 
 @RestController
-@RequestMapping("${ApiPaths.V1}/personas/{id}")
+@RequestMapping("$API/personas/{id}")
 @Tag(name = "Профиль персоны", description = "Версионированный профиль: системный промпт, стиль речи, черты")
 class PersonaProfileController(private val profiles: PersonaProfileService, private val rebuilds: ProfileRebuildService) {
     @GetMapping("/profile")
@@ -37,7 +37,8 @@ class PersonaProfileController(private val profiles: PersonaProfileService, priv
     )
     @ApiResponse(responseCode = "200", description = "Активная версия профиля")
     @ApiErrors(ErrorCode.PERSONA_NOT_FOUND, ErrorCode.PERSONA_NOT_READY)
-    fun getActiveProfile(actor: Actor, @PathVariable id: UUID): ProfileResponse = profiles.getActiveProfile(actor, id).toResponse()
+    fun getActiveProfile(actor: Actor, @PathVariable id: UUID): ResponseEntity<ProfileResponse> =
+        ResponseEntity.ok(profiles.getActiveProfile(actor, id).toResponse())
 
     @GetMapping("/profile/versions")
     @Operation(
@@ -75,6 +76,6 @@ class PersonaProfileController(private val profiles: PersonaProfileService, priv
     )
     fun rebuildProfile(actor: Actor, @PathVariable id: UUID): ResponseEntity<ProfileRebuildResponse> {
         val result = rebuilds.rebuildManually(actor, id)
-        return Responses.accepted(result.toResponse(), "${ApiPaths.V1}/personas/{id}/profile", id)
+        return Responses.accepted(result.toResponse(), "$API/personas/{id}/profile", id)
     }
 }

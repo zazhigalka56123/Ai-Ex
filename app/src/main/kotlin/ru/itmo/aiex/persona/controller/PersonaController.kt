@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.RestController
 import ru.itmo.aiex.common.error.ErrorCode
 import ru.itmo.aiex.common.paging.PageQuery
 import ru.itmo.aiex.common.security.Actor
-import ru.itmo.aiex.common.web.ApiPaths
+import ru.itmo.aiex.common.web.API
 import ru.itmo.aiex.common.web.PageParams
 import ru.itmo.aiex.common.web.Responses
 import ru.itmo.aiex.common.web.openapi.ApiErrors
@@ -38,7 +38,7 @@ import ru.itmo.aiex.persona.service.UpdatePersonaCommand
 import java.util.UUID
 
 @RestController
-@RequestMapping("${ApiPaths.V1}/personas")
+@RequestMapping("$API/personas")
 @Tag(name = "Персоны", description = "Цифровые персоны пользователя: создание, редактирование, теги, архивация")
 class PersonaController(private val personas: PersonaService) {
     @PostMapping
@@ -52,7 +52,7 @@ class PersonaController(private val personas: PersonaService) {
     fun createPersona(actor: Actor, @Valid @RequestBody request: CreatePersonaRequest): ResponseEntity<PersonaResponse> {
         val command = CreatePersonaCommand(request.name, request.relationshipKind, request.description, request.tagCodes)
         val persona = personas.createPersona(actor, command)
-        return Responses.created(persona.toResponse(), "${ApiPaths.V1}/personas/{id}", persona.id)
+        return Responses.created(persona.toResponse(), "$API/personas/{id}", persona.id)
     }
 
     @GetMapping
@@ -74,7 +74,8 @@ class PersonaController(private val personas: PersonaService) {
     @Operation(operationId = "getPersona", summary = "Персона по id", description = "Только своя: чужая и несуществующая неотличимы (`404`).")
     @ApiResponse(responseCode = "200", description = "Персона с чертами, тегами и активной версией профиля")
     @ApiErrors(ErrorCode.PERSONA_NOT_FOUND)
-    fun getPersona(actor: Actor, @PathVariable id: UUID): PersonaResponse = personas.getPersona(actor, id).toResponse()
+    fun getPersona(actor: Actor, @PathVariable id: UUID): ResponseEntity<PersonaResponse> =
+        ResponseEntity.ok(personas.getPersona(actor, id).toResponse())
 
     @PatchMapping("/{id}")
     @Operation(
@@ -84,8 +85,10 @@ class PersonaController(private val personas: PersonaService) {
     )
     @ApiResponse(responseCode = "200", description = "Персона изменена")
     @ApiErrors(ErrorCode.VALIDATION_FAILED, ErrorCode.PERSONA_NOT_FOUND, ErrorCode.PERSONA_INVALID_STATE, ErrorCode.CONCURRENT_MODIFICATION)
-    fun updatePersona(actor: Actor, @PathVariable id: UUID, @Valid @RequestBody request: UpdatePersonaRequest): PersonaResponse =
-        personas.updatePersona(actor, id, UpdatePersonaCommand(request.name, request.relationshipKind, request.description)).toResponse()
+    fun updatePersona(actor: Actor, @PathVariable id: UUID, @Valid @RequestBody request: UpdatePersonaRequest): ResponseEntity<PersonaResponse> =
+        ResponseEntity.ok(
+            personas.updatePersona(actor, id, UpdatePersonaCommand(request.name, request.relationshipKind, request.description)).toResponse(),
+        )
 
     @DeleteMapping("/{id}")
     @Operation(
@@ -111,6 +114,6 @@ class PersonaController(private val personas: PersonaService) {
     )
     @ApiResponse(responseCode = "200", description = "Персона с новым набором тегов")
     @ApiErrors(ErrorCode.VALIDATION_FAILED, ErrorCode.PERSONA_NOT_FOUND, ErrorCode.PERSONA_INVALID_STATE, ErrorCode.CONCURRENT_MODIFICATION)
-    fun replacePersonaTags(actor: Actor, @PathVariable id: UUID, @Valid @RequestBody request: ReplaceTagsRequest): PersonaResponse =
-        personas.replacePersonaTags(actor, id, request.tags.map { TagAssignment(it.code, it.weight) }).toResponse()
+    fun replacePersonaTags(actor: Actor, @PathVariable id: UUID, @Valid @RequestBody request: ReplaceTagsRequest): ResponseEntity<PersonaResponse> =
+        ResponseEntity.ok(personas.replacePersonaTags(actor, id, request.tags.map { TagAssignment(it.code, it.weight) }).toResponse())
 }

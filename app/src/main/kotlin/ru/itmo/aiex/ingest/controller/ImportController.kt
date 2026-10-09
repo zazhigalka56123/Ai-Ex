@@ -22,7 +22,7 @@ import ru.itmo.aiex.common.paging.CursorPage
 import ru.itmo.aiex.common.paging.CursorQuery
 import ru.itmo.aiex.common.paging.PageQuery
 import ru.itmo.aiex.common.security.Actor
-import ru.itmo.aiex.common.web.ApiPaths
+import ru.itmo.aiex.common.web.API
 import ru.itmo.aiex.common.web.CursorParams
 import ru.itmo.aiex.common.web.PageParams
 import ru.itmo.aiex.common.web.Responses
@@ -38,7 +38,7 @@ import java.util.UUID
 
 @RestController
 @Validated
-@RequestMapping(ApiPaths.V1)
+@RequestMapping("$API")
 @Tag(name = "Импорт переписки", description = "Загрузка выгрузок Telegram/WhatsApp, статус разбора и нормализованные сообщения")
 class ImportController(private val imports: ImportService, private val queries: ImportQueryService) {
     @PostMapping("/personas/{id}/imports", consumes = [MediaType.MULTIPART_FORM_DATA_VALUE])
@@ -74,7 +74,7 @@ class ImportController(private val imports: ImportService, private val queries: 
     ): ResponseEntity<ImportResponse> {
         val uploaded = UploadedFile(file.originalFilename, file.size) { file.inputStream }
         val chatImport = imports.uploadImport(actor, id, uploaded, source, theirName)
-        return Responses.accepted(chatImport.toResponse(), "${ApiPaths.V1}/imports/{id}", chatImport.id)
+        return Responses.accepted(chatImport.toResponse(), "$API/imports/{id}", chatImport.id)
     }
 
     @GetMapping("/personas/{id}/imports")
@@ -95,7 +95,7 @@ class ImportController(private val imports: ImportService, private val queries: 
     @Operation(operationId = "getImport", summary = "Статус импорта", description = "Статус и статистика разбора; только свой импорт.")
     @ApiResponse(responseCode = "200", description = "Импорт")
     @ApiErrors(ErrorCode.IMPORT_NOT_FOUND)
-    fun getImport(actor: Actor, @PathVariable id: UUID): ImportResponse = queries.getImport(actor, id).toResponse()
+    fun getImport(actor: Actor, @PathVariable id: UUID): ResponseEntity<ImportResponse> = ResponseEntity.ok(queries.getImport(actor, id).toResponse())
 
     @GetMapping("/imports/{id}/messages")
     @Operation(
@@ -111,5 +111,5 @@ class ImportController(private val imports: ImportService, private val queries: 
         actor: Actor,
         @PathVariable id: UUID,
         @CursorParams(defaultLimit = 30) cursor: CursorQuery,
-    ): CursorPage<ImportedMessageResponse> = queries.getImportMessages(actor, id, cursor).map { it.toResponse() }
+    ): ResponseEntity<CursorPage<ImportedMessageResponse>> = ResponseEntity.ok(queries.getImportMessages(actor, id, cursor).map { it.toResponse() })
 }

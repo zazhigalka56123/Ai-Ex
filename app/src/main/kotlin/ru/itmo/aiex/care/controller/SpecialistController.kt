@@ -29,7 +29,7 @@ import ru.itmo.aiex.care.service.UpdateSpecialistCommand
 import ru.itmo.aiex.common.error.ErrorCode
 import ru.itmo.aiex.common.paging.PageQuery
 import ru.itmo.aiex.common.security.Actor
-import ru.itmo.aiex.common.web.ApiPaths
+import ru.itmo.aiex.common.web.API
 import ru.itmo.aiex.common.web.PageParams
 import ru.itmo.aiex.common.web.Responses
 import ru.itmo.aiex.common.web.openapi.ApiErrors
@@ -37,7 +37,7 @@ import java.time.Instant
 import java.util.UUID
 
 @RestController
-@RequestMapping("${ApiPaths.V1}/specialists")
+@RequestMapping("$API/specialists")
 @Tag(name = "Специалисты", description = "Профили специалистов, каталог с фильтром по специализации, расписание слотов")
 class SpecialistController(private val directory: SpecialistDirectory, private val slots: SlotService) {
     @PostMapping
@@ -51,7 +51,7 @@ class SpecialistController(private val directory: SpecialistDirectory, private v
     fun createSpecialist(actor: Actor, @Valid @RequestBody request: CreateSpecialistRequest): ResponseEntity<SpecialistResponse> {
         val command = CreateSpecialistCommand(request.headline, request.bio, request.pricePerHour, request.specializationCodes)
         val card = directory.createSpecialist(actor, command)
-        return Responses.created(card.toResponse(), "${ApiPaths.V1}/specialists/{id}", card.specialist.id)
+        return Responses.created(card.toResponse(), "$API/specialists/{id}", card.specialist.id)
     }
 
     @Suppress("UnusedParameter")
@@ -77,7 +77,8 @@ class SpecialistController(private val directory: SpecialistDirectory, private v
     )
     @ApiResponse(responseCode = "200", description = "Профиль специалиста")
     @ApiErrors(ErrorCode.SPECIALIST_NOT_FOUND)
-    fun getSpecialist(actor: Actor?, @PathVariable id: UUID): SpecialistResponse = directory.getSpecialist(actor, id).toResponse()
+    fun getSpecialist(actor: Actor?, @PathVariable id: UUID): ResponseEntity<SpecialistResponse> =
+        ResponseEntity.ok(directory.getSpecialist(actor, id).toResponse())
 
     @PatchMapping("/{id}")
     @Operation(
@@ -87,9 +88,13 @@ class SpecialistController(private val directory: SpecialistDirectory, private v
     )
     @ApiResponse(responseCode = "200", description = "Профиль изменён")
     @ApiErrors(ErrorCode.VALIDATION_FAILED, ErrorCode.FORBIDDEN, ErrorCode.SPECIALIST_NOT_FOUND, ErrorCode.CONCURRENT_MODIFICATION)
-    fun updateSpecialist(actor: Actor, @PathVariable id: UUID, @Valid @RequestBody request: UpdateSpecialistRequest): SpecialistResponse {
+    fun updateSpecialist(
+        actor: Actor,
+        @PathVariable id: UUID,
+        @Valid @RequestBody request: UpdateSpecialistRequest,
+    ): ResponseEntity<SpecialistResponse> {
         val command = UpdateSpecialistCommand(request.headline, request.bio, request.pricePerHour, request.status, request.specializationCodes)
-        return directory.updateSpecialist(actor, id, command).toResponse()
+        return ResponseEntity.ok(directory.updateSpecialist(actor, id, command).toResponse())
     }
 
     @PostMapping("/{id}/slots")
@@ -102,7 +107,7 @@ class SpecialistController(private val directory: SpecialistDirectory, private v
     @ApiErrors(ErrorCode.VALIDATION_FAILED, ErrorCode.FORBIDDEN, ErrorCode.SPECIALIST_NOT_FOUND, ErrorCode.SLOT_OVERLAP)
     fun createSlot(actor: Actor, @PathVariable id: UUID, @Valid @RequestBody request: CreateSlotRequest): ResponseEntity<SlotResponse> {
         val slot = slots.createSlot(actor, id, CreateSlotCommand(request.startsAt, request.durationMin))
-        return Responses.created(slot.toResponse(), "${ApiPaths.V1}/specialists/{id}/slots/{slotId}", id, slot.id)
+        return Responses.created(slot.toResponse(), "$API/specialists/{id}/slots/{slotId}", id, slot.id)
     }
 
     @GetMapping("/{id}/slots")
@@ -125,5 +130,6 @@ class SpecialistController(private val directory: SpecialistDirectory, private v
     @Operation(operationId = "getSlot", summary = "Слот специалиста", description = "Слот по id - независимо от того, занят ли он.")
     @ApiResponse(responseCode = "200", description = "Слот")
     @ApiErrors(ErrorCode.SPECIALIST_NOT_FOUND, ErrorCode.SLOT_NOT_FOUND)
-    fun getSlot(actor: Actor?, @PathVariable id: UUID, @PathVariable slotId: UUID): SlotResponse = slots.getSlot(actor, id, slotId).toResponse()
+    fun getSlot(actor: Actor?, @PathVariable id: UUID, @PathVariable slotId: UUID): ResponseEntity<SlotResponse> =
+        ResponseEntity.ok(slots.getSlot(actor, id, slotId).toResponse())
 }

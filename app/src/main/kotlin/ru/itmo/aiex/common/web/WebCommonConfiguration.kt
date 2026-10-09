@@ -8,9 +8,10 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer
 import ru.itmo.aiex.common.ExcludeFromCoverage
 @ExcludeFromCoverage
 @Configuration(proxyBeanMethods = false)
-@EnableConfigurationProperties(PaginationProperties::class)
+@EnableConfigurationProperties(PaginationProperties::class, ApiProperties::class)
 class WebCommonConfiguration(private val paginationProperties: PaginationProperties, private val actorLookup: ObjectProvider<ActorLookup>) :
     WebMvcConfigurer {
+
     override fun addArgumentResolvers(resolvers: MutableList<HandlerMethodArgumentResolver>) {
         resolvers += CurrentActorArgumentResolver { userId -> actorLookup.getObject().findActor(userId) }
         resolvers += PageQueryArgumentResolver(paginationProperties)

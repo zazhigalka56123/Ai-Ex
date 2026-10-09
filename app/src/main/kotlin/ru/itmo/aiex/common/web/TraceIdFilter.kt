@@ -15,7 +15,7 @@ import java.util.concurrent.TimeUnit
 
 @Component
 @Order(Ordered.HIGHEST_PRECEDENCE)
-class TraceIdFilter : OncePerRequestFilter() {
+class TraceIdFilter(private val api: ApiProperties) : OncePerRequestFilter() {
     private val log = LoggerFactory.getLogger(javaClass)
 
     override fun doFilterInternal(request: HttpServletRequest, response: HttpServletResponse, filterChain: FilterChain) {
@@ -26,7 +26,7 @@ class TraceIdFilter : OncePerRequestFilter() {
         try {
             filterChain.doFilter(request, response)
         } finally {
-            if (request.requestURI.startsWith(ApiPaths.V1)) {
+            if (request.requestURI.startsWith(api.basePath)) {
                 val tookMs = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startedAt)
                 log.info("{} {} -> {} ({} мс)", request.method, request.requestURI, response.status, tookMs)
             }

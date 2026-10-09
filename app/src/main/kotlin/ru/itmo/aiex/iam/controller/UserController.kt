@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RestController
 import ru.itmo.aiex.common.error.ErrorCode
 import ru.itmo.aiex.common.paging.PageQuery
 import ru.itmo.aiex.common.security.Actor
-import ru.itmo.aiex.common.web.ApiPaths
+import ru.itmo.aiex.common.web.API
 import ru.itmo.aiex.common.web.PageParams
 import ru.itmo.aiex.common.web.Responses
 import ru.itmo.aiex.common.web.openapi.ApiErrors
@@ -32,7 +32,7 @@ import ru.itmo.aiex.iam.service.UserService
 import java.util.UUID
 
 @RestController
-@RequestMapping("${ApiPaths.V1}/users")
+@RequestMapping("$API/users")
 @Tag(name = "Пользователи", description = "Регистрация, роли и блокировка пользователей")
 class UserController(private val users: UserService) {
     @PostMapping
@@ -45,7 +45,7 @@ class UserController(private val users: UserService) {
     @ApiErrors(ErrorCode.VALIDATION_FAILED, ErrorCode.EMAIL_TAKEN)
     fun createUser(@Valid @RequestBody request: CreateUserRequest): ResponseEntity<UserResponse> {
         val user = users.registerUser(RegisterUserCommand(request.email, request.displayName, request.roles))
-        return Responses.created(user.toResponse(), "${ApiPaths.V1}/users/{id}", user.id)
+        return Responses.created(user.toResponse(), "$API/users/{id}", user.id)
     }
 
     @GetMapping
@@ -66,7 +66,7 @@ class UserController(private val users: UserService) {
     @Operation(operationId = "getUser", summary = "Пользователь по id", description = "Администратор - любой, остальные - только себя.")
     @ApiResponse(responseCode = "200", description = "Пользователь")
     @ApiErrors(ErrorCode.USER_NOT_FOUND)
-    fun getUser(actor: Actor, @PathVariable id: UUID): UserResponse = users.getUser(actor, id).toResponse()
+    fun getUser(actor: Actor, @PathVariable id: UUID): ResponseEntity<UserResponse> = ResponseEntity.ok(users.getUser(actor, id).toResponse())
 
     @PatchMapping("/{id}")
     @Operation(
@@ -82,6 +82,6 @@ class UserController(private val users: UserService) {
         ErrorCode.USER_INVALID_STATE,
         ErrorCode.CONCURRENT_MODIFICATION,
     )
-    fun updateUser(actor: Actor, @PathVariable id: UUID, @Valid @RequestBody request: UpdateUserRequest): UserResponse =
-        users.updateUser(actor, id, UpdateUserCommand(request.displayName, request.status, request.roles)).toResponse()
+    fun updateUser(actor: Actor, @PathVariable id: UUID, @Valid @RequestBody request: UpdateUserRequest): ResponseEntity<UserResponse> =
+        ResponseEntity.ok(users.updateUser(actor, id, UpdateUserCommand(request.displayName, request.status, request.roles)).toResponse())
 }

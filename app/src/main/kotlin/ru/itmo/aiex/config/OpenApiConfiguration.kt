@@ -6,9 +6,10 @@ import org.springdoc.core.models.GroupedOpenApi
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import ru.itmo.aiex.common.ExcludeFromCoverage
+import ru.itmo.aiex.common.web.ApiProperties
 @ExcludeFromCoverage
 @Configuration(proxyBeanMethods = false)
-class OpenApiConfiguration {
+class OpenApiConfiguration(private val api: ApiProperties) {
     @Bean
     fun aiExOpenApi(): OpenAPI = OpenAPI().info(
         Info()
@@ -52,6 +53,6 @@ class OpenApiConfiguration {
         .builder()
         .group(name)
         .packagesToScan(*packages)
-        .pathsToMatch("/api/**")
+        .pathsToMatch("${api.basePath}/**")
         .build()
 }

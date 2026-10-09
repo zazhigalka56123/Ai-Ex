@@ -22,16 +22,14 @@ import ru.itmo.aiex.admin.service.DictionaryKind
 import ru.itmo.aiex.common.error.ErrorCode
 import ru.itmo.aiex.common.paging.PageQuery
 import ru.itmo.aiex.common.security.Actor
-import ru.itmo.aiex.common.web.ApiPaths
+import ru.itmo.aiex.common.web.API
 import ru.itmo.aiex.common.web.PageParams
 import ru.itmo.aiex.common.web.openapi.ApiErrors
-private const val SPECIALIZATIONS_PATH = "${ApiPaths.V1}/specializations"
-
 @RestController
-@RequestMapping(SPECIALIZATIONS_PATH)
+@RequestMapping("$API/specializations")
 @Tag(name = "Справочники", description = "Теги персон и специализации специалистов: читают все, ведёт администратор")
 class SpecializationController(dictionaries: DictionaryAdministration) {
-    private val endpoints = DictionaryEndpoints(DictionaryKind.SPECIALIZATIONS, SPECIALIZATIONS_PATH, dictionaries)
+    private val endpoints = DictionaryEndpoints(DictionaryKind.SPECIALIZATIONS, "$API/specializations", dictionaries)
 
     @Suppress("UnusedParameter")
     @GetMapping
@@ -49,7 +47,7 @@ class SpecializationController(dictionaries: DictionaryAdministration) {
     @Operation(operationId = "getSpecialization", summary = "Специализация по id")
     @ApiResponse(responseCode = "200", description = "Специализация")
     @ApiErrors(ErrorCode.SPECIALIZATION_NOT_FOUND)
-    fun getSpecialization(actor: Actor?, @PathVariable id: Long): DictionaryEntryResponse = endpoints.getEntry(id)
+    fun getSpecialization(actor: Actor?, @PathVariable id: Long): ResponseEntity<DictionaryEntryResponse> = endpoints.getEntry(id)
 
     @PostMapping
     @Operation(
@@ -74,7 +72,7 @@ class SpecializationController(dictionaries: DictionaryAdministration) {
         actor: Actor,
         @PathVariable id: Long,
         @Valid @RequestBody request: UpdateDictionaryEntryRequest,
-    ): DictionaryEntryResponse = endpoints.updateEntry(actor, id, request)
+    ): ResponseEntity<DictionaryEntryResponse> = endpoints.updateEntry(actor, id, request)
 
     @DeleteMapping("/{id}")
     @Operation(

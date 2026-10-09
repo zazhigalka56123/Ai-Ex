@@ -25,14 +25,14 @@ import ru.itmo.aiex.care.service.ConsultationService
 import ru.itmo.aiex.common.error.ErrorCode
 import ru.itmo.aiex.common.paging.PageQuery
 import ru.itmo.aiex.common.security.Actor
-import ru.itmo.aiex.common.web.ApiPaths
+import ru.itmo.aiex.common.web.API
 import ru.itmo.aiex.common.web.PageParams
 import ru.itmo.aiex.common.web.Responses
 import ru.itmo.aiex.common.web.openapi.ApiErrors
 import java.util.UUID
 
 @RestController
-@RequestMapping("${ApiPaths.V1}/consultations")
+@RequestMapping("$API/consultations")
 @Tag(name = "Консультации", description = "Запись на слот специалиста, подтверждение, проведение, отмена, резюме и оценка")
 class ConsultationController(private val booking: ConsultationBooking, private val consultations: ConsultationService) {
     @PostMapping
@@ -47,7 +47,7 @@ class ConsultationController(private val booking: ConsultationBooking, private v
     @ApiErrors(ErrorCode.VALIDATION_FAILED, ErrorCode.FORBIDDEN, ErrorCode.SLOT_NOT_FOUND, ErrorCode.CONVERSATION_NOT_FOUND, ErrorCode.SLOT_TAKEN)
     fun scheduleConsultation(actor: Actor, @Valid @RequestBody request: BookConsultationRequest): ResponseEntity<ConsultationResponse> {
         val session = booking.scheduleConsultation(actor, BookConsultationCommand(request.slotId, request.sharedConversationId))
-        return Responses.created(session.toResponse(), "${ApiPaths.V1}/consultations/{id}", session.id)
+        return Responses.created(session.toResponse(), "$API/consultations/{id}", session.id)
     }
 
     @GetMapping
@@ -68,7 +68,8 @@ class ConsultationController(private val booking: ConsultationBooking, private v
     @Operation(operationId = "getConsultation", summary = "Консультация по id", description = "Клиенту, специалисту консультации и администратору.")
     @ApiResponse(responseCode = "200", description = "Консультация")
     @ApiErrors(ErrorCode.CONSULTATION_NOT_FOUND)
-    fun getConsultation(actor: Actor, @PathVariable id: UUID): ConsultationResponse = consultations.getConsultation(actor, id).toResponse()
+    fun getConsultation(actor: Actor, @PathVariable id: UUID): ResponseEntity<ConsultationResponse> =
+        ResponseEntity.ok(consultations.getConsultation(actor, id).toResponse())
 
     @PatchMapping("/{id}")
     @Operation(
@@ -87,6 +88,9 @@ class ConsultationController(private val booking: ConsultationBooking, private v
         ErrorCode.CONSULTATION_INVALID_STATE,
         ErrorCode.CONCURRENT_MODIFICATION,
     )
-    fun updateConsultation(actor: Actor, @PathVariable id: UUID, @Valid @RequestBody request: UpdateConsultationRequest): ConsultationResponse =
-        consultations.updateConsultation(actor, id, request.toChange()).toResponse()
+    fun updateConsultation(
+        actor: Actor,
+        @PathVariable id: UUID,
+        @Valid @RequestBody request: UpdateConsultationRequest,
+    ): ResponseEntity<ConsultationResponse> = ResponseEntity.ok(consultations.updateConsultation(actor, id, request.toChange()).toResponse())
 }

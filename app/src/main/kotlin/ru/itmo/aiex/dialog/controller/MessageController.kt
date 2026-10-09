@@ -16,7 +16,7 @@ import ru.itmo.aiex.common.error.ErrorCode
 import ru.itmo.aiex.common.paging.CursorPage
 import ru.itmo.aiex.common.paging.CursorQuery
 import ru.itmo.aiex.common.security.Actor
-import ru.itmo.aiex.common.web.ApiPaths
+import ru.itmo.aiex.common.web.API
 import ru.itmo.aiex.common.web.CursorParams
 import ru.itmo.aiex.common.web.Responses
 import ru.itmo.aiex.common.web.openapi.ApiErrors
@@ -29,7 +29,7 @@ import ru.itmo.aiex.dialog.service.MessageExchangeService
 import java.util.UUID
 
 @RestController
-@RequestMapping("${ApiPaths.V1}/conversations/{conversationId}/messages")
+@RequestMapping("$API/conversations/{conversationId}/messages")
 @Tag(name = "Сообщения", description = "Переписка с персоной и история беседы с бесконечной прокруткой")
 class MessageController(private val exchanges: MessageExchangeService, private val conversations: ConversationService) {
     @PostMapping
@@ -61,7 +61,7 @@ class MessageController(private val exchanges: MessageExchangeService, private v
         val exchange = exchanges.sendMessage(actor, conversationId, request.text)
         return Responses.created(
             exchange.toResponse(),
-            "${ApiPaths.V1}/conversations/{conversationId}/messages/{id}",
+            "$API/conversations/{conversationId}/messages/{id}",
             conversationId,
             exchange.reply.id,
         )
@@ -82,7 +82,11 @@ class MessageController(private val exchanges: MessageExchangeService, private v
         actor: Actor,
         @PathVariable conversationId: UUID,
         @CursorParams(defaultLimit = 30) cursor: CursorQuery,
-    ): CursorPage<MessageResponse> = conversations.getMessages(actor, conversationId, cursor).map { it.toResponse() }
+    ): ResponseEntity<CursorPage<MessageResponse>> = ResponseEntity.ok(
+        conversations.getMessages(actor, conversationId, cursor).map {
+            it.toResponse()
+        },
+    )
 
     @GetMapping("/{id}")
     @Operation(
@@ -92,6 +96,6 @@ class MessageController(private val exchanges: MessageExchangeService, private v
     )
     @ApiResponse(responseCode = "200", description = "Сообщение")
     @ApiErrors(ErrorCode.FORBIDDEN, ErrorCode.CONVERSATION_NOT_FOUND, ErrorCode.MESSAGE_NOT_FOUND)
-    fun getMessage(actor: Actor, @PathVariable conversationId: UUID, @PathVariable id: UUID): MessageResponse =
-        conversations.getMessage(actor, conversationId, id).toResponse()
+    fun getMessage(actor: Actor, @PathVariable conversationId: UUID, @PathVariable id: UUID): ResponseEntity<MessageResponse> =
+        ResponseEntity.ok(conversations.getMessage(actor, conversationId, id).toResponse())
 }

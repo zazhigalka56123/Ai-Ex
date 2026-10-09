@@ -32,7 +32,7 @@ spring:
         core-size: 2
         max-size: 4
         queue-capacity: 50
-
+p
 server:
   port: 8080
   error:
@@ -62,6 +62,8 @@ springdoc:
   default-produces-media-type: application/json
 
 ai-ex:
+  api:
+    base-path: /api/v1
   llm:
     provider: stub
     timeout-ms: 20000
