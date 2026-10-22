@@ -12,5 +12,5 @@ interface PersonaLifecycle {
 
     fun rebuildFrom(personaId: UUID, snapshot: CorpusSnapshot): ProfileRebuildResult
 
-    fun archive(personaId: UUID, actor: Actor)
+    fun archivePersona(personaId: UUID, actor: Actor)
 }

@@ -23,20 +23,20 @@ class PersonaProfileVersion(
     @JoinColumn(name = "persona_id", nullable = false, updatable = false)
     val persona: Persona,
     @field:Positive
-    @Column(name = "version_no", nullable = false, updatable = false)
+    @Column(nullable = false, updatable = false)
     val versionNo: Int,
     @field:NotBlank
-    @Column(name = "system_prompt", nullable = false, updatable = false, columnDefinition = "text")
+    @Column(nullable = false, updatable = false, columnDefinition = "text")
     val systemPrompt: String,
     @JdbcTypeCode(SqlTypes.JSON)
     @Column(nullable = false, updatable = false, columnDefinition = "jsonb")
     val style: String,
     @JdbcTypeCode(SqlTypes.JSON)
-    @Column(name = "corpus_stats", nullable = false, updatable = false, columnDefinition = "jsonb")
+    @Column(nullable = false, updatable = false, columnDefinition = "jsonb")
     val corpusStats: String,
-    @Column(name = "corpus_snapshot_id", nullable = false, updatable = false)
+    @Column(nullable = false, updatable = false)
     val corpusSnapshotId: UUID,
-    @Column(name = "created_at", nullable = false, updatable = false)
+    @Column(nullable = false, updatable = false)
     val createdAt: Instant,
 ) {
     @Column(nullable = false)

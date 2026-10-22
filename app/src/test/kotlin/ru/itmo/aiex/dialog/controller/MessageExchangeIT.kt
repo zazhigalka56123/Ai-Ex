@@ -198,16 +198,16 @@ class MessageExchangeIT : DialogIntegrationTest() {
     }
 
     @Test
-    fun `оскорбление - ответ генерируется, сообщение пользователя флагнуто как ABUSE`() {
+    fun `бытовая ругань - обычный ответ без автофлага`() {
         val owner = createUser()
         val conversationId = createConversation(owner, readyPersona(owner))
 
         send(owner, conversationId, "ты дура").andExpect {
             status { isCreated() }
-            jsonPath("$.userMessage.flagged") { value(true) }
+            jsonPath("$.userMessage.flagged") { value(false) }
             jsonPath("$.reply.text") { value(`in`(phrases)) }
         }
-        assertThat(applicationEvents.stream(MessageAutoFlagged::class.java).map { it.reason }.toList()).containsExactly(FlagReason.ABUSE)
+        assertThat(applicationEvents.stream(MessageAutoFlagged::class.java).toList()).isEmpty()
     }
 
     @Test

@@ -31,7 +31,7 @@ object ConsultationRules {
 
     fun canTransition(role: ConsultationRole, from: SessionStatus, to: SessionStatus): Boolean = from in transitions.getValue(role)[to].orEmpty()
 
-    fun check(role: ConsultationRole, current: SessionStatus, change: ConsultationChange): SessionStatus {
+    fun validateChange(role: ConsultationRole, current: SessionStatus, change: ConsultationChange): SessionStatus {
         val result = change.status?.let { checkTransition(role, current, it) } ?: current
         checkCancelReason(change)
         checkNotes(role, result, change)

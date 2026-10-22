@@ -49,7 +49,7 @@ class SpecializationController(dictionaries: DictionaryAdministration) {
     @Operation(operationId = "getSpecialization", summary = "Специализация по id")
     @ApiResponse(responseCode = "200", description = "Специализация")
     @ApiErrors(ErrorCode.SPECIALIZATION_NOT_FOUND)
-    fun get(actor: Actor?, @PathVariable id: Long): DictionaryEntryResponse = endpoints.get(id)
+    fun getSpecialization(actor: Actor?, @PathVariable id: Long): DictionaryEntryResponse = endpoints.getEntry(id)
 
     @PostMapping
     @Operation(
@@ -63,15 +63,18 @@ class SpecializationController(dictionaries: DictionaryAdministration) {
         headers = [Header(name = "Location", description = "URI специализации")],
     )
     @ApiErrors(ErrorCode.VALIDATION_FAILED, ErrorCode.FORBIDDEN, ErrorCode.DICTIONARY_CODE_TAKEN)
-    fun create(actor: Actor, @Valid @RequestBody request: CreateDictionaryEntryRequest): ResponseEntity<DictionaryEntryResponse> =
-        endpoints.create(actor, request)
+    fun createSpecialization(actor: Actor, @Valid @RequestBody request: CreateDictionaryEntryRequest): ResponseEntity<DictionaryEntryResponse> =
+        endpoints.createEntry(actor, request)
 
     @PatchMapping("/{id}")
     @Operation(operationId = "updateSpecialization", summary = "Переименовать специализацию", description = "Только администратор. Код не меняется.")
     @ApiResponse(responseCode = "200", description = "Специализация изменена")
     @ApiErrors(ErrorCode.VALIDATION_FAILED, ErrorCode.FORBIDDEN, ErrorCode.SPECIALIZATION_NOT_FOUND)
-    fun update(actor: Actor, @PathVariable id: Long, @Valid @RequestBody request: UpdateDictionaryEntryRequest): DictionaryEntryResponse =
-        endpoints.update(actor, id, request)
+    fun updateSpecialization(
+        actor: Actor,
+        @PathVariable id: Long,
+        @Valid @RequestBody request: UpdateDictionaryEntryRequest,
+    ): DictionaryEntryResponse = endpoints.updateEntry(actor, id, request)
 
     @DeleteMapping("/{id}")
     @Operation(
@@ -81,5 +84,5 @@ class SpecializationController(dictionaries: DictionaryAdministration) {
     )
     @ApiResponse(responseCode = "204", description = "Специализация удалена")
     @ApiErrors(ErrorCode.FORBIDDEN, ErrorCode.SPECIALIZATION_NOT_FOUND, ErrorCode.CONSTRAINT_VIOLATED)
-    fun delete(actor: Actor, @PathVariable id: Long): ResponseEntity<Void> = endpoints.delete(actor, id)
+    fun deleteSpecialization(actor: Actor, @PathVariable id: Long): ResponseEntity<Void> = endpoints.deleteEntry(actor, id)
 }

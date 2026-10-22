@@ -23,21 +23,21 @@ import java.util.UUID
 class ChatImport(
     @Id
     val id: UUID,
-    @Column(name = "persona_id", nullable = false, updatable = false)
+    @Column(nullable = false, updatable = false)
     val personaId: UUID,
-    @Column(name = "owner_id", nullable = false, updatable = false)
+    @Column(nullable = false, updatable = false)
     val ownerId: UUID,
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, updatable = false, length = 24)
     val source: ImportSource,
     @field:NotBlank
     @field:Size(max = FILENAME_MAX)
-    @Column(name = "original_filename", nullable = false, updatable = false, length = FILENAME_MAX)
+    @Column(nullable = false, updatable = false, length = FILENAME_MAX)
     val originalFilename: String,
     @field:PositiveOrZero
-    @Column(name = "size_bytes", nullable = false, updatable = false)
+    @Column(nullable = false, updatable = false)
     val sizeBytes: Long,
-    @Column(name = "created_at", nullable = false, updatable = false)
+    @Column(nullable = false, updatable = false)
     val createdAt: Instant,
 ) {
     @Enumerated(EnumType.STRING)
@@ -46,36 +46,35 @@ class ChatImport(
         protected set
 
     @field:PositiveOrZero
-    @Column(name = "message_count", nullable = false)
+    @Column(nullable = false)
     var messageCount: Int = 0
         protected set
 
     @field:PositiveOrZero
-    @Column(name = "their_message_count", nullable = false)
+    @Column(nullable = false)
     var theirMessageCount: Int = 0
         protected set
 
     @field:PositiveOrZero
-    @Column(name = "skipped_count", nullable = false)
+    @Column(nullable = false)
     var skippedCount: Int = 0
         protected set
 
     @field:Size(max = THEIR_NAME_MAX)
-    @Column(name = "their_name", length = THEIR_NAME_MAX)
+    @Column(length = THEIR_NAME_MAX)
     var theirName: String? = null
         protected set
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "error_code", length = 64)
+    @Column(length = 64)
     var errorCode: ImportErrorCode? = null
         protected set
 
     @field:Size(max = ERROR_MESSAGE_MAX)
-    @Column(name = "error_message", length = ERROR_MESSAGE_MAX)
+    @Column(length = ERROR_MESSAGE_MAX)
     var errorMessage: String? = null
         protected set
 
-    @Column(name = "finished_at")
     var finishedAt: Instant? = null
         protected set
 

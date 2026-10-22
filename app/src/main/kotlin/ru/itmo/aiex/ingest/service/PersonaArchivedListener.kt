@@ -13,7 +13,7 @@ class PersonaArchivedListener(private val messages: ImportedMessageRepository) {
 
     @TransactionalEventListener(fallbackExecution = true)
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    fun on(event: PersonaArchived) {
+    fun onPersonaArchived(event: PersonaArchived) {
         val deleted = messages.deleteByPersona(event.personaId)
         log.info("Персона {} архивирована: удалено сообщений импортов {}", event.personaId, deleted)
     }

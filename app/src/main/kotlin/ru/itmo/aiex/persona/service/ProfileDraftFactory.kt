@@ -18,7 +18,7 @@ class ProfileDraftFactory(private val describer: PersonaDescriber, private val j
     private val traitExtractor = TraitExtractor()
     private val autoTagger = AutoTagger()
 
-    fun create(personaId: UUID, personaName: String, snapshot: CorpusSnapshot): ProfileDraft {
+    fun createDraft(personaId: UUID, personaName: String, snapshot: CorpusSnapshot): ProfileDraft {
         val traits = traitExtractor.extract(snapshot.stats, snapshot.theirMessages)
         val style = StyleFactory.from(snapshot)
         return ProfileDraft(
@@ -32,7 +32,7 @@ class ProfileDraftFactory(private val describer: PersonaDescriber, private val j
     }
 
     private fun summarize(personaId: UUID, personaName: String, style: StyleView, traits: List<DerivedTrait>): String = describer
-        .describe(
+        .describePersona(
             DescribePersonaCommand(
                 personaId = personaId,
                 personaName = personaName,

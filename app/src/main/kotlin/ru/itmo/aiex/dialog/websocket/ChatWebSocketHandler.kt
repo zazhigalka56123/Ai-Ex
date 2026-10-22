@@ -16,11 +16,6 @@ import ru.itmo.aiex.dialog.service.MessageExchangeService
 import tools.jackson.core.JacksonException
 import tools.jackson.databind.json.JsonMapper
 
-/**
- * Живой чат беседы. Клиент шлёт `{"type":"send","text":"…","requestId":"…"}`, все сокеты беседы получают
- * `message` (сообщение пользователя - сразу после фиксации, затем ответ персоны), `typing` на время генерации,
- * а отправитель - `error` в формате кода [ErrorCode]. Транзакции и guardrails те же, что у REST (TX-2).
- */
 @Component
 class ChatWebSocketHandler(
     private val exchanges: MessageExchangeService,
@@ -67,7 +62,7 @@ class ChatWebSocketHandler(
         var accepted = false
         try {
             val exchange =
-                exchanges.send(session.actor, conversationId, text) { userMessage ->
+                exchanges.sendMessage(session.actor, conversationId, text) { userMessage ->
                     accepted = true
                     broadcast(session, ChatEvent.message(userMessage.toResponse(), requestId))
                     broadcast(session, ChatEvent.typing(true))

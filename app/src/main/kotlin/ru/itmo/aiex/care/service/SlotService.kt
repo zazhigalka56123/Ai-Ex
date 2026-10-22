@@ -27,9 +27,9 @@ import java.util.UUID
 @Transactional(readOnly = true)
 class SlotService(private val specialists: SpecialistRepository, private val slots: SlotRepository, private val clock: Clock) {
     @Transactional
-    fun create(actor: Actor, specialistId: UUID, command: CreateSlotCommand): SpecialistSlot {
+    fun createSlot(actor: Actor, specialistId: UUID, command: CreateSlotCommand): SpecialistSlot {
         actor.requireRole(RoleCode.SPECIALIST)
-        val specialist = visible(specialists.findByIdForUpdate(specialistId), actor, specialistId)
+        val specialist = requireVisible(specialists.findByIdForUpdate(specialistId), actor, specialistId)
         if (!specialist.isOwnedBy(actor.userId)) throw ForbiddenException("Слоты публикует только владелец профиля")
         val now = clock.nowMicros()
         val startsAt = command.startsAt.truncatedTo(ChronoUnit.MICROS)
@@ -46,21 +46,21 @@ class SlotService(private val specialists: SpecialistRepository, private val slo
         }
     }
 
-    fun get(actor: Actor?, specialistId: UUID, slotId: UUID): SpecialistSlot {
-        visible(specialists.findById(specialistId), actor, specialistId)
+    fun getSlot(actor: Actor?, specialistId: UUID, slotId: UUID): SpecialistSlot {
+        requireVisible(specialists.findById(specialistId), actor, specialistId)
         return slots.findById(slotId)?.takeIf { it.specialist.id == specialistId } ?: throw NotFoundException.of(ErrorCode.SLOT_NOT_FOUND, slotId)
     }
 
-    fun listFree(actor: Actor?, specialistId: UUID, from: Instant?, to: Instant?, page: PageQuery): PageView<SpecialistSlot> {
+    fun getFreeSlots(actor: Actor?, specialistId: UUID, from: Instant?, to: Instant?, page: PageQuery): PageView<SpecialistSlot> {
         if (from != null && to != null && !to.isAfter(from)) throw ValidationException("to", "range", "Граница to должна быть позже from")
-        visible(specialists.findById(specialistId), actor, specialistId)
+        requireVisible(specialists.findById(specialistId), actor, specialistId)
         val now = clock.nowMicros()
 
         val lower = from?.minusNanos(NANOS_PER_MICRO)?.takeIf { it.isAfter(now) } ?: now
         return slots.findFreePage(specialistId, lower, to ?: FAR_FUTURE, page)
     }
 
-    private fun visible(specialist: Specialist?, actor: Actor?, id: UUID): Specialist =
+    private fun requireVisible(specialist: Specialist?, actor: Actor?, id: UUID): Specialist =
         specialist?.takeIf { it.isVisibleTo(actor) } ?: throw NotFoundException.of(ErrorCode.SPECIALIST_NOT_FOUND, id)
 
     private fun slotOverlap() = ConflictException(ErrorCode.SLOT_OVERLAP, "Слот пересекается с уже опубликованным слотом этого специалиста")

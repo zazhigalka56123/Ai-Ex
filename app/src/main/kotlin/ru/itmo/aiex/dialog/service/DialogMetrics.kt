@@ -9,7 +9,7 @@ import ru.itmo.aiex.dialog.repository.MessageRepository
 @Component
 @Transactional(readOnly = true)
 class DialogMetrics(private val conversations: ConversationRepository, private val messages: MessageRepository) : MetricsContributor {
-    override fun metrics(): Map<String, Long> = mapOf(
+    override fun collectMetrics(): Map<String, Long> = mapOf(
         "conversations.active" to conversations.countByStatus(ConversationStatus.ACTIVE),
         "messages.total" to messages.count(),
         "messages.flagged" to messages.countFlagged(),

@@ -25,27 +25,27 @@ class ModerationDesk(
 ) {
     private val log = LoggerFactory.getLogger(javaClass)
 
-    fun report(actor: Actor, command: ReportMessageCommand): ModerationFlag {
+    fun reportMessage(actor: Actor, command: ReportMessageCommand): ModerationFlag {
         actor.requireAnyRole(RoleCode.USER, RoleCode.SPECIALIST)
         val message =
             dialogs.findMessageVisibleTo(command.messageId, actor)
                 ?: throw NotFoundException.of(ErrorCode.MESSAGE_NOT_FOUND, command.messageId)
-        return moderation.report(actor, message.toFlagged(), command)
+        return moderation.reportMessage(actor, message.toFlagged(), command)
     }
 
     fun getModerationFlags(actor: Actor, status: FlagStatus?, reason: FlagReason?, page: PageQuery): PageView<FlagView> =
         moderation.getModerationFlags(actor, status, reason, page).map { withPreview(it) }
 
-    fun get(actor: Actor, id: UUID): FlagView = withPreview(moderation.get(actor, id))
+    fun getFlag(actor: Actor, id: UUID): FlagView = withPreview(moderation.getFlag(actor, id))
 
-    fun review(actor: Actor, id: UUID, command: ReviewFlagCommand): FlagView {
-        val flag = moderation.review(actor, id, command)
-        val archived = if (command.archivePersona) archivePersona(flag, actor) else null
+    fun reviewFlag(actor: Actor, id: UUID, command: ReviewFlagCommand): FlagView {
+        val flag = moderation.reviewFlag(actor, id, command)
+        val archived = if (command.archivePersona) tryArchivePersona(flag, actor) else null
         return withPreview(flag, archived)
     }
 
-    private fun archivePersona(flag: ModerationFlag, actor: Actor): Boolean = try {
-        personas.archive(flag.personaId, actor)
+    private fun tryArchivePersona(flag: ModerationFlag, actor: Actor): Boolean = try {
+        personas.archivePersona(flag.personaId, actor)
         true
     } catch (ex: AiExException) {
         log.warn("Флаг {} разобран, но персона {} не архивирована: {}", flag.id, flag.personaId, ex.code, ex)

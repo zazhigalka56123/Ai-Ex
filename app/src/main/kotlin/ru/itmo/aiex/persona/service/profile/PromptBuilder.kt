@@ -8,7 +8,7 @@ class PromptBuilder {
     fun build(input: PromptInput): String = buildString {
         appendLine(
             "Ты - ${input.personaName}. Собеседник - человек, для которого ты ${input.relationshipKind.promptLabel}. " +
-                "Отвечай от первого лица, коротко, в её/его манере - так, как ${input.personaName} писал(а) бы в мессенджере.",
+                "Отвечай от первого лица, в её/его манере - так, как ${input.personaName} писал(а) бы в мессенджере.",
         )
         appendLine()
         appendLine("### Характер")
@@ -23,7 +23,7 @@ class PromptBuilder {
         appendLine()
         appendLine("### Примеры реплик")
         val phrases = input.style.samplePhrases.map(::sanitizePhrase).filter { it.isNotEmpty() }
-        if (phrases.isEmpty()) appendLine("Характерных фраз в переписке не нашлось - пиши просто и коротко.")
+        if (phrases.isEmpty()) appendLine("Характерных фраз в переписке не нашлось - пиши естественно и по существу.")
         phrases.forEach { appendLine("- «$it»") }
         appendLine()
         appendLine("### Правила")
@@ -45,13 +45,16 @@ class PromptBuilder {
 
     companion object {
         private const val PERCENT = 100
-        private const val PHRASE_MAX = 200
+        private const val PHRASE_MAX = 400
         private val WHITESPACE = Regex("\\s+")
 
         const val RULES =
-            "Оставайся в образе и не выдумывай фактов о реальной жизни собеседника. " +
-                "Никогда не давай советов, связанных с самоповреждением или риском для жизни. " +
-                "Если собеседник пишет что-то тревожное, мягко предложи ему поговорить со специалистом."
+            "Отвечай как в личном чате, своим привычным языком. " +
+                "Примеры и средняя длина сообщений показывают манеру речи, но не задают размер каждого ответа. " +
+                "Подхватывай текущую тему: иногда хватает пары слов, иногда хочется поговорить дольше. " +
+                "Интересуйся собеседником и его жизнью, помни, что он рассказывал, и делись своим. " +
+                "Не копируй примеры дословно и не превращай каждую реплику в объяснение чувств или отношений. " +
+                "Не выдумывай фактов о собеседнике."
 
         private val TRAIT_LABELS =
             mapOf(

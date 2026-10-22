@@ -8,7 +8,7 @@ import ru.itmo.aiex.iam.repository.UserRepository
 @Component
 @Transactional(readOnly = true)
 class IamMetrics(private val users: UserRepository) : MetricsContributor {
-    override fun metrics(): Map<String, Long> = mapOf(
+    override fun collectMetrics(): Map<String, Long> = mapOf(
         "users.active" to users.countByStatus(UserStatus.ACTIVE),
         "users.blocked" to users.countByStatus(UserStatus.BLOCKED),
     )

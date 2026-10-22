@@ -38,9 +38,6 @@ class NotificationController(private val notifications: NotificationService, pri
         actor: Actor,
         @PageParams(sortable = ["createdAt"], defaultSort = "createdAt,desc") page: PageQuery,
         @RequestParam(required = false) status: NotificationStatus?,
-    ): ResponseEntity<List<NotificationResponse>> = Responses.page(
-        notifications.getNotifications(actor, status, page).map {
-            it.toResponse(jsonMapper)
-        },
-    )
+    ): ResponseEntity<List<NotificationResponse>> =
+        Responses.page(notifications.getNotifications(actor, status, page).map { it.toResponse(jsonMapper) })
 }

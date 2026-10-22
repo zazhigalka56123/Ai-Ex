@@ -21,23 +21,23 @@ class AgentRun(
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 32, updatable = false)
     val kind: AgentRunKind,
-    @Column(name = "conversation_id", updatable = false)
+    @Column(updatable = false)
     val conversationId: UUID?,
-    @Column(name = "persona_id", nullable = false, updatable = false)
+    @Column(nullable = false, updatable = false)
     val personaId: UUID,
-    @Column(name = "persona_profile_id", updatable = false)
+    @Column(updatable = false)
     val personaProfileId: UUID?,
     model: String,
     @field:Pattern(regexp = "[0-9a-f]{64}")
-    @Column(name = "prompt_hash", nullable = false, length = 64, updatable = false)
+    @Column(nullable = false, length = 64, updatable = false)
     val promptHash: String,
     @field:Size(max = PROMPT_PREVIEW_LENGTH)
-    @Column(name = "prompt_preview", nullable = false, length = PROMPT_PREVIEW_LENGTH, updatable = false)
+    @Column(nullable = false, length = PROMPT_PREVIEW_LENGTH, updatable = false)
     val promptPreview: String,
     @field:PositiveOrZero
-    @Column(name = "history_size", nullable = false, updatable = false)
+    @Column(nullable = false, updatable = false)
     val historySize: Int,
-    @Column(name = "created_at", nullable = false, updatable = false)
+    @Column(nullable = false, updatable = false)
     val createdAt: Instant,
 ) {
     @field:NotBlank
@@ -52,26 +52,22 @@ class AgentRun(
         protected set
 
     @field:PositiveOrZero
-    @Column(name = "latency_ms")
     var latencyMs: Int? = null
         protected set
 
     @field:PositiveOrZero
-    @Column(name = "tokens_in")
     var tokensIn: Int? = null
         protected set
 
     @field:PositiveOrZero
-    @Column(name = "tokens_out")
     var tokensOut: Int? = null
         protected set
 
     @field:Size(max = 64)
-    @Column(name = "error_code", length = 64)
+    @Column(length = 64)
     var errorCode: String? = null
         protected set
 
-    @Column(name = "finished_at")
     var finishedAt: Instant? = null
         protected set
 

@@ -61,7 +61,7 @@ class ImportController(private val imports: ImportService, private val queries: 
         ErrorCode.FILE_TOO_LARGE,
         ErrorCode.UNSUPPORTED_FORMAT,
     )
-    fun upload(
+    fun uploadImport(
         actor: Actor,
         @PathVariable id: UUID,
         @RequestPart("file") file: MultipartFile,
@@ -73,7 +73,7 @@ class ImportController(private val imports: ImportService, private val queries: 
         theirName: String?,
     ): ResponseEntity<ImportResponse> {
         val uploaded = UploadedFile(file.originalFilename, file.size) { file.inputStream }
-        val chatImport = imports.upload(actor, id, uploaded, source, theirName)
+        val chatImport = imports.uploadImport(actor, id, uploaded, source, theirName)
         return Responses.accepted(chatImport.toResponse(), "${ApiPaths.V1}/imports/{id}", chatImport.id)
     }
 
@@ -89,13 +89,13 @@ class ImportController(private val imports: ImportService, private val queries: 
         actor: Actor,
         @PathVariable id: UUID,
         @PageParams(sortable = ["createdAt"], defaultSort = "createdAt,desc") page: PageQuery,
-    ): ResponseEntity<List<ImportResponse>> = Responses.page(queries.listByPersona(actor, id, page).map { it.toResponse() })
+    ): ResponseEntity<List<ImportResponse>> = Responses.page(queries.getPersonaImports(actor, id, page).map { it.toResponse() })
 
     @GetMapping("/imports/{id}")
     @Operation(operationId = "getImport", summary = "Статус импорта", description = "Статус и статистика разбора; только свой импорт.")
     @ApiResponse(responseCode = "200", description = "Импорт")
     @ApiErrors(ErrorCode.IMPORT_NOT_FOUND)
-    fun get(actor: Actor, @PathVariable id: UUID): ImportResponse = queries.get(actor, id).toResponse()
+    fun getImport(actor: Actor, @PathVariable id: UUID): ImportResponse = queries.getImport(actor, id).toResponse()
 
     @GetMapping("/imports/{id}/messages")
     @Operation(
@@ -107,6 +107,9 @@ class ImportController(private val imports: ImportService, private val queries: 
     )
     @ApiResponse(responseCode = "200", description = "Порция сообщений")
     @ApiErrors(ErrorCode.IMPORT_NOT_FOUND)
-    fun messages(actor: Actor, @PathVariable id: UUID, @CursorParams(defaultLimit = 30) cursor: CursorQuery): CursorPage<ImportedMessageResponse> =
-        queries.messages(actor, id, cursor).map { it.toResponse() }
+    fun getImportMessages(
+        actor: Actor,
+        @PathVariable id: UUID,
+        @CursorParams(defaultLimit = 30) cursor: CursorQuery,
+    ): CursorPage<ImportedMessageResponse> = queries.getImportMessages(actor, id, cursor).map { it.toResponse() }
 }

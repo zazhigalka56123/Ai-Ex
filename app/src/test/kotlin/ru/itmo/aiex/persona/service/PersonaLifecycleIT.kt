@@ -218,8 +218,8 @@ class PersonaLifecycleIT : PersonaIntegrationTest() {
         val persona = readyPersona(owner)
         assertThat(countRows("SELECT count(*) FROM persona.persona_tags WHERE persona_id = ?", persona)).isPositive()
 
-        lifecycle.archive(persona, Actor(owner, setOf(RoleCode.USER)))
-        lifecycle.archive(persona, Actor(owner, setOf(RoleCode.USER)))
+        lifecycle.archivePersona(persona, Actor(owner, setOf(RoleCode.USER)))
+        lifecycle.archivePersona(persona, Actor(owner, setOf(RoleCode.USER)))
 
         assertThat(access.findSummary(persona)?.status).isEqualTo(PersonaState.ARCHIVED)
         assertThat(access.findSummary(persona)?.activeProfileId).isNull()
@@ -245,7 +245,8 @@ class PersonaLifecycleIT : PersonaIntegrationTest() {
     fun `администратор архивирует чужую - событие помечено byAdmin, посторонний получает 404`() {
         val owner = createUser()
         val persona = createPersona(owner)
-        assertThatThrownBy { lifecycle.archive(persona, Actor(createUser(), setOf(RoleCode.USER))) }.isInstanceOf(NotFoundException::class.java)
+        assertThatThrownBy { lifecycle.archivePersona(persona, Actor(createUser(), setOf(RoleCode.USER))) }
+            .isInstanceOf(NotFoundException::class.java)
         val admin = createAdmin()
         mockMvc.delete("/api/v1/personas/$persona") { header(USER_HEADER, admin) }.andExpect { status { isNoContent() } }
         val event = events.stream(PersonaArchived::class.java).toList().single { it.personaId == persona }
@@ -274,7 +275,7 @@ class PersonaLifecycleIT : PersonaIntegrationTest() {
         val owner = createUser()
         readyPersona(owner)
         createPersona(owner)
-        val values = metrics.flatMap { it.metrics().entries }.associate { it.key to it.value }
+        val values = metrics.flatMap { it.collectMetrics().entries }.associate { it.key to it.value }
         assertThat(values).containsEntry("personas.ready", 1L).containsEntry("personas.draft", 1L)
         assertThat(values).containsKeys("personas.training", "personas.archived")
     }

@@ -41,49 +41,49 @@ class TagCatalogIT : PersonaIntegrationTest() {
 
     @Test
     fun `создание нормализует код, дубликат - 409 DICTIONARY_CODE_TAKEN`() {
-        val created = catalog.create("  ${prefix.uppercase()}-Toxic ", " токсичная ")
+        val created = catalog.createEntry("  ${prefix.uppercase()}-Toxic ", " токсичная ")
         assertThat(created.code).isEqualTo("$prefix-toxic")
         assertThat(created.title).isEqualTo("токсичная")
-        assertThat(catalog.get(created.id)).isEqualTo(created)
+        assertThat(catalog.getEntry(created.id)).isEqualTo(created)
 
-        assertThatThrownBy { catalog.create("$prefix-toxic", "другая") }
+        assertThatThrownBy { catalog.createEntry("$prefix-toxic", "другая") }
             .isInstanceOf(ConflictException::class.java)
             .hasFieldOrPropertyWithValue("code", ErrorCode.DICTIONARY_CODE_TAKEN)
     }
 
     @Test
     fun `невалидные код и название - 400`() {
-        assertThatThrownBy { catalog.create("$prefix bad code!", "") }
+        assertThatThrownBy { catalog.createEntry("$prefix bad code!", "") }
             .isInstanceOf(ValidationException::class.java)
             .satisfies({ ex -> assertThat((ex as ValidationException).violations.map { it.field }).containsExactlyInAnyOrder("code", "title") })
-        assertThatThrownBy { catalog.create("x".repeat(49), "длинный") }.isInstanceOf(ValidationException::class.java)
+        assertThatThrownBy { catalog.createEntry("x".repeat(49), "длинный") }.isInstanceOf(ValidationException::class.java)
     }
 
     @Test
     fun `переименование и 404 на несуществующий тег`() {
-        val created = catalog.create("$prefix-kind", "добрая")
-        assertThat(catalog.update(created.id, "очень добрая").title).isEqualTo("очень добрая")
-        assertThatThrownBy { catalog.update(created.id, " ") }.isInstanceOf(ValidationException::class.java)
-        assertThatThrownBy { catalog.get(Long.MAX_VALUE) }
+        val created = catalog.createEntry("$prefix-kind", "добрая")
+        assertThat(catalog.updateEntry(created.id, "очень добрая").title).isEqualTo("очень добрая")
+        assertThatThrownBy { catalog.updateEntry(created.id, " ") }.isInstanceOf(ValidationException::class.java)
+        assertThatThrownBy { catalog.getEntry(Long.MAX_VALUE) }
             .isInstanceOf(NotFoundException::class.java)
             .hasFieldOrPropertyWithValue("code", ErrorCode.TAG_NOT_FOUND)
-        assertThatThrownBy { catalog.update(Long.MAX_VALUE, "x") }.isInstanceOf(NotFoundException::class.java)
-        assertThatThrownBy { catalog.delete(Long.MAX_VALUE) }.isInstanceOf(NotFoundException::class.java)
+        assertThatThrownBy { catalog.updateEntry(Long.MAX_VALUE, "x") }.isInstanceOf(NotFoundException::class.java)
+        assertThatThrownBy { catalog.deleteEntry(Long.MAX_VALUE) }.isInstanceOf(NotFoundException::class.java)
     }
 
     @Test
     fun `используемый тег удалить нельзя - 409 CONSTRAINT_VIOLATED, неиспользуемый удаляется`() {
-        val used = catalog.create("$prefix-used", "используемая")
-        val unused = catalog.create("$prefix-unused", "свободная")
+        val used = catalog.createEntry("$prefix-used", "используемая")
+        val unused = catalog.createEntry("$prefix-unused", "свободная")
         createPersona(createUser(), tagCodes = setOf(used.code))
 
-        assertThatThrownBy { catalog.delete(used.id) }
+        assertThatThrownBy { catalog.deleteEntry(used.id) }
             .isInstanceOf(ConflictException::class.java)
             .hasFieldOrPropertyWithValue("code", ErrorCode.CONSTRAINT_VIOLATED)
-        catalog.delete(unused.id)
-        assertThatThrownBy { catalog.get(unused.id) }.isInstanceOf(NotFoundException::class.java)
+        catalog.deleteEntry(unused.id)
+        assertThatThrownBy { catalog.getEntry(unused.id) }.isInstanceOf(NotFoundException::class.java)
 
         jdbcTemplate.update("DELETE FROM persona.persona_tags WHERE tag_id = ?", used.id)
-        catalog.delete(used.id)
+        catalog.deleteEntry(used.id)
     }
 }

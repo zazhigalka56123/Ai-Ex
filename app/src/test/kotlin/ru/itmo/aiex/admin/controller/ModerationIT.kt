@@ -191,7 +191,7 @@ class ModerationIT : AdminIntegrationTest() {
             jsonPath("$.code") { value("FLAG_INVALID_STATE") }
         }
         review(client, id, mapOf("status" to "REJECTED")).andExpect { status { isForbidden() } }
-        verify(exactly = 0) { personas.archive(any(), any()) }
+        verify(exactly = 0) { personas.archivePersona(any(), any()) }
     }
 
     @Test
@@ -201,14 +201,14 @@ class ModerationIT : AdminIntegrationTest() {
         val message = message(ownerId = client)
         val id = reportOk(client, message)
         every { dialogs.findMessage(message.id) } returns message
-        every { personas.archive(message.personaId, any()) } just runs
+        every { personas.archivePersona(message.personaId, any()) } just runs
 
         review(admin, id, mapOf("status" to "RESOLVED", "archivePersona" to true)).andExpect {
             status { isOk() }
             jsonPath("$.status") { value("RESOLVED") }
             jsonPath("$.personaArchived") { value(true) }
         }
-        verify(exactly = 1) { personas.archive(message.personaId, match { it.userId == admin && it.isAdmin }) }
+        verify(exactly = 1) { personas.archivePersona(message.personaId, match { it.userId == admin && it.isAdmin }) }
     }
 
     @Test
@@ -220,7 +220,7 @@ class ModerationIT : AdminIntegrationTest() {
         val firstId = reportOk(client, first)
         val secondId = reportOk(client, second)
         every { dialogs.findMessage(any()) } returns null
-        every { personas.archive(first.personaId, any()) } throws NotFoundException.of(ErrorCode.PERSONA_NOT_FOUND, first.personaId)
+        every { personas.archivePersona(first.personaId, any()) } throws NotFoundException.of(ErrorCode.PERSONA_NOT_FOUND, first.personaId)
 
         review(admin, firstId, mapOf("status" to "RESOLVED", "archivePersona" to true)).andExpect {
             status { isOk() }

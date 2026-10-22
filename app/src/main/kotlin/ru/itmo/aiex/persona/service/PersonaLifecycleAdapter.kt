@@ -18,5 +18,5 @@ class PersonaLifecycleAdapter(
 
     override fun rebuildFrom(personaId: UUID, snapshot: CorpusSnapshot): ProfileRebuildResult = rebuilds.rebuildFrom(personaId, snapshot)
 
-    override fun archive(personaId: UUID, actor: Actor) = personaService.archive(personaId, actor)
+    override fun archivePersona(personaId: UUID, actor: Actor) = personaService.archivePersona(personaId, actor)
 }

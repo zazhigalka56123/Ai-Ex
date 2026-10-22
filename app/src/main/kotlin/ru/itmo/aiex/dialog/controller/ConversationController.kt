@@ -42,8 +42,8 @@ class ConversationController(private val conversations: ConversationService) {
     )
     @ApiResponse(responseCode = "201", description = "Беседа создана", headers = [Header(name = "Location", description = "URI беседы")])
     @ApiErrors(ErrorCode.VALIDATION_FAILED, ErrorCode.PERSONA_NOT_FOUND, ErrorCode.PERSONA_NOT_READY)
-    fun create(actor: Actor, @Valid @RequestBody request: CreateConversationRequest): ResponseEntity<ConversationResponse> {
-        val conversation = conversations.create(actor, CreateConversationCommand(request.personaId, request.title))
+    fun createConversation(actor: Actor, @Valid @RequestBody request: CreateConversationRequest): ResponseEntity<ConversationResponse> {
+        val conversation = conversations.createConversation(actor, CreateConversationCommand(request.personaId, request.title))
         return Responses.created(conversation.toResponse(), "${ApiPaths.V1}/conversations/{id}", conversation.id)
     }
 
@@ -61,11 +61,8 @@ class ConversationController(private val conversations: ConversationService) {
         @PageParams(sortable = ["lastMessageAt", "createdAt"], defaultSort = "lastMessageAt,desc") page: PageQuery,
         @RequestParam(required = false) status: ConversationStatus?,
         @RequestParam(required = false) personaId: UUID?,
-    ): ResponseEntity<List<ConversationResponse>> = Responses.page(
-        conversations.getConversations(actor, status, personaId, page).map {
-            it.toResponse()
-        },
-    )
+    ): ResponseEntity<List<ConversationResponse>> =
+        Responses.page(conversations.getConversations(actor, status, personaId, page).map { it.toResponse() })
 
     @GetMapping("/{id}")
     @Operation(
@@ -76,7 +73,7 @@ class ConversationController(private val conversations: ConversationService) {
     )
     @ApiResponse(responseCode = "200", description = "Беседа")
     @ApiErrors(ErrorCode.FORBIDDEN, ErrorCode.CONVERSATION_NOT_FOUND)
-    fun get(actor: Actor, @PathVariable id: UUID): ConversationResponse = conversations.get(actor, id).toResponse()
+    fun getConversation(actor: Actor, @PathVariable id: UUID): ConversationResponse = conversations.getConversation(actor, id).toResponse()
 
     @DeleteMapping("/{id}")
     @Operation(
@@ -87,8 +84,8 @@ class ConversationController(private val conversations: ConversationService) {
     )
     @ApiResponse(responseCode = "204", description = "Беседа в архиве")
     @ApiErrors(ErrorCode.CONVERSATION_NOT_FOUND, ErrorCode.CONCURRENT_MODIFICATION)
-    fun archive(actor: Actor, @PathVariable id: UUID): ResponseEntity<Void> {
-        conversations.archive(actor, id)
+    fun archiveConversation(actor: Actor, @PathVariable id: UUID): ResponseEntity<Void> {
+        conversations.archiveConversation(actor, id)
         return ResponseEntity.noContent().build()
     }
 }

@@ -6,5 +6,5 @@ import ru.itmo.aiex.agent.dto.GeneratedReply
 interface ReplyGenerator {
     val historyWindow: Int
 
-    fun generate(command: GenerateReplyCommand): GeneratedReply
+    fun generateReply(command: GenerateReplyCommand): GeneratedReply
 }

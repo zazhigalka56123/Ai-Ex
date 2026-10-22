@@ -5,7 +5,6 @@ import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Modifying
 import org.springframework.data.jpa.repository.Query
-import org.springframework.data.repository.query.Param
 import ru.itmo.aiex.dialog.entity.Conversation
 import ru.itmo.aiex.dialog.entity.ConversationStatus
 import java.time.Instant
@@ -33,7 +32,7 @@ internal interface ConversationJpaRepository : JpaRepository<Conversation, UUID>
         """,
         nativeQuery = true,
     )
-    fun bumpCounters(@Param("id") id: UUID, @Param("delta") delta: Int, @Param("at") at: Instant): Int
+    fun bumpCounters(id: UUID, delta: Int, at: Instant): Int
 
     @Modifying
     @Query(
@@ -42,9 +41,5 @@ internal interface ConversationJpaRepository : JpaRepository<Conversation, UUID>
             where c.personaId = :personaId and c.status = :active
         """,
     )
-    fun archiveAllByPersona(
-        @Param("personaId") personaId: UUID,
-        @Param("active") active: ConversationStatus,
-        @Param("archived") archived: ConversationStatus,
-    ): Int
+    fun archiveAllByPersona(personaId: UUID, active: ConversationStatus, archived: ConversationStatus): Int
 }

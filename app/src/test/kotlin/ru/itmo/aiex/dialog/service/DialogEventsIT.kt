@@ -123,9 +123,9 @@ class DialogEventsIT : DialogIntegrationTest() {
         val owner = createUser()
         val conversationId = createConversation(owner, readyPersona(owner))
         createConversation(owner, readyPersona(owner))
-        send(owner, conversationId, "ты дура").andExpect { status { isCreated() } }
+        send(owner, conversationId, "я не хочу жить").andExpect { status { isCreated() } }
 
-        val dialogMetrics = metrics.map { it.metrics() }.first { it.containsKey("messages.total") }
+        val dialogMetrics = metrics.map { it.collectMetrics() }.first { it.containsKey("messages.total") }
         assertThat(dialogMetrics)
             .containsEntry("conversations.active", 2L)
             .containsEntry("messages.total", 2L)

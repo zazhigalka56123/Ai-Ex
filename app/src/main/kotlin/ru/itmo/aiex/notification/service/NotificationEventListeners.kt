@@ -18,8 +18,8 @@ import java.util.UUID
 class NotificationEventListeners(private val notifications: NotificationPort) {
     @TransactionalEventListener(fallbackExecution = true)
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    fun on(event: ChatImportParsed) {
-        send(
+    fun onChatImportParsed(event: ChatImportParsed) {
+        notifyRecipient(
             event.ownerId,
             NotificationType.IMPORT_PARSED,
             "importId" to event.importId,
@@ -30,8 +30,8 @@ class NotificationEventListeners(private val notifications: NotificationPort) {
 
     @TransactionalEventListener(fallbackExecution = true)
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    fun on(event: ChatImportFailed) {
-        send(
+    fun onChatImportFailed(event: ChatImportFailed) {
+        notifyRecipient(
             event.ownerId,
             NotificationType.IMPORT_FAILED,
             "importId" to event.importId,
@@ -42,8 +42,8 @@ class NotificationEventListeners(private val notifications: NotificationPort) {
 
     @TransactionalEventListener(fallbackExecution = true)
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    fun on(event: PersonaProfileActivated) {
-        send(
+    fun onPersonaProfileActivated(event: PersonaProfileActivated) {
+        notifyRecipient(
             event.ownerId,
             NotificationType.PERSONA_READY,
             "personaId" to event.personaId,
@@ -54,14 +54,14 @@ class NotificationEventListeners(private val notifications: NotificationPort) {
 
     @TransactionalEventListener(fallbackExecution = true)
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    fun on(event: PersonaArchived) {
-        send(event.ownerId, NotificationType.PERSONA_ARCHIVED, "personaId" to event.personaId, "byAdmin" to event.byAdmin)
+    fun onPersonaArchived(event: PersonaArchived) {
+        notifyRecipient(event.ownerId, NotificationType.PERSONA_ARCHIVED, "personaId" to event.personaId, "byAdmin" to event.byAdmin)
     }
 
     @TransactionalEventListener(fallbackExecution = true)
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    fun on(event: ConsultationRequested) {
-        send(
+    fun onConsultationRequested(event: ConsultationRequested) {
+        notifyRecipient(
             event.specialistUserId,
             NotificationType.CONSULTATION_REQUESTED,
             "sessionId" to event.sessionId,
@@ -72,18 +72,18 @@ class NotificationEventListeners(private val notifications: NotificationPort) {
 
     @TransactionalEventListener(fallbackExecution = true)
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    fun on(event: ConsultationStatusChanged) {
-        send(event.clientId, NotificationType.CONSULTATION_STATUS_CHANGED, "sessionId" to event.sessionId, "status" to event.status)
+    fun onConsultationStatusChanged(event: ConsultationStatusChanged) {
+        notifyRecipient(event.clientId, NotificationType.CONSULTATION_STATUS_CHANGED, "sessionId" to event.sessionId, "status" to event.status)
     }
 
     @TransactionalEventListener(fallbackExecution = true)
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    fun on(event: ModerationFlagResolved) {
+    fun onModerationFlagResolved(event: ModerationFlagResolved) {
         val reporter = event.reporterId ?: return
-        send(reporter, NotificationType.FLAG_RESOLVED, "flagId" to event.flagId, "messageId" to event.messageId, "status" to event.status)
+        notifyRecipient(reporter, NotificationType.FLAG_RESOLVED, "flagId" to event.flagId, "messageId" to event.messageId, "status" to event.status)
     }
 
-    private fun send(recipientId: UUID, type: NotificationType, vararg payload: Pair<String, Any?>) {
-        notifications.send(NotificationCommand(recipientId, type, mapOf(*payload)))
+    private fun notifyRecipient(recipientId: UUID, type: NotificationType, vararg payload: Pair<String, Any?>) {
+        notifications.sendNotification(NotificationCommand(recipientId, type, mapOf(*payload)))
     }
 }

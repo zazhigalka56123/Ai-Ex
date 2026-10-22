@@ -131,7 +131,7 @@ class CorpusAnalyzer {
         private const val MIN_WORD_LENGTH = 4
         private const val SCALE = 4
         private val NIGHT_HOURS = 0..5
-        private val PHRASE_LENGTH = 2..120
+        private val PHRASE_LENGTH = 2..400
         private val MAX_REPLY_DELAY: Duration = Duration.ofHours(24)
         private val CONVERSATION_GAP: Duration = Duration.ofHours(6)
         private val WHITESPACE = Regex("\\s+")

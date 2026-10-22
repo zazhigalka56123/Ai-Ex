@@ -12,26 +12,26 @@ import ru.itmo.aiex.common.security.RoleCode
 import ru.itmo.aiex.persona.service.TagCatalog
 @Component
 class DictionaryAdministration(@param:Lazy private val tags: TagCatalog, private val specializations: SpecializationCatalog) {
-    fun getEntries(kind: DictionaryKind, page: PageQuery): PageView<DictionaryEntry> = catalog(kind).getEntries(page)
+    fun getEntries(kind: DictionaryKind, page: PageQuery): PageView<DictionaryEntry> = catalogOf(kind).getEntries(page)
 
-    fun get(kind: DictionaryKind, id: Long): DictionaryEntry = catalog(kind).get(id)
+    fun getEntry(kind: DictionaryKind, id: Long): DictionaryEntry = catalogOf(kind).getEntry(id)
 
-    fun create(actor: Actor, kind: DictionaryKind, code: String, title: String): DictionaryEntry {
+    fun createEntry(actor: Actor, kind: DictionaryKind, code: String, title: String): DictionaryEntry {
         actor.requireRole(RoleCode.ADMIN)
-        return catalog(kind).create(code, title)
+        return catalogOf(kind).createEntry(code, title)
     }
 
-    fun update(actor: Actor, kind: DictionaryKind, id: Long, title: String): DictionaryEntry {
+    fun updateEntry(actor: Actor, kind: DictionaryKind, id: Long, title: String): DictionaryEntry {
         actor.requireRole(RoleCode.ADMIN)
-        return catalog(kind).update(id, title)
+        return catalogOf(kind).updateEntry(id, title)
     }
 
-    fun delete(actor: Actor, kind: DictionaryKind, id: Long) {
+    fun deleteEntry(actor: Actor, kind: DictionaryKind, id: Long) {
         actor.requireRole(RoleCode.ADMIN)
-        catalog(kind).delete(id)
+        catalogOf(kind).deleteEntry(id)
     }
 
-    private fun catalog(kind: DictionaryKind): DictionaryCatalog = when (kind) {
+    private fun catalogOf(kind: DictionaryKind): DictionaryCatalog = when (kind) {
         DictionaryKind.TAGS -> tags
         DictionaryKind.SPECIALIZATIONS -> specializations
     }

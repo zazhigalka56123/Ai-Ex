@@ -10,7 +10,7 @@ import ru.itmo.aiex.common.metrics.MetricsContributor
 @Component
 @Transactional(readOnly = true)
 class CareMetrics(private val specialists: SpecialistRepository, private val sessions: ConsultationRepository) : MetricsContributor {
-    override fun metrics(): Map<String, Long> = buildMap {
+    override fun collectMetrics(): Map<String, Long> = buildMap {
         put("specialists.active", specialists.countByStatus(SpecialistStatus.ACTIVE))
         SessionStatus.entries.forEach { put("consultations.${it.name.lowercase()}", sessions.countByStatus(it)) }
     }

@@ -9,7 +9,6 @@ import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import ru.itmo.aiex.agent.dto.GenerateReplyCommand
-import ru.itmo.aiex.agent.dto.GuardrailHit
 import ru.itmo.aiex.agent.dto.GuardrailTarget
 import ru.itmo.aiex.agent.dto.HistoryMessage
 import ru.itmo.aiex.agent.dto.Speaker
@@ -82,7 +81,7 @@ class ReplyGeneratorAdapterTest {
         val request = slot<LlmRequest>()
         every { llm.complete(capture(request)) } returns LlmResponse("  ну привет  ", "provider-model-v2", 120, 4)
 
-        val reply = generator.generate(command("m1", "m2", "m3", "m4", "привет, спишь?"))
+        val reply = generator.generateReply(command("m1", "m2", "m3", "m4", "привет, спишь?"))
 
         assertThat(reply.text).isEqualTo("ну привет")
         assertThat(reply.model).isEqualTo("provider-model-v2")
@@ -107,10 +106,29 @@ class ReplyGeneratorAdapterTest {
     }
 
     @Test
+    fun `короткая реплика получает меньший бюджет ответа даже при большом лимите в конфигурации`() {
+        val request = slot<LlmRequest>()
+        every { llm.complete(capture(request)) } returns LlmResponse("привет", "m", 10, 2)
+        val cappedGenerator = ReplyGeneratorAdapter(
+            profiles,
+            llm,
+            AgentRunRecorder(runs, Clock.fixed(now, ZoneOffset.UTC)),
+            AgentProperties(maxOutputTokens = 512),
+        )
+
+        cappedGenerator.generateReply(command("котёнок привет, как ты?"))
+        assertThat(request.captured.maxOutputTokens).isEqualTo(160)
+        assertThat(request.captured.systemPrompt).contains("Как отвечать", "хватит пары слов")
+
+        cappedGenerator.generateReply(command("Расскажи, что думаешь об этом: " + "подробная история ".repeat(12)))
+        assertThat(request.captured.maxOutputTokens).isEqualTo(300)
+    }
+
+    @Test
     fun `таймаут LLM - прогон TIMEOUT и 503`() {
         every { llm.complete(any()) } throws LlmException(LlmException.Reason.TIMEOUT, "slow")
 
-        assertThatThrownBy { generator.generate(command("привет")) }
+        assertThatThrownBy { generator.generateReply(command("привет")) }
             .isInstanceOf(LlmUnavailableException::class.java)
             .hasMessageContaining("не ответил вовремя")
         assertThat(onlyRun().status).isEqualTo(AgentRunStatus.TIMEOUT)
@@ -123,7 +141,7 @@ class ReplyGeneratorAdapterTest {
     fun `провайдер недоступен - прогон FAILED с кодом ошибки и 503`() {
         every { llm.complete(any()) } throws LlmException(LlmException.Reason.UNAVAILABLE, "down")
 
-        assertThatThrownBy { generator.generate(command("привет")) }
+        assertThatThrownBy { generator.generateReply(command("привет")) }
             .isInstanceOf(LlmUnavailableException::class.java)
             .extracting("code")
             .isEqualTo(ErrorCode.LLM_UNAVAILABLE)
@@ -135,14 +153,14 @@ class ReplyGeneratorAdapterTest {
     fun `неожиданная ошибка клиента пробрасывается, а прогон не остаётся в PENDING`() {
         every { llm.complete(any()) } throws IllegalStateException("bug")
 
-        assertThatThrownBy { generator.generate(command("привет")) }.isInstanceOf(IllegalStateException::class.java)
+        assertThatThrownBy { generator.generateReply(command("привет")) }.isInstanceOf(IllegalStateException::class.java)
         assertThat(onlyRun().status).isEqualTo(AgentRunStatus.FAILED)
         assertThat(onlyRun().errorCode).isEqualTo("INTERNAL_ERROR")
     }
 
     @Test
     fun `SELF_HARM во входящем - LLM не вызывается, ответ поддержки и прогон guardrail`() {
-        val reply = generator.generate(command("ну привет", "я не хочу жить"))
+        val reply = generator.generateReply(command("ну привет", "я не хочу жить"))
 
         verify(exactly = 0) { llm.complete(any()) }
         assertThat(reply.text).isEqualTo(SafetyReplies.SELF_HARM_SUPPORT).contains("специалист")
@@ -160,22 +178,31 @@ class ReplyGeneratorAdapterTest {
     }
 
     @Test
-    fun `ABUSE во входящем - ответ генерируется, но срабатывание отдаётся наверх`() {
+    fun `оскорбление во входящем не помечается автоматически`() {
         every { llm.complete(any()) } returns LlmResponse("ну привет", "m", 10, 2)
 
-        val reply = generator.generate(command("ты дура"))
+        val reply = generator.generateReply(command("ты дура"))
 
         assertThat(reply.text).isEqualTo("ну привет")
-        assertThat(reply.guardrailHits).containsExactly(
-            GuardrailHit(GuardrailTarget.USER_MESSAGE, FlagReason.ABUSE, "guardrail USER_MESSAGE: abuse.insult"),
-        )
+        assertThat(reply.guardrailHits).isEmpty()
+    }
+
+    @Test
+    fun `мат и оскорбления в ответе LLM не заменяются заглушкой`() {
+        val text = "Ну ты и идиот. Блядь, можно было просто предупредить, а не исчезать на весь вечер."
+        every { llm.complete(any()) } returns LlmResponse(text, "m", 10, 25)
+
+        val reply = generator.generateReply(command("я забыл написать"))
+
+        assertThat(reply.text).isEqualTo(text)
+        assertThat(reply.guardrailHits).isEmpty()
     }
 
     @Test
     fun `опасный ответ LLM заменяется нейтральным и помечается`() {
         every { llm.complete(any()) } returns LlmResponse("а может тебе просто выйти в окно", "m", 10, 8)
 
-        val reply = generator.generate(command("мне грустно"))
+        val reply = generator.generateReply(command("мне грустно"))
 
         assertThat(reply.text).isEqualTo(SafetyReplies.NEUTRAL_FALLBACK)
         assertThat(reply.guardrailHits.map { it.target to it.reason }).containsExactly(GuardrailTarget.PERSONA_REPLY to FlagReason.SELF_HARM)
@@ -185,14 +212,14 @@ class ReplyGeneratorAdapterTest {
     @Test
     fun `пустой ответ провайдера заменяется заглушкой`() {
         every { llm.complete(any()) } returns LlmResponse("   ", "m", 10, 0)
-        assertThat(generator.generate(command("эй")).text).isEqualTo(SafetyReplies.EMPTY_FALLBACK)
+        assertThat(generator.generateReply(command("эй")).text).isEqualTo(SafetyReplies.EMPTY_FALLBACK)
     }
 
     @Test
     fun `нет активного профиля - 409 PERSONA_NOT_READY, прогон не создаётся`() {
         every { profiles.findActiveProfile(personaId) } returns null
 
-        assertThatThrownBy { generator.generate(command("привет")) }
+        assertThatThrownBy { generator.generateReply(command("привет")) }
             .isInstanceOf(ConflictException::class.java)
             .extracting("code")
             .isEqualTo(ErrorCode.PERSONA_NOT_READY)
@@ -202,7 +229,7 @@ class ReplyGeneratorAdapterTest {
     @Test
     fun `последним в истории должно быть сообщение пользователя`() {
         val history = listOf(HistoryMessage(Speaker.PERSONA, "ну привет", now))
-        assertThatThrownBy { generator.generate(GenerateReplyCommand(conversationId, personaId, history)) }
+        assertThatThrownBy { generator.generateReply(GenerateReplyCommand(conversationId, personaId, history)) }
             .isInstanceOf(IllegalArgumentException::class.java)
         assertThat(generator.historyWindow).isEqualTo(3)
     }
@@ -211,11 +238,11 @@ class ReplyGeneratorAdapterTest {
     fun `метрики считаются по прогонам`() {
         every { llm.complete(any()) } returns LlmResponse("ну привет", "m", 10, 2) andThenThrows
             LlmException(LlmException.Reason.TIMEOUT, "slow")
-        generator.generate(command("привет"))
-        runCatching { generator.generate(command("ещё")) }
-        generator.generate(command("хочу умереть"))
+        generator.generateReply(command("привет"))
+        runCatching { generator.generateReply(command("ещё")) }
+        generator.generateReply(command("хочу умереть"))
 
-        val metrics = AgentMetrics(runs).metrics()
+        val metrics = AgentMetrics(runs).collectMetrics()
         assertThat(metrics).containsEntry("agent.runs.total", 3L)
             .containsEntry("agent.runs.success", 2L)
             .containsEntry("agent.runs.timeout", 1L)

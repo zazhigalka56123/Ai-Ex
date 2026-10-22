@@ -33,7 +33,7 @@ class PromptBuilderTest {
         assertThat(prompt).contains("Отвечает сухо и ревнует.")
         assertThat(prompt).contains("- ревность: high (1.00)", "- ярлыки: ревнивая, сова")
         assertThat(prompt).contains("скорость ответа: отвечает медленно", "сообщения капсом: 30%")
-        assertThat(prompt).contains("специалист", "самоповреждением")
+        assertThat(prompt).contains("Отвечай как в личном чате", "Не выдумывай фактов о собеседнике")
     }
 
     @Test
@@ -68,7 +68,19 @@ class PromptBuilderTest {
         assertThat(style.avgMessageLength).isEqualTo(12.4)
         assertThat(style.samplePhrases).hasSize(3)
         assertThat(PromptBuilder.traitLabel("unknown_key")).isEqualTo("unknown_key")
-        assertThat(PromptBuilder.sanitizePhrase("x".repeat(300))).hasSize(200)
+        assertThat(PromptBuilder.sanitizePhrase("x".repeat(500))).hasSize(400)
+    }
+
+    @Test
+    fun `длинные примеры сохраняются и промпт не требует обязательной краткости`() {
+        val phrase = "Я хочу обсудить это спокойно, но без очередных обещаний. ".repeat(5).trim()
+        val conversational = style.copy(samplePhrases = listOf(phrase), avgMessageLength = phrase.length.toDouble())
+        val prompt = builder.build(
+            PromptInput("Оля", RelationshipKind.EX_PARTNER, "Язвительная, но разговорчивая.", emptyList(), emptyList(), conversational),
+        )
+
+        assertThat(prompt).contains("- «$phrase»", "иногда хватает пары слов", "иногда хочется поговорить дольше")
+        assertThat(prompt).doesNotContain("от первого лица, коротко", "пиши просто и коротко")
     }
 
     private companion object {

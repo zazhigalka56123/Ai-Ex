@@ -42,7 +42,7 @@ class PersonaTag(persona: Persona, tag: Tag, weight: BigDecimal, source: TraitSo
     var source: TraitSource = source
         protected set
 
-    @Column(name = "created_at", nullable = false, updatable = false)
+    @Column(nullable = false, updatable = false)
     val createdAt: Instant = createdAt
 
     fun assignManually(newWeight: BigDecimal) {

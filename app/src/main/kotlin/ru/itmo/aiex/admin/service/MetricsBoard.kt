@@ -8,10 +8,10 @@ import java.time.Clock
 
 @Component
 class MetricsBoard(private val contributors: List<MetricsContributor>, private val clock: Clock) {
-    fun snapshot(actor: Actor): MetricsSnapshot {
+    fun collectMetrics(actor: Actor): MetricsSnapshot {
         actor.requireRole(RoleCode.ADMIN)
         val metrics = sortedMapOf<String, Long>()
-        contributors.forEach { metrics.putAll(it.metrics()) }
+        contributors.forEach { metrics.putAll(it.collectMetrics()) }
         return MetricsSnapshot(metrics, clock.instant())
     }
 }

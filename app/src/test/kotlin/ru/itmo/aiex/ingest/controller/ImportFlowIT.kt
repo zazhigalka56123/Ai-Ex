@@ -314,7 +314,7 @@ class ImportFlowIT : IngestIntegrationTest() {
         val persona = createPersona(owner)
         upload(owner, persona, "telegram/personal_chat.json")
         upload(owner, persona, "telegram/broken.json")
-        val values = metrics.flatMap { it.metrics().entries }.associate { it.key to it.value }
+        val values = metrics.flatMap { it.collectMetrics().entries }.associate { it.key to it.value }
         assertThat(values).containsEntry("imports.total", 2L).containsEntry("imports.parsed", 1L).containsEntry("imports.failed", 1L)
         assertThat(values).containsEntry("imports.messages", 25L)
     }

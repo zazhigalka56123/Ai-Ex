@@ -20,13 +20,13 @@ import java.util.UUID
 class ModerationFlag private constructor(
     @Id
     val id: UUID,
-    @Column(name = "message_id", nullable = false, updatable = false)
+    @Column(nullable = false, updatable = false)
     val messageId: UUID,
-    @Column(name = "conversation_id", nullable = false, updatable = false)
+    @Column(nullable = false, updatable = false)
     val conversationId: UUID,
-    @Column(name = "persona_id", nullable = false, updatable = false)
+    @Column(nullable = false, updatable = false)
     val personaId: UUID,
-    @Column(name = "reporter_id", updatable = false)
+    @Column(updatable = false)
     val reporterId: UUID?,
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 24, updatable = false)
@@ -37,7 +37,7 @@ class ModerationFlag private constructor(
     @field:Size(max = COMMENT_MAX_LENGTH)
     @Column(length = COMMENT_MAX_LENGTH, updatable = false)
     val comment: String?,
-    @Column(name = "created_at", nullable = false, updatable = false)
+    @Column(nullable = false, updatable = false)
     val createdAt: Instant,
 ) {
     @Enumerated(EnumType.STRING)
@@ -46,19 +46,16 @@ class ModerationFlag private constructor(
         protected set
 
     @field:Size(max = RESOLUTION_MAX_LENGTH)
-    @Column
     var resolution: String? = null
         protected set
 
-    @Column(name = "assignee_id")
     var assigneeId: UUID? = null
         protected set
 
-    @Column(name = "updated_at", nullable = false)
+    @Column(nullable = false)
     var updatedAt: Instant = createdAt
         protected set
 
-    @Column(name = "resolved_at")
     var resolvedAt: Instant? = null
         protected set
 

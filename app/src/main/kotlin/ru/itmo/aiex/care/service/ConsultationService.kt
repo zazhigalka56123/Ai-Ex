@@ -65,10 +65,11 @@ class ConsultationService(
     fun getConsultations(actor: Actor, status: SessionStatus?, page: PageQuery): PageView<ConsultationSession> =
         sessions.findPageForParticipant(actor.userId, status, page)
 
-    fun get(actor: Actor, id: UUID): ConsultationSession = sessions.findById(id)?.takeIf { it.roleOf(actor) != null } ?: throw notFound(id)
+    fun getConsultation(actor: Actor, id: UUID): ConsultationSession =
+        sessions.findById(id)?.takeIf { it.roleOf(actor) != null } ?: throw notFound(id)
 
     @Transactional
-    fun update(actor: Actor, id: UUID, change: ConsultationChange): ConsultationSession {
+    fun updateConsultation(actor: Actor, id: UUID, change: ConsultationChange): ConsultationSession {
         val session = sessions.findById(id) ?: throw notFound(id)
         val role = session.roleOf(actor) ?: throw notFound(id)
         val now = clock.nowMicros()

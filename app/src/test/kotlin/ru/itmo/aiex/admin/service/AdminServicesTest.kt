@@ -48,10 +48,10 @@ class AdminServicesTest {
                 ),
                 clock,
             )
-        val snapshot = board.snapshot(admin)
+        val snapshot = board.collectMetrics(admin)
         assertThat(snapshot.metrics.keys).containsExactly("b.x", "flags.open", "users.active")
         assertThat(snapshot.generatedAt).isEqualTo(now)
-        assertThatThrownBy { board.snapshot(client) }.isInstanceOf(ForbiddenException::class.java)
+        assertThatThrownBy { board.collectMetrics(client) }.isInstanceOf(ForbiddenException::class.java)
     }
 
     @Test
@@ -62,7 +62,7 @@ class AdminServicesTest {
         every { flags.existsByMessageAndReporter(message.messageId, client.userId) } returns false
         every { flags.saveAndFlush(any()) } throws DataIntegrityViolationException("uq_moderation_flags_message_reporter")
 
-        assertThatThrownBy { service.report(client, message, ReportMessageCommand(message.messageId, FlagReason.ABUSE)) }
+        assertThatThrownBy { service.reportMessage(client, message, ReportMessageCommand(message.messageId, FlagReason.ABUSE)) }
             .isInstanceOf(ConflictException::class.java)
             .extracting { (it as AiExException).code }
             .isEqualTo(ErrorCode.FLAG_ALREADY_REPORTED)
@@ -79,8 +79,8 @@ class AdminServicesTest {
         every { dialogs.findMessage(known.id) } returns known
         every { moderation.raiseGuardrailFlag(any(), any(), any()) } throws DataIntegrityViolationException("ux_moderation_flags_guardrail")
 
-        listener.on(MessageAutoFlagged(missing, UUID.randomUUID(), FlagReason.ABUSE, "мат", now))
-        listener.on(MessageAutoFlagged(known.id, known.conversationId, FlagReason.ABUSE, "мат", now))
+        listener.onMessageAutoFlagged(MessageAutoFlagged(missing, UUID.randomUUID(), FlagReason.ABUSE, "мат", now))
+        listener.onMessageAutoFlagged(MessageAutoFlagged(known.id, known.conversationId, FlagReason.ABUSE, "мат", now))
 
         verify(exactly = 1) {
             moderation.raiseGuardrailFlag(FlaggedMessage(known.id, known.conversationId, known.personaId), FlagReason.ABUSE, "мат")
@@ -103,13 +103,13 @@ class AdminServicesTest {
         val tags = mockk<ru.itmo.aiex.persona.service.TagCatalog>()
         val specializations = mockk<ru.itmo.aiex.care.service.SpecializationCatalog>()
         val dictionaries = DictionaryAdministration(tags, specializations)
-        every { specializations.get(1) } returns ru.itmo.aiex.common.dictionary.DictionaryEntry(1, "grief", "Горе")
+        every { specializations.getEntry(1) } returns ru.itmo.aiex.common.dictionary.DictionaryEntry(1, "grief", "Горе")
 
-        assertThat(dictionaries.get(DictionaryKind.SPECIALIZATIONS, 1).code).isEqualTo("grief")
-        assertThatThrownBy { dictionaries.create(client, DictionaryKind.TAGS, "cold", "Холодная") }.isInstanceOf(ForbiddenException::class.java)
-        assertThatThrownBy { dictionaries.update(client, DictionaryKind.SPECIALIZATIONS, 1, "x") }.isInstanceOf(ForbiddenException::class.java)
-        assertThatThrownBy { dictionaries.delete(client, DictionaryKind.TAGS, 1) }.isInstanceOf(ForbiddenException::class.java)
-        verify(exactly = 0) { tags.create(any(), any()) }
+        assertThat(dictionaries.getEntry(DictionaryKind.SPECIALIZATIONS, 1).code).isEqualTo("grief")
+        assertThatThrownBy { dictionaries.createEntry(client, DictionaryKind.TAGS, "cold", "Холодная") }.isInstanceOf(ForbiddenException::class.java)
+        assertThatThrownBy { dictionaries.updateEntry(client, DictionaryKind.SPECIALIZATIONS, 1, "x") }.isInstanceOf(ForbiddenException::class.java)
+        assertThatThrownBy { dictionaries.deleteEntry(client, DictionaryKind.TAGS, 1) }.isInstanceOf(ForbiddenException::class.java)
+        verify(exactly = 0) { tags.createEntry(any(), any()) }
         assertThat(FlagStatus.entries).hasSize(4)
     }
 }

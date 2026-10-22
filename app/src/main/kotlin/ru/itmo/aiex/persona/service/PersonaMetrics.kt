@@ -8,5 +8,6 @@ import ru.itmo.aiex.persona.repository.PersonaRepository
 @Component
 @Transactional(readOnly = true)
 class PersonaMetrics(private val personas: PersonaRepository) : MetricsContributor {
-    override fun metrics(): Map<String, Long> = PersonaStatus.entries.associate { "personas.${it.name.lowercase()}" to personas.countByStatus(it) }
+    override fun collectMetrics(): Map<String, Long> =
+        PersonaStatus.entries.associate { "personas.${it.name.lowercase()}" to personas.countByStatus(it) }
 }

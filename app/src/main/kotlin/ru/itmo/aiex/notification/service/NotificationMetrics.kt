@@ -8,7 +8,7 @@ import ru.itmo.aiex.notification.repository.NotificationRepository
 @Component
 @Transactional(readOnly = true)
 class NotificationMetrics(private val notifications: NotificationRepository) : MetricsContributor {
-    override fun metrics(): Map<String, Long> = mapOf(
+    override fun collectMetrics(): Map<String, Long> = mapOf(
         "notifications.sent" to notifications.countByStatus(NotificationStatus.SENT),
         "notifications.failed" to notifications.countByStatus(NotificationStatus.FAILED),
         "notifications.pending" to notifications.countByStatus(NotificationStatus.PENDING),

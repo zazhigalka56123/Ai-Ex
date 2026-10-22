@@ -28,7 +28,7 @@ class ImportService(
 ) {
     private val log = LoggerFactory.getLogger(javaClass)
 
-    fun upload(actor: Actor, personaId: UUID, file: UploadedFile, source: ImportSource?, theirName: String?): ChatImport {
+    fun uploadImport(actor: Actor, personaId: UUID, file: UploadedFile, source: ImportSource?, theirName: String?): ChatImport {
         actor.requireRole(RoleCode.USER)
         val persona = personaAccess.assertOwned(personaId, actor.userId)
         if (file.sizeBytes <= 0) throw ValidationException("file", "required", "Файл выгрузки пуст")
@@ -58,7 +58,7 @@ class ImportService(
         val job = ImportJob(pending.id, personaId, actor.userId, persona.name, resolvedSource, theirName?.trim()?.takeIf { it.isNotEmpty() }, content)
         if (content.size > properties.asyncThresholdBytes) {
             dispatchAsync(job)
-            return transactions.find(pending.id)
+            return transactions.getImport(pending.id)
         }
         return processor.process(job)
     }

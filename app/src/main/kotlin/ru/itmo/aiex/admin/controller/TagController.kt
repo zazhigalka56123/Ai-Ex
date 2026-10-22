@@ -45,25 +45,25 @@ class TagController(dictionaries: DictionaryAdministration) {
     @Operation(operationId = "getTag", summary = "Тег по id")
     @ApiResponse(responseCode = "200", description = "Тег")
     @ApiErrors(ErrorCode.TAG_NOT_FOUND)
-    fun get(actor: Actor?, @PathVariable id: Long): DictionaryEntryResponse = endpoints.get(id)
+    fun getTag(actor: Actor?, @PathVariable id: Long): DictionaryEntryResponse = endpoints.getEntry(id)
 
     @PostMapping
     @Operation(operationId = "createTag", summary = "Добавить тег", description = "Только администратор. Код приводится к нижнему регистру.")
     @ApiResponse(responseCode = "201", description = "Тег создан", headers = [Header(name = "Location", description = "URI тега")])
     @ApiErrors(ErrorCode.VALIDATION_FAILED, ErrorCode.FORBIDDEN, ErrorCode.DICTIONARY_CODE_TAKEN)
-    fun create(actor: Actor, @Valid @RequestBody request: CreateDictionaryEntryRequest): ResponseEntity<DictionaryEntryResponse> =
-        endpoints.create(actor, request)
+    fun createTag(actor: Actor, @Valid @RequestBody request: CreateDictionaryEntryRequest): ResponseEntity<DictionaryEntryResponse> =
+        endpoints.createEntry(actor, request)
 
     @PatchMapping("/{id}")
     @Operation(operationId = "updateTag", summary = "Переименовать тег", description = "Только администратор. Код не меняется.")
     @ApiResponse(responseCode = "200", description = "Тег изменён")
     @ApiErrors(ErrorCode.VALIDATION_FAILED, ErrorCode.FORBIDDEN, ErrorCode.TAG_NOT_FOUND)
-    fun update(actor: Actor, @PathVariable id: Long, @Valid @RequestBody request: UpdateDictionaryEntryRequest): DictionaryEntryResponse =
-        endpoints.update(actor, id, request)
+    fun updateTag(actor: Actor, @PathVariable id: Long, @Valid @RequestBody request: UpdateDictionaryEntryRequest): DictionaryEntryResponse =
+        endpoints.updateEntry(actor, id, request)
 
     @DeleteMapping("/{id}")
     @Operation(operationId = "deleteTag", summary = "Удалить тег", description = "Только администратор. Тег, назначенный персонам, удалить нельзя.")
     @ApiResponse(responseCode = "204", description = "Тег удалён")
     @ApiErrors(ErrorCode.FORBIDDEN, ErrorCode.TAG_NOT_FOUND, ErrorCode.CONSTRAINT_VIOLATED)
-    fun delete(actor: Actor, @PathVariable id: Long): ResponseEntity<Void> = endpoints.delete(actor, id)
+    fun deleteTag(actor: Actor, @PathVariable id: Long): ResponseEntity<Void> = endpoints.deleteEntry(actor, id)
 }

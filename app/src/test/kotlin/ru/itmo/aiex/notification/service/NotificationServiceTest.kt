@@ -36,7 +36,8 @@ class NotificationServiceTest {
     fun `доставка удалась - SENT, одна попытка, payload сериализован в JSON`() {
         every { sender.deliver(any()) } returns Unit
 
-        val id = service.send(NotificationCommand(recipient, NotificationType.PERSONA_READY, mapOf("personaId" to personaId, "versionNo" to 2)))
+        val command = NotificationCommand(recipient, NotificationType.PERSONA_READY, mapOf("personaId" to personaId, "versionNo" to 2))
+        val id = service.sendNotification(command)
 
         with(stored.captured) {
             assertThat(this.id).isEqualTo(id)
@@ -52,7 +53,7 @@ class NotificationServiceTest {
     fun `сбой канала доставки - FAILED, попытка учтена, исключение не пробрасывается`() {
         every { sender.deliver(any()) } throws NotificationDeliveryException("канал недоступен")
 
-        service.send(NotificationCommand(recipient, NotificationType.IMPORT_FAILED, mapOf("errorCode" to "BROKEN_FILE")))
+        service.sendNotification(NotificationCommand(recipient, NotificationType.IMPORT_FAILED, mapOf("errorCode" to "BROKEN_FILE")))
 
         with(stored.captured) {
             assertThat(status).isEqualTo(NotificationStatus.FAILED)

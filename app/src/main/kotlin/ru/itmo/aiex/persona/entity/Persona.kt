@@ -24,12 +24,12 @@ import java.util.UUID
 class Persona(
     @Id
     val id: UUID,
-    @Column(name = "owner_id", nullable = false, updatable = false)
+    @Column(nullable = false, updatable = false)
     val ownerId: UUID,
     name: String,
     relationshipKind: RelationshipKind,
     description: String?,
-    @Column(name = "created_at", nullable = false, updatable = false)
+    @Column(nullable = false, updatable = false)
     val createdAt: Instant,
 ) {
     @field:NotBlank
@@ -39,7 +39,7 @@ class Persona(
         protected set
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "relationship_kind", nullable = false, length = 24)
+    @Column(nullable = false, length = 24)
     var relationshipKind: RelationshipKind = relationshipKind
         protected set
 
@@ -53,15 +53,13 @@ class Persona(
     var status: PersonaStatus = PersonaStatus.DRAFT
         protected set
 
-    @Column(name = "active_profile_id")
     var activeProfileId: UUID? = null
         protected set
 
-    @Column(name = "updated_at", nullable = false)
+    @Column(nullable = false)
     var updatedAt: Instant = createdAt
         protected set
 
-    @Column(name = "archived_at")
     var archivedAt: Instant? = null
         protected set
 

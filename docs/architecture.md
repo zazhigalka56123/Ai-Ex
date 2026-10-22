@@ -894,7 +894,7 @@ sequenceDiagram
 | `AIEX_LLM_MODEL` | — | имя модели |
 | `AIEX_LLM_TIMEOUT_MS` | `20000` | таймаут одного вызова |
 | `AIEX_LLM_MAX_RETRIES` | `2` | ретраи только на `5xx` и таймауты |
-| `AIEX_AGENT_HISTORY_WINDOW` | `20` | сколько последних сообщений уходит в промпт |
+| `AIEX_AGENT_HISTORY_WINDOW` | `60` | сколько последних сообщений берётся из беседы: последние 20 уходят репликами, более ранние - краткой памятью в системный промпт |
 | `AIEX_AGENT_MAX_OUTPUT_TOKENS` | `512` | бюджет ответа |
 | `AIEX_PAGINATION_MAX_SIZE` | `50` | жёсткий потолок из требований |
 | `AIEX_IMPORT_MAX_FILE_MB` | `20` | лимит выгрузки |

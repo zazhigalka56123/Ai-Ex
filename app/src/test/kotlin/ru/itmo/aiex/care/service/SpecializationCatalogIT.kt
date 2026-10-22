@@ -36,40 +36,40 @@ class SpecializationCatalogIT : CareIntegrationTest() {
 
     @Test
     fun `создание нормализует код, дубликат - DICTIONARY_CODE_TAKEN, мусор - 400`() {
-        val created = catalog.create("  IT-Couples ", "  Пары  ")
+        val created = catalog.createEntry("  IT-Couples ", "  Пары  ")
         assertThat(created.code).isEqualTo("it-couples")
         assertThat(created.title).isEqualTo("Пары")
-        assertThat(catalog.get(created.id)).isEqualTo(created)
+        assertThat(catalog.getEntry(created.id)).isEqualTo(created)
 
-        assertThatThrownBy { catalog.create("it-couples", "Ещё раз") }
+        assertThatThrownBy { catalog.createEntry("it-couples", "Ещё раз") }
             .isInstanceOf(ConflictException::class.java)
             .extracting { (it as AiExException).code }
             .isEqualTo(ErrorCode.DICTIONARY_CODE_TAKEN)
-        assertThatThrownBy { catalog.create("it_bad code", "Мусор") }.isInstanceOf(ValidationException::class.java)
-        assertThatThrownBy { catalog.create("it-" + "x".repeat(60), "Длинный") }.isInstanceOf(ValidationException::class.java)
-        assertThatThrownBy { catalog.create("it-empty-title", "   ") }.isInstanceOf(ValidationException::class.java)
+        assertThatThrownBy { catalog.createEntry("it_bad code", "Мусор") }.isInstanceOf(ValidationException::class.java)
+        assertThatThrownBy { catalog.createEntry("it-" + "x".repeat(60), "Длинный") }.isInstanceOf(ValidationException::class.java)
+        assertThatThrownBy { catalog.createEntry("it-empty-title", "   ") }.isInstanceOf(ValidationException::class.java)
     }
 
     @Test
     fun `переименование и удаление неиспользуемой специализации`() {
-        val created = catalog.create("it-rename", "Было")
-        assertThat(catalog.update(created.id, "Стало").title).isEqualTo("Стало")
-        catalog.delete(created.id)
-        assertThatThrownBy { catalog.get(created.id) }
+        val created = catalog.createEntry("it-rename", "Было")
+        assertThat(catalog.updateEntry(created.id, "Стало").title).isEqualTo("Стало")
+        catalog.deleteEntry(created.id)
+        assertThatThrownBy { catalog.getEntry(created.id) }
             .isInstanceOf(NotFoundException::class.java)
             .extracting { (it as AiExException).code }
             .isEqualTo(ErrorCode.SPECIALIZATION_NOT_FOUND)
-        assertThatThrownBy { catalog.update(created.id, "Нет") }.isInstanceOf(NotFoundException::class.java)
+        assertThatThrownBy { catalog.updateEntry(created.id, "Нет") }.isInstanceOf(NotFoundException::class.java)
     }
 
     @Test
     fun `используемую специализацию удалить нельзя - CONSTRAINT_VIOLATED`() {
-        val created = catalog.create("it-in-use", "Используется")
+        val created = catalog.createEntry("it-in-use", "Используется")
         createSpecialist(codes = listOf("it-in-use"))
-        assertThatThrownBy { catalog.delete(created.id) }
+        assertThatThrownBy { catalog.deleteEntry(created.id) }
             .isInstanceOf(ConflictException::class.java)
             .extracting { (it as AiExException).code }
             .isEqualTo(ErrorCode.CONSTRAINT_VIOLATED)
-        assertThat(catalog.get(created.id).code).isEqualTo("it-in-use")
+        assertThat(catalog.getEntry(created.id).code).isEqualTo("it-in-use")
     }
 }

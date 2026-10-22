@@ -12,16 +12,16 @@ import java.util.concurrent.TimeUnit
 class ProfileRebuildService(private val transactions: ProfileTransactions, private val drafts: ProfileDraftFactory) {
     private val log = LoggerFactory.getLogger(javaClass)
 
-    fun rebuildFrom(personaId: UUID, snapshot: CorpusSnapshot): ProfileRebuildResult = build(transactions.storeSnapshot(personaId, snapshot))
+    fun rebuildFrom(personaId: UUID, snapshot: CorpusSnapshot): ProfileRebuildResult = buildProfile(transactions.storeSnapshot(personaId, snapshot))
 
     fun rebuildManually(actor: Actor, personaId: UUID): ProfileRebuildResult = when (val plan = transactions.planManualRebuild(personaId, actor)) {
         is ManualRebuildPlan.UpToDate -> plan.result.also { log.info("Персона {}: профиль уже собран из последнего корпуса", personaId) }
-        is ManualRebuildPlan.Rebuild -> build(plan.target)
+        is ManualRebuildPlan.Rebuild -> buildProfile(plan.target)
     }
 
-    private fun build(target: RebuildTarget): ProfileRebuildResult {
+    private fun buildProfile(target: RebuildTarget): ProfileRebuildResult {
         val startedAt = System.nanoTime()
-        val draft = drafts.create(target.personaId, target.personaName, target.snapshot)
+        val draft = drafts.createDraft(target.personaId, target.personaName, target.snapshot)
         val result = transactions.applyProfile(target, draft)
         log.info(
             "Персона {}: профиль v{} собран из корпуса {} за {} мс",

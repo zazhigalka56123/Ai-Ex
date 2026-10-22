@@ -2,7 +2,6 @@ package ru.itmo.aiex.agent.repository
 
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
-import org.springframework.data.repository.query.Param
 import ru.itmo.aiex.agent.entity.AgentRun
 import ru.itmo.aiex.agent.entity.AgentRunStatus
 import java.util.UUID
@@ -17,5 +16,5 @@ internal interface AgentRunJpaRepository : JpaRepository<AgentRun, UUID> {
     fun sumTokensOut(): Long
 
     @Query("select avg(r.latencyMs) from AgentRun r where r.latencyMs is not null and r.model <> :excludedModel")
-    fun averageLatencyMs(@Param("excludedModel") excludedModel: String): Double?
+    fun averageLatencyMs(excludedModel: String): Double?
 }
