@@ -11,7 +11,10 @@ mockk = "1.14.9"
 springmockk = "5.0.1"
 archunit = "1.5.0"
 
+spring-cloud = "2025.1.2"
+
 [libraries]
+spring-cloud-dependencies = { module = "org.springframework.cloud:spring-cloud-dependencies", version.ref = "spring-cloud" }
 spring-boot-dependencies = { module = "org.springframework.boot:spring-boot-dependencies", version.ref = "spring-boot" }
 
 spring-boot-starter-webmvc = { module = "org.springframework.boot:spring-boot-starter-webmvc" }

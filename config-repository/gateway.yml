@@ -1,0 +1,47 @@
+spring:
+  cloud:
+    gateway:
+      server:
+        webflux:
+          default-filters:
+            - PreserveHostHeader
+          httpclient:
+            connect-timeout: 2000
+            response-timeout: 30s
+          routes:
+            - id: iam
+              uri: lb://iam-service
+              predicates:
+                - Path=/api/v1/users,/api/v1/users/**
+              filters:
+                - name: CircuitBreaker
+                  args:
+                    name: iamGateway
+                    fallbackUri: forward:/fallback
+            - id: notifications
+              uri: lb://notification-service
+              predicates:
+                - Path=/api/v1/notifications,/api/v1/notifications/**
+              filters:
+                - name: CircuitBreaker
+                  args:
+                    name: notificationsGateway
+                    fallbackUri: forward:/fallback
+            - id: websocket
+              uri: lb:ws://core-service
+              predicates:
+                - Path=/api/v1/conversations/*/ws
+            - id: core
+              uri: lb://core-service
+              predicates:
+                - Path=/api/**,/v3/api-docs/**,/swagger-ui/**,/swagger-ui.html
+              filters:
+                - name: CircuitBreaker
+                  args:
+                    name: coreGateway
+                    fallbackUri: forward:/fallback
+resilience4j:
+  timelimiter:
+    instances:
+      coreGateway:
+        timeoutDuration: 60s

@@ -1,0 +1,90 @@
+spring:
+  datasource:
+    url: "${CORE_DATABASE_URL:jdbc:postgresql://localhost:5432/core}"
+    username: "${CORE_DATABASE_USER:core}"
+    password: "${CORE_DATABASE_PASSWORD:core}"
+    hikari:
+      maximum-pool-size: ${AIEX_DB_POOL_SIZE:10}
+      pool-name: core-service-db
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        jdbc:
+          batch_size: 500
+          time_zone: UTC
+        order_inserts: true
+        order_updates: true
+  liquibase:
+    default-schema: public
+    liquibase-schema: public
+    change-log: classpath:db/changelog/db.changelog-master.yaml
+    contexts: ${AIEX_LIQUIBASE_CONTEXTS:demo}
+  servlet:
+    multipart:
+      max-file-size: ${aiex.import.max-file-mb}MB
+      max-request-size: 25MB
+  task:
+    execution:
+      thread-name-prefix: ai-ex-async-
+      pool:
+        core-size: 2
+        max-size: 4
+        queue-capacity: 50
+
+server:
+  port: 8083
+  error:
+    include-stacktrace: never
+    include-message: never
+  tomcat:
+    max-swallow-size: 50MB
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      probes:
+        enabled: true
+
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    urls-primary-name: all
+    tags-sorter: alpha
+    display-request-duration: true
+  default-produces-media-type: application/json
+
+ai-ex:
+  llm:
+    provider: ${AIEX_LLM_PROVIDER:stub}
+    base-url: ${AIEX_LLM_BASE_URL:}
+    api-key: ${AIEX_LLM_API_KEY:}
+    model: ${AIEX_LLM_MODEL:}
+    timeout-ms: 20000
+    max-retries: 2
+  agent:
+    history-window: 60
+    max-output-tokens: 512
+    max-input-tokens: 6000
+  pagination:
+    default-size: 20
+    max-size: 50
+    default-cursor-limit: 30
+  import:
+    max-file-mb: 20
+    max-messages: 50000
+    async-threshold-kb: 512
+
+logging:
+  level:
+    root: INFO
+    ru.itmo.aiex: INFO
+    org.hibernate.orm.deprecation: WARN

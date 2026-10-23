@@ -3,9 +3,6 @@ databaseChangeLog:
       path: db/changelog/000-schemas/
       errorIfMissingOrEmpty: false
   - includeAll:
-      path: db/changelog/010-iam/
-      errorIfMissingOrEmpty: false
-  - includeAll:
       path: db/changelog/020-persona/
       errorIfMissingOrEmpty: false
   - includeAll:
@@ -24,8 +21,7 @@ databaseChangeLog:
       path: db/changelog/070-admin/
       errorIfMissingOrEmpty: false
   - includeAll:
-      path: db/changelog/080-notification/
-      errorIfMissingOrEmpty: false
-  - includeAll:
       path: db/changelog/090-seed/
       errorIfMissingOrEmpty: false
+  - includeAll:
+      path: db/changelog/085-outbox/

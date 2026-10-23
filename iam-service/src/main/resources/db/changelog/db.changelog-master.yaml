@@ -1,0 +1,11 @@
+databaseChangeLog:
+  - changeSet:
+      id: iam-schema
+      author: lab2
+      changes:
+        - sql:
+            sql: CREATE SCHEMA IF NOT EXISTS iam
+  - includeAll:
+      path: db/changelog/010-iam/
+  - includeAll:
+      path: db/changelog/090-seed/
