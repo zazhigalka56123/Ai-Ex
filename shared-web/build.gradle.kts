@@ -4,6 +4,7 @@ plugins {
 }
 dependencies {
     api(project(":shared-kernel"))
+    api(project(":shared-security"))
     api(libs.spring.boot.starter.webmvc)
     api(libs.spring.boot.starter.validation)
     api(libs.springdoc.webmvc.ui)

@@ -8,29 +8,30 @@ import io.swagger.v3.oas.models.media.IntegerSchema
 import io.swagger.v3.oas.models.media.MediaType
 import io.swagger.v3.oas.models.media.Schema
 import io.swagger.v3.oas.models.media.StringSchema
-import io.swagger.v3.oas.models.parameters.HeaderParameter
 import io.swagger.v3.oas.models.parameters.Parameter
 import io.swagger.v3.oas.models.parameters.QueryParameter
 import io.swagger.v3.oas.models.responses.ApiResponse
 import io.swagger.v3.oas.models.responses.ApiResponses
+import io.swagger.v3.oas.models.security.SecurityRequirement
 import org.springdoc.core.customizers.GlobalOperationCustomizer
 import org.springframework.web.method.HandlerMethod
 import ru.itmo.aiex.common.error.ErrorCode
 import ru.itmo.aiex.common.paging.CursorQuery
 import ru.itmo.aiex.common.paging.PageQuery
 import ru.itmo.aiex.common.security.Actor
-import ru.itmo.aiex.common.web.AiExHeaders
 import ru.itmo.aiex.common.web.CursorParams
 import ru.itmo.aiex.common.web.PageParams
 import ru.itmo.aiex.common.web.PaginationProperties
 class AiExOperationCustomizer(private val pagination: PaginationProperties) : GlobalOperationCustomizer {
     override fun customize(operation: Operation, handlerMethod: HandlerMethod): Operation {
+        if (handlerMethod.beanType.simpleName == "AuthController") operation.security = emptyList()
         val errors = linkedSetOf<ErrorCode>()
         handlerMethod.methodParameters.forEach { parameter ->
             when (parameter.parameterType) {
                 Actor::class.java -> {
                     val required = !parameter.isOptional
-                    operation.addParametersItem(actorHeader(required))
+                    operation.addSecurityItem(SecurityRequirement().addList("bearerAuth"))
+                    if (!required) operation.addSecurityItem(SecurityRequirement())
                     if (required) errors += ErrorCode.UNAUTHENTICATED
                 }
 
@@ -54,12 +55,6 @@ class AiExOperationCustomizer(private val pagination: PaginationProperties) : Gl
         }
         return operation
     }
-
-    private fun actorHeader(required: Boolean): Parameter = HeaderParameter()
-        .name(AiExHeaders.USER_ID)
-        .required(required)
-        .description("Текущий пользователь (лаб. 1). В лаб. 3 заменится на JWT.")
-        .schema(StringSchema().format("uuid"))
 
     private fun pageParameters(settings: PageParams?): List<Parameter> {
         val sortValues = settings?.sortable?.flatMap { listOf("$it,asc", "$it,desc") }.orEmpty()

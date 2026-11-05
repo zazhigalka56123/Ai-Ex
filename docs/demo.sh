@@ -2,6 +2,9 @@
 set -euo pipefail
 
 HOST="${1:-http://localhost:8080}"
+: "${ADMIN_TOKEN:?Set ADMIN_TOKEN after login}"
+: "${SPECIALIST_TOKEN:?Set SPECIALIST_TOKEN after login}"
+: "${CLIENT_TOKEN:?Set CLIENT_TOKEN after login}"
 ADMIN=00000000-0000-0000-0000-00000000a001
 SPECIALIST=00000000-0000-0000-0000-00000000b001
 SPECIALIST_PROFILE=00000000-0000-0000-0000-00000000b101
@@ -12,7 +15,13 @@ BODY=$(mktemp); trap 'rm -f "$BODY"' EXIT
 call() {
   local expected=$1 method=$2 path=$3 user=$4 data=${5:-}
   local args=(-s -o "$BODY" -w '%{http_code}' -X "$method" "$HOST$path")
-  [[ $user != - ]] && args+=(-H "X-User-Id: $user")
+  local token=""
+  case "$user" in
+    "$ADMIN") token=$ADMIN_TOKEN ;;
+    "$SPECIALIST") token=$SPECIALIST_TOKEN ;;
+    "$CLIENT") token=$CLIENT_TOKEN ;;
+  esac
+  [[ -n $token ]] && args+=(-H "Authorization: Bearer $token")
   [[ -n $data ]] && args+=(-H 'Content-Type: application/json' -d "$data")
   local status; status=$(curl "${args[@]}")
   printf '  %-6s %-62s → %s\n' "$method" "$path" "$status"
@@ -23,7 +32,7 @@ field() { python3 -c "import json,sys; j=json.load(open('$BODY')); print($1)"; }
 echo "1. Персона и выгрузка"
 call 201 POST /api/v1/personas "$CLIENT" '{"name":"Маша","relationshipKind":"EX_PARTNER","tagCodes":["sarcastic"]}'
 PERSONA=$(field 'j["id"]')
-status=$(curl -s -o "$BODY" -w '%{http_code}' -H "X-User-Id: $CLIENT" -F "file=@$EXPORT;type=application/json" "$HOST/api/v1/personas/$PERSONA/imports")
+status=$(curl -s -o "$BODY" -w '%{http_code}' -H "Authorization: Bearer $CLIENT_TOKEN" -F "file=@$EXPORT;type=application/json" "$HOST/api/v1/personas/$PERSONA/imports")
 printf '  %-6s %-62s → %s\n' POST "/api/v1/personas/{id}/imports (multipart)" "$status"; [[ $status == 202 ]] || { cat "$BODY"; exit 1; }
 IMPORT=$(field 'j["id"]')
 call 200 GET "/api/v1/imports/$IMPORT" "$CLIENT";           echo "     импорт: $(field 'j["status"], j["messageCount"], "сообщений, из них их:", j["theirMessageCount"]')"

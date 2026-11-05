@@ -1,6 +1,7 @@
 package ru.itmo.aiex.iam.service
 
 import org.springframework.dao.DataIntegrityViolationException
+import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import ru.itmo.aiex.common.error.ConflictException
@@ -24,13 +25,20 @@ import java.util.UUID
 
 @Service
 @Transactional(readOnly = true)
-class UserService(private val users: UserRepository, private val roles: RoleRepository, private val clock: Clock) {
+class UserService(
+    private val users: UserRepository,
+    private val roles: RoleRepository,
+    private val clock: Clock,
+    private val passwords: PasswordEncoder,
+) {
     @Transactional
-    fun registerUser(command: RegisterUserCommand): User {
+    fun registerUser(actor: Actor, command: RegisterUserCommand): User {
+        actor.requireRole(RoleCode.ADMIN)
         val email = normalizeEmail(command.email)
         if (users.existsByEmail(email)) throw emailTaken(email)
         val now = clock.nowMicros()
         val user = User(id = Ids.next(), email = email, displayName = command.displayName.trim(), createdAt = now, updatedAt = now)
+        user.passwordHash = hashPassword(command.password)
         user.replaceRoles(resolveRoles(command.roles.ifEmpty { setOf(RoleCode.USER) }), now)
         return try {
             users.saveAndFlush(user)
@@ -52,8 +60,8 @@ class UserService(private val users: UserRepository, private val roles: RoleRepo
     @Transactional
     fun updateUser(actor: Actor, userId: UUID, command: UpdateUserCommand): User {
         val user = getUser(actor, userId)
-        if ((command.status != null || command.roles != null) && !actor.isAdmin) {
-            throw ForbiddenException("Статус и роли меняет только администратор")
+        if ((command.status != null || command.roles != null || command.password != null) && !actor.isAdmin) {
+            throw ForbiddenException("Статус, роли и пароль меняет только супервайзер (ADMIN)")
         }
         if (actor.userId == userId && command.status == UserStatus.BLOCKED) {
             throw ConflictException(ErrorCode.USER_INVALID_STATE, "Администратор не может заблокировать сам себя")
@@ -62,7 +70,15 @@ class UserService(private val users: UserRepository, private val roles: RoleRepo
         command.displayName?.let { user.rename(it.trim(), now) }
         command.status?.let { user.changeStatus(it, now) }
         command.roles?.let { user.replaceRoles(resolveRoles(it), now) }
+        command.password?.let { user.passwordHash = hashPassword(it) }
         return users.saveAndFlush(user)
+    }
+
+    private fun hashPassword(password: String): String {
+        if (password.isBlank() || password.length < 12 || password.toByteArray(Charsets.UTF_8).size > 72) {
+            throw ValidationException("password", "size", "Пароль: минимум 12 символов, максимум 72 байта UTF-8")
+        }
+        return passwords.encode(password)
     }
 
     private fun resolveRoles(codes: Set<RoleCode>): List<Role> {

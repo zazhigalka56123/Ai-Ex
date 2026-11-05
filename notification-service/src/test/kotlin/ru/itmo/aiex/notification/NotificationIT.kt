@@ -22,12 +22,14 @@ import ru.itmo.aiex.notification.repository.NotificationRepository
 import ru.itmo.aiex.notification.service.IdentityClient
 import ru.itmo.aiex.notification.service.NotificationCommand
 import ru.itmo.aiex.notification.service.NotificationService
+import ru.itmo.aiex.security.JwtTokens
 import java.util.UUID
 
 @ActiveProfiles("test")
 @SpringBootTest(
     webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
     properties = [
+        "aiex.security.jwt-secret=test-only-jwt-secret-at-least-32-bytes",
         "spring.config.import=", "spring.cloud.config.enabled=false", "eureka.client.enabled=false",
         "spring.cloud.discovery.enabled=false", "spring.sql.init.mode=always",
     ],
@@ -39,6 +41,8 @@ class NotificationIT {
     @Autowired lateinit var service: NotificationService
 
     @Autowired lateinit var repository: NotificationRepository
+
+    @Autowired lateinit var tokens: JwtTokens
 
     @Autowired lateinit var http: WebTestClient
 
@@ -66,12 +70,18 @@ class NotificationIT {
         every { users.findActive(other) } returns null
         service.deliver(UUID.randomUUID(), NotificationCommand(owner, NotificationType.PERSONA_READY, mapOf("versionNo" to 2))).block()
         service.deliver(UUID.randomUUID(), NotificationCommand(other, NotificationType.IMPORT_PARSED, emptyMap())).block()
-        http.get().uri("/api/v1/notifications").header("X-User-Id", owner.toString()).exchange()
+        http.get().uri("/api/v1/notifications").header("Authorization", "Bearer ${tokens.userToken(owner, setOf(RoleCode.USER))}").exchange()
             .expectStatus().isOk.expectHeader().valueEquals("X-Total-Count", "1")
             .expectBody().jsonPath("$[0].payload.versionNo").isEqualTo(2)
         http.get().uri("/api/v1/notifications").exchange().expectStatus().isUnauthorized
-        http.get().uri("/api/v1/notifications").header("X-User-Id", other.toString()).exchange().expectStatus().isUnauthorized
-        http.get().uri("/api/v1/notifications?size=0").header("X-User-Id", owner.toString()).exchange().expectStatus().isBadRequest
+        http.get().uri("/api/v1/notifications").header("X-User-Id", owner.toString())
+            .exchange().expectStatus().isUnauthorized
+        http.get().uri("/internal/metrics").header("Authorization", "Bearer ${tokens.userToken(owner, setOf(RoleCode.USER))}")
+            .exchange().expectStatus().isForbidden
+        http.get().uri("/api/v1/notifications").header("Authorization", "Bearer ${tokens.serviceToken()}")
+            .exchange().expectStatus().isForbidden
+        http.get().uri("/api/v1/notifications").header("Authorization", "Bearer ${tokens.userToken(other, setOf(RoleCode.USER))}").exchange().expectStatus().isUnauthorized
+        http.get().uri("/api/v1/notifications?size=0").header("Authorization", "Bearer ${tokens.userToken(owner, setOf(RoleCode.USER))}").exchange().expectStatus().isBadRequest
     }
 
     companion object {

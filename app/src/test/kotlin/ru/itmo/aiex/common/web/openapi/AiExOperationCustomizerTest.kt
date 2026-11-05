@@ -5,7 +5,6 @@ import io.swagger.v3.oas.models.Operation
 import io.swagger.v3.oas.models.media.ArraySchema
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
-import ru.itmo.aiex.common.web.AiExHeaders
 import ru.itmo.aiex.common.web.PaginationProperties
 import ru.itmo.aiex.common.web.SampleController.Companion.handler
 
@@ -13,12 +12,12 @@ class AiExOperationCustomizerTest {
     private val customizer = AiExOperationCustomizer(PaginationProperties())
 
     @Test
-    fun `из сигнатуры выводятся заголовок актора, пагинация и ответы-ошибки`() {
+    fun `из сигнатуры выводятся Bearer-авторизация, пагинация и ответы-ошибки`() {
         val operation = customizer.customize(Operation(), handler("documented"))
 
         val names = operation.parameters.map { it.name }
-        assertThat(names).containsExactly(AiExHeaders.USER_ID, "page", "size", "sort", "cursor", "limit")
-        assertThat(operation.parameters.first().required).isTrue()
+        assertThat(names).containsExactly("page", "size", "sort", "cursor", "limit")
+        assertThat(operation.security.single()).containsKey("bearerAuth")
         val sort = operation.parameters.first { it.name == "sort" }.schema as ArraySchema
         assertThat(sort.items.enum).containsExactly("name,asc", "name,desc")
 
@@ -33,7 +32,8 @@ class AiExOperationCustomizerTest {
     @Test
     fun `необязательный актор не даёт 401, операция без параметров - только 500`() {
         val optional = customizer.customize(Operation(), handler("optionalActor"))
-        assertThat(optional.parameters.single().required).isFalse()
+        assertThat(optional.security).hasSize(2)
+        assertThat(optional.security.last()).isEmpty()
         assertThat(optional.responses.keys).containsExactly("500")
 
         val plain = customizer.customize(Operation(), handler("anonymous"))

@@ -9,3 +9,5 @@ databaseChangeLog:
       path: db/changelog/010-iam/
   - includeAll:
       path: db/changelog/090-seed/
+  - include:
+      file: db/changelog/100-security.yaml

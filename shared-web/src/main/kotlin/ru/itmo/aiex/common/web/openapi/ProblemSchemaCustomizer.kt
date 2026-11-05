@@ -8,11 +8,15 @@ import io.swagger.v3.oas.models.media.IntegerSchema
 import io.swagger.v3.oas.models.media.ObjectSchema
 import io.swagger.v3.oas.models.media.Schema
 import io.swagger.v3.oas.models.media.StringSchema
+import io.swagger.v3.oas.models.security.SecurityRequirement
+import io.swagger.v3.oas.models.security.SecurityScheme
 import org.springdoc.core.customizers.GlobalOpenApiCustomizer
 import ru.itmo.aiex.common.error.ErrorCode
 class ProblemSchemaCustomizer : GlobalOpenApiCustomizer {
     override fun customise(openApi: OpenAPI) {
         val components = openApi.components ?: Components().also { openApi.components = it }
+        components.addSecuritySchemes("bearerAuth", SecurityScheme().type(SecurityScheme.Type.HTTP).scheme("bearer").bearerFormat("JWT"))
+        openApi.security = listOf(SecurityRequirement().addList("bearerAuth"))
         components.addSchemas(
             FIELD_VIOLATION,
             ObjectSchema()

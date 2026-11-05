@@ -1,16 +1,9 @@
 'use strict';
 
 // Простой фронт для ai-ex: одна страница, hash-роутинг, без сборки и зависимостей.
-// Текущий пользователь передаётся заголовком X-User-Id (лаб. 1, см. ADR-0003).
 
 const API = '/api/v1';
-const STORAGE_KEY = 'aiex.userId';
-
-const DEMO_USERS = [
-  { id: '00000000-0000-0000-0000-00000000c001', label: 'Клиент' },
-  { id: '00000000-0000-0000-0000-00000000b001', label: 'Психолог Анна' },
-  { id: '00000000-0000-0000-0000-00000000a001', label: 'Администратор' },
-];
+const STORAGE_KEY = 'aiex.session';
 
 const LABELS = {
   personaStatus: { DRAFT: 'черновик', TRAINING: 'обучается', READY: 'готова', ARCHIVED: 'в архиве' },
@@ -30,7 +23,7 @@ const LABELS = {
     CONSULTATION_STATUS_CHANGED: 'Статус консультации изменился',
     FLAG_RESOLVED: 'Жалоба рассмотрена',
   },
-  role: { USER: 'клиент', SPECIALIST: 'специалист', ADMIN: 'администратор' },
+  role: { USER: 'клиент', SPECIALIST: 'специалист', ADMIN: 'супервайзер' },
 };
 
 const TONE = {
@@ -39,7 +32,7 @@ const TONE = {
   FAILED: 'bad', CANCELLED: 'bad', BLOCKED: 'bad', ARCHIVED: 'bad', REJECTED: 'bad',
 };
 
-const state = { user: null, leave: [] }; // leave - что закрыть при уходе со страницы (сокеты)
+const state = { user: null, token: null, leave: [] }; // leave - что закрыть при уходе со страницы (сокеты)
 
 // ---------- утилиты ----------
 
@@ -95,9 +88,9 @@ function go(path) {
 
 function storage(action, value) {
   try {
-    if (action === 'get') return localStorage.getItem(STORAGE_KEY);
-    if (action === 'set') localStorage.setItem(STORAGE_KEY, value);
-    if (action === 'remove') localStorage.removeItem(STORAGE_KEY);
+    if (action === 'get') return sessionStorage.getItem(STORAGE_KEY);
+    if (action === 'set') sessionStorage.setItem(STORAGE_KEY, value);
+    if (action === 'remove') sessionStorage.removeItem(STORAGE_KEY);
   } catch {
     // приватный режим или запрещённое хранилище - просто не запоминаем
   }
@@ -128,7 +121,7 @@ class ApiError extends Error {
 
 async function api(method, path, body) {
   const headers = { Accept: 'application/json' };
-  if (state.user) headers['X-User-Id'] = state.user.id;
+  if (state.token && path !== '/auth/login') headers.Authorization = `Bearer ${state.token}`;
   let payload;
   if (body instanceof FormData) {
     payload = body;
@@ -144,6 +137,7 @@ async function api(method, path, body) {
   } catch {
     data = { detail: text.slice(0, 200) };
   }
+  if (res.status === 401 && path !== '/auth/login') logout();
   if (!res.ok) throw new ApiError(res.status, data);
   return { data, total: Number(res.headers.get('X-Total-Count') ?? NaN) };
 }
@@ -220,7 +214,7 @@ function formDialog(title, fields, submitLabel = 'Сохранить') {
       for (const [name, input] of Object.entries(inputs)) {
         if (Array.isArray(input)) values[name] = input.filter((b) => b.checked).map((b) => b.value);
         else if (input.type === 'checkbox') values[name] = input.checked;
-        else values[name] = input.value.trim();
+        else values[name] = input.type === 'password' ? input.value : input.value.trim();
       }
       resolve(values);
     }, { once: true });
@@ -259,14 +253,16 @@ function renderChrome(path) {
   );
 }
 
-async function login(userId) {
-  state.user = { id: userId, roles: [] };
+async function login(email, password) {
   try {
-    state.user = await get(`/users/${userId}`);
-    storage('set', userId);
+    const session = await post('/auth/login', { email, password });
+    state.token = session.accessToken;
+    state.user = session.user;
+    storage('set', JSON.stringify({ token: state.token, userId: state.user.id }));
     go('/');
   } catch (e) {
     state.user = null;
+    state.token = null;
     storage('remove');
     toast(e.message, true);
   }
@@ -274,6 +270,7 @@ async function login(userId) {
 
 function logout() {
   state.user = null;
+  state.token = null;
   document.getElementById('toast').hidden = true;
   storage('remove');
   go('/login');
@@ -287,36 +284,22 @@ function homePath() {
 }
 
 async function loginPage(view) {
-  const uuid = h('input', { placeholder: 'UUID пользователя', style: 'flex:1;min-width:240px' });
-  const email = h('input', { type: 'email', required: true, placeholder: 'masha@example.com' });
-  const name = h('input', { required: true, placeholder: 'Маша' });
-  const roleBoxes = ['USER', 'SPECIALIST'].map((r) => h('input', { type: 'checkbox', value: r, checked: r === 'USER' }));
-
+  const email = h('input', { type: 'email', required: true, autocomplete: 'username' });
+  const password = h('input', { type: 'password', required: true, autocomplete: 'current-password' });
   mount(view,
     h('h1', null, 'Вход'),
-    h('p', { class: 'muted' }, 'Авторизации в лаб. 1 нет: выберите пользователя, его id уйдёт в заголовке X-User-Id.'),
-    h('div', { class: 'card' },
-      h('h3', null, 'Демо-пользователи'),
-      h('div', { class: 'row' }, DEMO_USERS.map((u) => h('button', { onclick: () => login(u.id) }, u.label)))),
-    h('div', { class: 'card' },
-      h('h3', null, 'По id'),
-      h('form', { class: 'row', onsubmit: (e) => { e.preventDefault(); if (uuid.value.trim()) login(uuid.value.trim()); } },
-        uuid, h('button', { class: 'primary' }, 'Войти'))),
-    h('div', { class: 'card' },
-      h('h3', null, 'Регистрация'),
-      h('form', {
-        class: 'stack',
-        onsubmit: async (e) => {
-          e.preventDefault();
-          const roles = roleBoxes.filter((b) => b.checked).map((b) => b.value);
-          const user = await act(() => post('/users', { email: email.value.trim(), displayName: name.value.trim(), roles }));
-          if (user) login(user.id);
-        },
+    h('p', { class: 'muted' }, 'Учётную запись создаёт супервайзер.'),
+    h('form', {
+      class: 'card stack',
+      onsubmit: async (e) => {
+        e.preventDefault();
+        await login(email.value.trim(), password.value);
+        password.value = '';
       },
-      h('label', null, h('span', null, 'Email'), email),
-      h('label', null, h('span', null, 'Имя'), name),
-      h('div', null, roleBoxes.map((b) => h('label', { class: 'check' }, b, h('span', null, LABELS.role[b.value])))),
-      h('button', { class: 'primary' }, 'Создать и войти'))),
+    },
+    h('label', null, h('span', null, 'Email'), email),
+    h('label', null, h('span', null, 'Пароль'), password),
+    h('button', { class: 'primary' }, 'Войти')),
   );
 }
 
@@ -511,52 +494,10 @@ async function reportMessage(message, onDone) {
   if (flag) onDone();
 }
 
-// Живой чат беседы: /api/v1/conversations/{id}/ws. Браузер не ставит заголовки на WebSocket,
-// поэтому пользователь уходит в ?userId= (лаб. 1). Сокет переподключается сам, пока страница открыта.
-function openChatSocket(conversationId, { onEvent, onStatus, onReconnect }) {
-  const scheme = location.protocol === 'https:' ? 'wss' : 'ws';
-  const url = `${scheme}://${location.host}${API}/conversations/${conversationId}/ws${qs({ userId: state.user.id })}`;
-  let socket = null;
-  let closedByUs = false;
-  let attempt = 0;
-  let everOpened = false;
-  let timer = null;
-
-  function connect() {
-    onStatus(attempt === 0 ? 'connecting' : 'reconnecting');
-    socket = new WebSocket(url);
-    socket.onopen = () => {
-      attempt = 0;
-      onStatus('online');
-      if (everOpened) onReconnect();
-      everOpened = true;
-    };
-    socket.onmessage = (e) => {
-      try {
-        onEvent(JSON.parse(e.data));
-      } catch {
-        // не JSON - не наше событие
-      }
-    };
-    socket.onclose = () => {
-      if (closedByUs) return;
-      attempt += 1;
-      if (attempt > 6) { onStatus('offline'); return; }
-      onStatus('reconnecting');
-      timer = setTimeout(connect, Math.min(1000 * 2 ** (attempt - 1), 15000));
-    };
-  }
-
-  connect();
-  return {
-    get isOpen() { return socket?.readyState === WebSocket.OPEN; },
-    send(command) { socket.send(JSON.stringify(command)); },
-    close() {
-      closedByUs = true;
-      clearTimeout(timer);
-      socket?.close(1000, 'leave');
-    },
-  };
+function openChatConnection(conversationId, { onStatus, onReconnect }) {
+  onStatus('rest');
+  const timer = setInterval(onReconnect, 5000);
+  return { isOpen: false, close() { clearInterval(timer); } };
 }
 
 async function chatPage(view, id, readOnly) {
@@ -656,14 +597,14 @@ async function chatPage(view, id, readOnly) {
     return undefined;
   }
 
-  const socket = live && openChatSocket(id, {
+  const socket = live && openChatConnection(id, {
     onEvent,
     onStatus(status) {
-      const labels = { connecting: 'подключение…', reconnecting: 'переподключение…', online: '● онлайн', offline: 'офлайн' };
+      const labels = { connecting: 'подключение…', reconnecting: 'переподключение…', online: '● онлайн', offline: 'офлайн', rest: 'обновление каждые 5 с' };
       statusLine.textContent = labels[status];
       statusLine.className = `badge ${status === 'online' ? 'ok' : status === 'offline' ? 'bad' : 'warn'}`;
       // Пока сокет лежит, ответа на своё сообщение по нему уже не придёт.
-      if (status !== 'online' && inFlight) {
+      if (status !== 'online' && status !== 'rest' && inFlight) {
         typing = false;
         finish('Связь прервалась. Сообщение могло сохраниться - история обновится после переподключения.', false);
       }
@@ -992,8 +933,18 @@ async function usersPage(view) {
     if (await act(() => patch(`/users/${user.id}`, { status }), status === 'BLOCKED' ? 'Пользователь заблокирован' : 'Пользователь разблокирован')) render();
   }
 
+  async function create() {
+    const values = await formDialog('Новый пользователь', [
+      { name: 'email', label: 'Email', type: 'email', required: true },
+      { name: 'displayName', label: 'Имя', required: true },
+      { name: 'password', label: 'Пароль: от 12 символов, до 72 байт UTF-8', type: 'password', required: true },
+      { name: 'roles', label: 'Роли', type: 'checks', options: Object.entries(LABELS.role), value: ['USER'] },
+    ]);
+    if (values && await act(() => post('/users', values), 'Пользователь создан')) render();
+  }
+
   mount(view,
-    h('h1', null, 'Пользователи'),
+    h('div', { class: 'row spread' }, h('h1', null, 'Пользователи'), h('button', { class: 'primary', onclick: create }, 'Создать пользователя')),
     h('div', { class: 'card table-wrap' }, h('table', null,
       h('tr', null, h('th', null, 'Имя'), h('th', null, 'Email'), h('th', null, 'Роли'), h('th', null, 'Статус'), h('th', null, 'id'), h('th')),
       users.map((u) => h('tr', null,
@@ -1098,11 +1049,13 @@ async function render() {
 async function boot() {
   const saved = storage('get');
   if (saved) {
-    state.user = { id: saved, roles: [] };
     try {
-      state.user = await get(`/users/${saved}`);
+      const session = JSON.parse(saved);
+      state.token = session.token;
+      state.user = await get(`/users/${session.userId}`);
     } catch {
       state.user = null;
+      state.token = null;
       storage('remove');
     }
   }

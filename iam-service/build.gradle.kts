@@ -4,6 +4,7 @@ plugins {
 }
 
 dependencies {
+    testImplementation("org.springframework.security:spring-security-test")
     implementation(platform(libs.spring.cloud.dependencies))
     implementation("org.springframework.cloud:spring-cloud-starter-config")
     implementation("org.springframework.cloud:spring-cloud-starter-netflix-eureka-client")

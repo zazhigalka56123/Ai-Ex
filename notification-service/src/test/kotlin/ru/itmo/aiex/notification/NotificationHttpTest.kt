@@ -4,9 +4,14 @@ import io.mockk.every
 import io.mockk.mockk
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
+import org.springframework.core.MethodParameter
 import org.springframework.mock.http.server.reactive.MockServerHttpRequest
 import org.springframework.mock.web.server.MockServerWebExchange
+import org.springframework.security.oauth2.jwt.Jwt
 import org.springframework.test.web.reactive.server.WebTestClient
+import org.springframework.web.reactive.BindingContext
+import org.springframework.web.reactive.result.method.HandlerMethodArgumentResolver
+import org.springframework.web.server.ServerWebExchange
 import org.springframework.web.server.WebFilterChain
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
@@ -25,7 +30,14 @@ class NotificationHttpTest {
     private val users = mockk<IdentityClient>()
     private val http = WebTestClient.bindToController(
         NotificationController(repository, mockk(), users, JsonMapper.builder().build()),
-    ).webFilter<WebTestClient.ControllerSpec>(TraceIdWebFilter()).build()
+    ).argumentResolvers { config ->
+        config.addCustomResolver(object : HandlerMethodArgumentResolver {
+            override fun supportsParameter(parameter: MethodParameter): Boolean = parameter.parameterType == Jwt::class.java
+            override fun resolveArgument(parameter: MethodParameter, bindingContext: BindingContext, exchange: ServerWebExchange): Mono<Any> =
+                Mono.justOrEmpty(exchange.request.headers.getFirst("X-Test-User"))
+                    .map<Any> { Jwt.withTokenValue("test").header("alg", "HS256").subject(it).build() }
+        })
+    }.webFilter<WebTestClient.ControllerSpec>(TraceIdWebFilter()).build()
 
     @Test
     fun `реактивный ответ сохраняет заголовки пагинации и trace id`() {
@@ -35,7 +47,7 @@ class NotificationHttpTest {
         every { repository.count(owner, null) } returns Mono.just(10L)
 
         http.get().uri("/api/v1/notifications?page=2&size=5")
-            .header("X-User-Id", owner.toString()).header("X-Trace-Id", "request-12345")
+            .header("X-Test-User", owner.toString()).header("X-Trace-Id", "request-12345")
             .exchange().expectStatus().isOk
             .expectHeader().valueEquals("X-Trace-Id", "request-12345")
             .expectHeader().valueEquals("X-Total-Count", "10")

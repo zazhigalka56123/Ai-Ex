@@ -16,7 +16,11 @@ class CurrentActorArgumentResolverTest {
     private val resolver = CurrentActorArgumentResolver { id -> known.takeIf { it.userId == id } }
 
     private fun request(header: String?) =
-        ServletWebRequest(MockHttpServletRequest().apply { if (header != null) addHeader(AiExHeaders.USER_ID, header) })
+        ServletWebRequest(MockHttpServletRequest().apply {
+            if (!header.isNullOrBlank()) {
+                userPrincipal = JwtAuthenticationToken(Jwt.withTokenValue("test").header("alg", "HS256").subject(header).build())
+            }
+        })
 
     @Test
     fun `известный пользователь становится актором`() {

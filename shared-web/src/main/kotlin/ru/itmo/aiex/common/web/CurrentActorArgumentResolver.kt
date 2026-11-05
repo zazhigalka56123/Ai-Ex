@@ -1,6 +1,7 @@
 package ru.itmo.aiex.common.web
 
 import org.springframework.core.MethodParameter
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken
 import org.springframework.web.bind.support.WebDataBinderFactory
 import org.springframework.web.context.request.NativeWebRequest
 import org.springframework.web.method.support.HandlerMethodArgumentResolver
@@ -18,14 +19,14 @@ class CurrentActorArgumentResolver(private val lookup: ActorLookup) : HandlerMet
         webRequest: NativeWebRequest,
         binderFactory: WebDataBinderFactory?,
     ): Actor? {
-        val raw = webRequest.getHeader(AiExHeaders.USER_ID)?.trim()
+        val raw = (webRequest.userPrincipal as? JwtAuthenticationToken)?.token?.subject
         if (raw.isNullOrEmpty()) {
             if (parameter.isOptional) return null
-            throw UnauthenticatedException("Не передан заголовок ${AiExHeaders.USER_ID}")
+            throw UnauthenticatedException("Требуется действительный Bearer JWT")
         }
         val userId =
             runCatching { UUID.fromString(raw) }.getOrNull()
-                ?: throw UnauthenticatedException("Заголовок ${AiExHeaders.USER_ID} должен содержать UUID")
+                ?: throw UnauthenticatedException("JWT subject должен содержать UUID")
         return lookup.findActor(userId)
             ?: throw UnauthenticatedException("Пользователь $userId не найден или заблокирован")
     }

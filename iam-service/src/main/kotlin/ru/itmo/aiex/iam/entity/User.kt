@@ -1,5 +1,6 @@
 package ru.itmo.aiex.iam.entity
 
+import com.fasterxml.jackson.annotation.JsonIgnore
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.EnumType
@@ -14,6 +15,7 @@ import jakarta.persistence.Version
 import jakarta.validation.constraints.Email
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.NotEmpty
+import jakarta.validation.constraints.Pattern
 import jakarta.validation.constraints.Size
 import ru.itmo.aiex.common.security.RoleCode
 import java.time.Instant
@@ -38,6 +40,13 @@ class User(
     @Column(nullable = false)
     var updatedAt: Instant,
 ) {
+    @get:JsonIgnore
+    @field:NotBlank
+    @field:Size(max = 100)
+    @field:Pattern(regexp = "!|\\$2[aby]\\$[0-9]{2}\\$[./A-Za-z0-9]{53}")
+    @Column(name = "password_hash", nullable = false, length = 100)
+    var passwordHash: String = "!"
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 24)
     var status: UserStatus = UserStatus.ACTIVE

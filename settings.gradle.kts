@@ -23,6 +23,7 @@ include("app")
 
 include("shared-kernel")
 include("shared-web")
+include("shared-security")
 include("config-server")
 include("discovery-server")
 include("gateway")

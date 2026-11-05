@@ -7,7 +7,6 @@ import org.springframework.test.web.servlet.MockHttpServletRequestDsl
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.ResultActionsDsl
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
-import org.springframework.test.web.servlet.request.RequestPostProcessor
 import ru.itmo.aiex.common.security.RoleCode
 import ru.itmo.aiex.testing.AbstractIntegrationTest
 import java.util.UUID
@@ -21,8 +20,9 @@ class UserApiIT : AbstractIntegrationTest() {
         val result =
             mockMvc
                 .post("/api/v1/users") {
+                    header(USER_HEADER, createAdmin())
                     contentType = MediaType.APPLICATION_JSON
-                    content = json(mapOf("email" to "Masha@Example.com", "displayName" to "Маша"))
+                    content = json(mapOf("password" to TEST_PASSWORD, "email" to "Masha@Example.com", "displayName" to "Маша"))
                 }.andExpect {
                     status { isCreated() }
                     header { string("Location", org.hamcrest.Matchers.containsString("/api/v1/users/")) }
@@ -35,15 +35,17 @@ class UserApiIT : AbstractIntegrationTest() {
 
     @Test
     fun `дубликат email без учёта регистра - 409 EMAIL_TAKEN`() {
-        val body = json(mapOf("email" to "dup@example.com", "displayName" to "Первый"))
+        val body = json(mapOf("password" to TEST_PASSWORD, "email" to "dup@example.com", "displayName" to "Первый"))
         mockMvc.post("/api/v1/users") {
+            header(USER_HEADER, createAdmin())
             contentType = MediaType.APPLICATION_JSON
             content = body
         }
         mockMvc
             .post("/api/v1/users") {
+                header(USER_HEADER, createAdmin())
                 contentType = MediaType.APPLICATION_JSON
-                content = json(mapOf("email" to "DUP@example.com", "displayName" to "Второй"))
+                content = json(mapOf("password" to TEST_PASSWORD, "email" to "DUP@example.com", "displayName" to "Второй"))
             }.andExpect {
                 status { isConflict() }
                 content { contentType("application/problem+json") }
@@ -56,8 +58,9 @@ class UserApiIT : AbstractIntegrationTest() {
     fun `невалидное тело - 400 со списком полей`() {
         mockMvc
             .post("/api/v1/users") {
+                header(USER_HEADER, createAdmin())
                 contentType = MediaType.APPLICATION_JSON
-                content = json(mapOf("email" to "not-an-email", "displayName" to ""))
+                content = json(mapOf("password" to TEST_PASSWORD, "email" to "not-an-email", "displayName" to ""))
             }.andExpect {
                 status { isBadRequest() }
                 jsonPath("$.code") { value("VALIDATION_FAILED") }
@@ -69,6 +72,7 @@ class UserApiIT : AbstractIntegrationTest() {
     fun `тело без обязательного поля - 400 с именем поля`() {
         mockMvc
             .post("/api/v1/users") {
+                header(USER_HEADER, createAdmin())
                 contentType = MediaType.APPLICATION_JSON
                 content = """{"displayName":"Без почты"}"""
             }.andExpect {
@@ -176,7 +180,7 @@ class UserApiIT : AbstractIntegrationTest() {
     }
 
     @Test
-    fun `некорректный X-User-Id - 401`() {
+    fun `некорректный токен или неизвестный пользователь - 401`() {
         mockMvc.get("/api/v1/users/${UUID.randomUUID()}") { header(USER_HEADER, "not-a-uuid") }.andExpect {
             status { isUnauthorized() }
         }

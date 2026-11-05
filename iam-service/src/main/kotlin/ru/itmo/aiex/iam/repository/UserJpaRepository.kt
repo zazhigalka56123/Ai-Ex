@@ -8,6 +8,8 @@ import ru.itmo.aiex.iam.entity.UserStatus
 import java.util.UUID
 
 internal interface UserJpaRepository : JpaRepository<User, UUID> {
+    fun findByEmail(email: String): User?
+
     fun existsByEmail(email: String): Boolean
 
     fun findAllByStatus(status: UserStatus, pageable: Pageable): Page<User>

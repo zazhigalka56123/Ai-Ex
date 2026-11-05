@@ -1,0 +1,25 @@
+databaseChangeLog:
+  - changeSet:
+      id: 100-user-password-hash
+      author: lab3
+      changes:
+        - addColumn:
+            schemaName: iam
+            tableName: users
+            columns:
+              - column:
+                  name: password_hash
+                  type: varchar(100)
+                  defaultValue: "!"
+                  constraints:
+                    nullable: false
+        - dropDefaultValue:
+            schemaName: iam
+            tableName: users
+            columnName: password_hash
+            columnDataType: varchar(100)
+      rollback:
+        - dropColumn:
+            schemaName: iam
+            tableName: users
+            columnName: password_hash

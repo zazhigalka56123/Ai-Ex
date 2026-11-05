@@ -5,6 +5,7 @@ plugins {
 }
 
 dependencies {
+    testFixturesApi("org.springframework.security:spring-security-test")
     implementation(project(":shared-web"))
     implementation(platform(libs.spring.cloud.dependencies))
     implementation("org.springframework.cloud:spring-cloud-starter-config")

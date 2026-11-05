@@ -1,4 +1,6 @@
 import argparse
+import os
+import secrets
 import json
 import time
 import urllib.error
@@ -13,6 +15,11 @@ parser.add_argument('--eureka', default='http://localhost:8761')
 parser.add_argument('--config', default='http://localhost:8888')
 parser.add_argument('--resilience', action='store_true')
 args = parser.parse_args()
+admin_email = os.environ.get('ADMIN_EMAIL') or os.environ.get('BOOTSTRAP_ADMIN_EMAIL')
+admin_password = os.environ.get('ADMIN_PASSWORD') or os.environ.get('BOOTSTRAP_ADMIN_PASSWORD')
+if not admin_email or not admin_password:
+    parser.error('Set ADMIN_EMAIL and ADMIN_PASSWORD (or BOOTSTRAP_ADMIN_EMAIL/PASSWORD)')
+tokens = {}
 
 
 def request(base, path, method='GET', body=None, user=None):
@@ -20,7 +27,7 @@ def request(base, path, method='GET', body=None, user=None):
     if body is not None:
         headers['Content-Type'] = 'application/json'
     if user:
-        headers['X-User-Id'] = user
+        headers['Authorization'] = 'Bearer ' + tokens.get(user, 'invalid')
     req = urllib.request.Request(base + path, method=method, headers=headers,
                                  data=None if body is None else json.dumps(body).encode())
     try:
@@ -74,17 +81,32 @@ for name, url, endpoint in (
     assert endpoint in spec['paths'], (name, spec['paths'])
     assert all(path.startswith('/api/') for path in spec['paths']), name
     assert spec['servers'] == [{'url': '/'}], (name, spec['servers'])
+    assert spec['components']['securitySchemes']['bearerAuth']['scheme'] == 'bearer', name
 print('PASS: shared Swagger UI configuration and all three public OpenAPI specifications')
 
+status, session = request(args.gateway, '/api/v1/auth/login', 'POST', {'email': admin_email, 'password': admin_password})
+assert status == 200, status
+admin_id = session['user']['id']
+tokens[admin_id] = session['accessToken']
+
 for path in ('/api/v1/users', '/api/v1/personas', '/api/v1/notifications'):
-    eventually(lambda path=path: request(args.gateway, path, user='00000000-0000-0000-0000-00000000a001'),
+    eventually(lambda path=path: request(args.gateway, path, user=admin_id),
                lambda result: result[0] == 200)
 
+new_password = secrets.token_urlsafe(24)
 status, user = request(args.gateway, '/api/v1/users', 'POST', {
-    'email': f'smoke-{uuid.uuid4()}@example.com', 'displayName': 'Lab2 smoke'
-})
+    'email': f'smoke-{uuid.uuid4()}@example.com', 'displayName': 'Lab3 smoke', 'password': new_password
+}, admin_id)
 assert status == 201, (status, user)
+assert 'password' not in user and 'passwordHash' not in user
 user_id = user['id']
+status, session = request(args.gateway, '/api/v1/auth/login', 'POST', {'email': user['email'], 'password': new_password})
+assert status == 200, status
+tokens[user_id] = session['accessToken']
+new_user = {'email': f'forbidden-{uuid.uuid4()}@example.com', 'displayName': 'X', 'password': new_password, 'roles': ['ADMIN']}
+assert request(args.gateway, '/api/v1/users', 'POST', new_user)[0] == 401
+assert request(args.gateway, '/api/v1/users', 'POST', new_user, user_id)[0] == 403
+assert request(args.gateway, '/api/v1/admin/metrics', user=user_id)[0] == 403
 status, persona = request(args.gateway, '/api/v1/personas', 'POST', {
     'name': 'Smoke persona', 'relationshipKind': 'FRIEND'
 }, user_id)
@@ -98,9 +120,9 @@ eventually(lambda: request(args.gateway, '/api/v1/notifications', user=user_id),
                for item in result[1]))
 assert request(args.gateway, '/api/v1/notifications')[0] == 401
 assert request(args.gateway, '/api/v1/notifications', user=str(uuid.uuid4()))[0] == 401
-assert request(args.gateway, f'/internal/users/{user_id}')[0] == 404
+assert request(args.gateway, f'/internal/users/{user_id}', user=admin_id)[0] == 403
 status, metrics = request(args.gateway, '/api/v1/admin/metrics',
-                          user='00000000-0000-0000-0000-00000000a001')
+                          user=admin_id)
 assert status == 200 and 'notifications.sent' in metrics['metrics'] and 'users.active' in metrics['metrics'], (status, metrics)
 print('PASS: Config Server, Eureka, Gateway, Feign, IAM, core, R2DBC notifications, outbox and metrics')
 

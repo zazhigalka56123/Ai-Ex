@@ -38,3 +38,7 @@ resilience4j:
     configs:
       default:
         timeoutDuration: 7s
+
+aiex:
+  security:
+    jwt-secret: "${JWT_SECRET}"

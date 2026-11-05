@@ -28,7 +28,11 @@ import java.util.concurrent.ExecutionException
 import java.util.concurrent.LinkedBlockingQueue
 import java.util.concurrent.TimeUnit
 
-@SpringBootTest(classes = [AiExApplication::class], webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest(
+    classes = [AiExApplication::class],
+    webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
+    properties = ["aiex.security.jwt-secret=test-only-jwt-secret-at-least-32-bytes"],
+)
 class ChatWebSocketIT : DialogIntegrationTest() {
     @Value("\${local.server.port}")
     private var port: Int = 0
@@ -179,19 +183,20 @@ class ChatWebSocketIT : DialogIntegrationTest() {
         await atMost Duration.ofSeconds(5) untilAsserted { assertThat(registry.subscribers(conversationId)).isZero() }
     }
 
-    private fun uri(userId: UUID?, conversationId: UUID): URI {
-        val query = userId?.let { "?userId=$it" }.orEmpty()
-        return URI("ws://localhost:$port/api/v1/conversations/$conversationId/ws$query")
+    private fun uri(conversationId: UUID): URI = URI("ws://localhost:$port/api/v1/conversations/$conversationId/ws")
+
+    private fun authenticatedSocket(userId: UUID?): WebSocket.Builder = http.newWebSocketBuilder().apply {
+        if (userId != null) header("Authorization", "Bearer ${tokens.userToken(userId, emptySet())}")
     }
 
     private fun connect(userId: UUID, conversationId: UUID): ChatClient {
         val events = LinkedBlockingQueue<JsonNode>()
-        val socket = http.newWebSocketBuilder().buildAsync(uri(userId, conversationId), Collector(events)).get(TIMEOUT_SECONDS, TimeUnit.SECONDS)
+        val socket = authenticatedSocket(userId).buildAsync(uri(conversationId), Collector(events)).get(TIMEOUT_SECONDS, TimeUnit.SECONDS)
         return ChatClient(socket, events).also { opened += it }
     }
 
     private fun assertHandshakeStatus(userId: UUID?, conversationId: UUID, status: Int) {
-        val handshake = http.newWebSocketBuilder().buildAsync(uri(userId, conversationId), Collector(LinkedBlockingQueue()))
+        val handshake = authenticatedSocket(userId).buildAsync(uri(conversationId), Collector(LinkedBlockingQueue()))
         assertThatThrownBy { handshake.get(TIMEOUT_SECONDS, TimeUnit.SECONDS) }
             .isInstanceOf(ExecutionException::class.java)
             .satisfies({ assertThat((it.cause as WebSocketHandshakeException).response.statusCode()).isEqualTo(status) })

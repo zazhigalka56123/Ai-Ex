@@ -33,8 +33,8 @@ import java.util.UUID
 @RequestMapping("/api/v1/users")
 class UserController(private val users: UserService) {
     @PostMapping
-    fun createUser(@Valid @RequestBody request: CreateUserRequest): Mono<ResponseEntity<UserResponse>> = blocking {
-        val user = users.registerUser(RegisterUserCommand(request.email, request.displayName, request.roles)).toResponse()
+    fun createUser(actor: Actor, @Valid @RequestBody request: CreateUserRequest): Mono<ResponseEntity<UserResponse>> = blocking {
+        val user = users.registerUser(actor, RegisterUserCommand(request.email, request.displayName, request.roles, request.password)).toResponse()
         ResponseEntity.created(URI.create("/api/v1/users/${user.id}")).body(user)
     }
 
@@ -54,7 +54,7 @@ class UserController(private val users: UserService) {
 
     @PatchMapping("/{id}")
     fun updateUser(actor: Actor, @PathVariable id: UUID, @Valid @RequestBody request: UpdateUserRequest): Mono<UserResponse> = blocking {
-        users.updateUser(actor, id, UpdateUserCommand(request.displayName, request.status, request.roles)).toResponse()
+        users.updateUser(actor, id, UpdateUserCommand(request.displayName, request.status, request.roles, request.password)).toResponse()
     }
 
     private fun <T : Any> blocking(action: () -> T): Mono<T> = Mono.fromCallable(action).subscribeOn(Schedulers.boundedElastic())

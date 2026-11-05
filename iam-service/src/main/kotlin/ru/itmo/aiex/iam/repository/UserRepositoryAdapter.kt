@@ -16,6 +16,8 @@ internal class UserRepositoryAdapter(private val jpa: UserJpaRepository) : UserR
 
     override fun findById(id: UUID): User? = jpa.findByIdOrNull(id)
 
+    override fun findByEmail(email: String): User? = jpa.findByEmail(email)
+
     override fun existsByEmail(email: String): Boolean = jpa.existsByEmail(email)
 
     override fun findPage(status: UserStatus?, page: PageQuery): PageView<User> {

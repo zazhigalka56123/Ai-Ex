@@ -11,6 +11,8 @@ interface UserRepository {
 
     fun findById(id: UUID): User?
 
+    fun findByEmail(email: String): User?
+
     fun existsByEmail(email: String): Boolean
 
     fun findPage(status: UserStatus?, page: PageQuery): PageView<User>

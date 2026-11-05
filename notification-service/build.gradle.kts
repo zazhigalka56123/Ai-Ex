@@ -4,6 +4,7 @@ plugins {
 }
 
 dependencies {
+    implementation(project(":shared-security"))
     implementation("org.springframework.boot:spring-boot-starter-restclient")
     implementation(platform(libs.spring.cloud.dependencies))
     implementation("org.springframework.cloud:spring-cloud-starter-config")
