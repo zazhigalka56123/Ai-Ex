@@ -34,6 +34,7 @@ spring-data-commons = { module = "org.springframework.data:spring-data-commons" 
 jakarta-persistence-api = { module = "jakarta.persistence:jakarta.persistence-api" }
 hibernate-core = { module = "org.hibernate.orm:hibernate-core" }
 springdoc-webmvc-ui = { module = "org.springdoc:springdoc-openapi-starter-webmvc-ui", version.ref = "springdoc" }
+springdoc-webflux-api = { module = "org.springdoc:springdoc-openapi-starter-webflux-api", version.ref = "springdoc" }
 springdoc-webmvc-api = { module = "org.springdoc:springdoc-openapi-starter-webmvc-api", version.ref = "springdoc" }
 
 spring-boot-starter-test = { module = "org.springframework.boot:spring-boot-starter-test" }

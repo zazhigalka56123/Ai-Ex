@@ -17,6 +17,7 @@ dependencies {
     implementation(libs.spring.boot.starter.actuator)
     implementation(libs.jackson.module.kotlin)
     implementation(project(":shared-kernel"))
+    implementation(libs.springdoc.webflux.api)
     runtimeOnly("org.postgresql:r2dbc-postgresql")
     testImplementation("io.projectreactor:reactor-test")
     testImplementation("org.springframework.boot:spring-boot-starter-webflux-test")

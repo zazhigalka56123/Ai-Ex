@@ -24,6 +24,7 @@ docker compose up -d --build --wait --wait-timeout 600
 Если Compose установлен отдельной командой, используйте `docker-compose`.
 
 - API и Swagger UI: http://localhost:8080/swagger-ui.html
+- В общем Swagger UI выберите `core`, `iam` или `notifications`. Спецификации и запросы «Try it out» доступны через Gateway; внутренние `/internal/**` не публикуются в документации.
 - Eureka: http://localhost:8761
 - Конфигурация: http://localhost:8888/core-service/default
 

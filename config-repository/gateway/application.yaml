@@ -9,6 +9,18 @@ spring:
             connect-timeout: 2000
             response-timeout: 30s
           routes:
+            - id: iam-openapi
+              uri: lb://iam-service
+              predicates:
+                - Path=/v3/api-docs/iam
+              filters:
+                - SetPath=/v3/api-docs
+            - id: notifications-openapi
+              uri: lb://notification-service
+              predicates:
+                - Path=/v3/api-docs/notifications
+              filters:
+                - SetPath=/v3/api-docs
             - id: iam
               uri: lb://iam-service
               predicates:

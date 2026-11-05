@@ -57,7 +57,14 @@ springdoc:
     path: /v3/api-docs
   swagger-ui:
     path: /swagger-ui.html
-    urls-primary-name: all
+    urls-primary-name: core
+    urls:
+      - name: core
+        url: /v3/api-docs/all
+      - name: iam
+        url: /v3/api-docs/iam
+      - name: notifications
+        url: /v3/api-docs/notifications
     tags-sorter: alpha
     display-request-duration: true
   default-produces-media-type: application/json

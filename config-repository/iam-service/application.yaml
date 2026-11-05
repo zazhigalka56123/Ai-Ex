@@ -14,3 +14,8 @@ spring:
     liquibase-schema: public
     change-log: classpath:db/changelog/db.changelog-master.yaml
     contexts: "${AIEX_LIQUIBASE_CONTEXTS:demo}"
+
+springdoc:
+  paths-to-match: /api/**
+  swagger-ui:
+    enabled: false

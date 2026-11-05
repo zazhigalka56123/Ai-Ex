@@ -61,6 +61,21 @@ for name in ('core-service', 'iam-service', 'notification-service', 'gateway', '
         properties.update(source['source'])
     assert properties['resilience4j.circuitbreaker.configs.default.minimumNumberOfCalls'] == 5, name
 
+status, swagger = eventually(lambda: request(args.gateway, '/v3/api-docs/swagger-config'),
+                             lambda result: result[0] == 200)
+urls = {entry['name']: entry['url'] for entry in swagger['urls']}
+for name, url, endpoint in (
+    ('core', '/v3/api-docs/all', '/api/v1/personas'),
+    ('iam', '/v3/api-docs/iam', '/api/v1/users'),
+    ('notifications', '/v3/api-docs/notifications', '/api/v1/notifications'),
+):
+    assert urls.get(name) == url, urls
+    status, spec = eventually(lambda url=url: request(args.gateway, url), lambda result: result[0] == 200)
+    assert endpoint in spec['paths'], (name, spec['paths'])
+    assert all(path.startswith('/api/') for path in spec['paths']), name
+    assert spec['servers'] == [{'url': '/'}], (name, spec['servers'])
+print('PASS: shared Swagger UI configuration and all three public OpenAPI specifications')
+
 for path in ('/api/v1/users', '/api/v1/personas', '/api/v1/notifications'):
     eventually(lambda path=path: request(args.gateway, path, user='00000000-0000-0000-0000-00000000a001'),
                lambda result: result[0] == 200)
