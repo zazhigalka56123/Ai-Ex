@@ -7,7 +7,10 @@ spring:
     config:
       server:
         native:
-          search-locations: "${CONFIG_REPOSITORY:file:./config-repository}"
+          search-locations:
+            - "${CONFIG_REPOSITORY:file:./config-repository}/"
+            - "${CONFIG_REPOSITORY:file:./config-repository}/{application}/"
+          add-label-locations: false
 server:
   port: 8888
 eureka:

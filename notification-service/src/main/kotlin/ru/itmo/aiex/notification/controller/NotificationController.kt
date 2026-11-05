@@ -1,7 +1,7 @@
 package ru.itmo.aiex.notification.controller
 
 import org.springframework.http.HttpStatus
-import org.springframework.http.ResponseEntity
+import org.springframework.http.server.reactive.ServerHttpResponse
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PutMapping
@@ -38,12 +38,13 @@ class NotificationController(
 
     @GetMapping("/api/v1/notifications")
     fun list(
+        response: ServerHttpResponse,
         @RequestHeader("X-User-Id", required = false) userId: UUID?,
         @RequestParam(defaultValue = "0") page: Int,
         @RequestParam(defaultValue = "20") size: Int,
         @RequestParam(defaultValue = "createdAt,desc") sort: String,
         @RequestParam(required = false) status: NotificationStatus?,
-    ): Mono<ResponseEntity<List<Map<String, Any?>>>> {
+    ): Mono<List<Map<String, Any?>>> {
         if (userId == null) return Mono.error(ResponseStatusException(HttpStatus.UNAUTHORIZED))
         if (page < 0 || size !in 1..MAX_PAGE_SIZE || sort !in setOf("createdAt,asc", "createdAt,desc")) {
             return Mono.error(ResponseStatusException(HttpStatus.BAD_REQUEST, "Некорректная пагинация"))
@@ -59,12 +60,13 @@ class NotificationController(
                 }
                 Mono.zip(rows.map(::response).collectList(), notifications.count(userId, status?.name))
             }.map { result ->
-                ResponseEntity.ok()
-                    .header("X-Total-Count", result.t2.toString())
-                    .header("X-Total-Pages", ((result.t2 + size - 1) / size).toString())
-                    .header("X-Page", page.toString())
-                    .header("X-Page-Size", size.toString())
-                    .body(result.t1)
+                response.headers.apply {
+                    set("X-Total-Count", result.t2.toString())
+                    set("X-Total-Pages", ((result.t2 + size - 1) / size).toString())
+                    set("X-Page", page.toString())
+                    set("X-Page-Size", size.toString())
+                }
+                result.t1
             }
     }
 

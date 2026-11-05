@@ -54,6 +54,12 @@ eventually(lambda: request(args.eureka, '/eureka/apps'),
 for name in ('core-service', 'iam-service', 'notification-service', 'gateway', 'discovery-server'):
     status, config = request(args.config, f'/{name}/default')
     assert status == 200 and config['propertySources'], name
+    sources = config['propertySources']
+    assert any(f'/{name}/application.yaml' in source['name'] for source in sources), name
+    properties = {}
+    for source in reversed(sources):
+        properties.update(source['source'])
+    assert properties['resilience4j.circuitbreaker.configs.default.minimumNumberOfCalls'] == 5, name
 
 for path in ('/api/v1/users', '/api/v1/personas', '/api/v1/notifications'):
     eventually(lambda path=path: request(args.gateway, path, user='00000000-0000-0000-0000-00000000a001'),
