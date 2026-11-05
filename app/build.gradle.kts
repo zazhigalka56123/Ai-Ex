@@ -5,6 +5,14 @@ plugins {
 }
 
 dependencies {
+    implementation(project(":shared-web"))
+    implementation(platform(libs.spring.cloud.dependencies))
+    implementation("org.springframework.cloud:spring-cloud-starter-config")
+    implementation("org.springframework.cloud:spring-cloud-starter-netflix-eureka-client")
+    implementation("org.springframework.cloud:spring-cloud-starter-openfeign")
+    implementation("org.springframework.cloud:spring-cloud-starter-loadbalancer")
+    implementation("org.springframework.cloud:spring-cloud-starter-circuitbreaker-resilience4j")
+
     implementation(libs.spring.boot.starter.webmvc)
     implementation(libs.spring.boot.starter.data.jpa)
     implementation(libs.spring.boot.starter.validation)
@@ -17,6 +25,7 @@ dependencies {
     implementation(libs.jackson.module.kotlin)
     runtimeOnly(libs.postgresql)
 
+    testFixturesApi(project(":shared-web"))
     testFixturesImplementation(platform(libs.spring.boot.dependencies))
     testFixturesApi(platform(libs.spring.boot.dependencies))
     testFixturesApi(libs.spring.boot.starter.test)
@@ -39,7 +48,7 @@ tasks.test {
 }
 
 tasks.bootJar {
-    archiveFileName.set("ai-ex.jar")
+    archiveFileName.set("service.jar")
 }
 
 kover {

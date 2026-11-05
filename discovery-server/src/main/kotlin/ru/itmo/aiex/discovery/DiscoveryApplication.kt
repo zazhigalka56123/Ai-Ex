@@ -1,0 +1,14 @@
+package ru.itmo.aiex.discovery
+
+import org.springframework.boot.autoconfigure.SpringBootApplication
+import org.springframework.boot.runApplication
+import org.springframework.cloud.netflix.eureka.server.EnableEurekaServer
+
+@SpringBootApplication
+@EnableEurekaServer
+class DiscoveryApplication
+
+@Suppress("SpreadOperator")
+fun main(args: Array<String>) {
+    runApplication<DiscoveryApplication>(*args)
+}

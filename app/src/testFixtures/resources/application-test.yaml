@@ -1,0 +1,113 @@
+spring:
+  application:
+    name: core-service
+  datasource:
+    hikari:
+      maximum-pool-size: ${AIEX_DB_POOL_SIZE:10}
+      pool-name: core-service-db
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        jdbc:
+          batch_size: 500
+          time_zone: UTC
+        order_inserts: true
+        order_updates: true
+  liquibase:
+    change-log: classpath:db/changelog/db.changelog-master.yaml
+    contexts: ${AIEX_LIQUIBASE_CONTEXTS:}
+  servlet:
+    multipart:
+      max-file-size: ${aiex.import.max-file-mb}MB
+      max-request-size: 25MB
+  task:
+    execution:
+      thread-name-prefix: ai-ex-async-
+      pool:
+        core-size: 2
+        max-size: 4
+        queue-capacity: 50
+
+server:
+  port: 8083
+  error:
+    include-stacktrace: never
+    include-message: never
+  tomcat:
+    max-swallow-size: 50MB
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      probes:
+        enabled: true
+
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    urls-primary-name: all
+    tags-sorter: alpha
+    display-request-duration: true
+  default-produces-media-type: application/json
+
+ai-ex:
+  llm:
+    provider: stub
+    timeout-ms: 20000
+    max-retries: 2
+  agent:
+    history-window: 60
+    max-output-tokens: 512
+    max-input-tokens: 6000
+  pagination:
+    default-size: 20
+    max-size: 50
+    default-cursor-limit: 30
+  import:
+    max-file-mb: 20
+    max-messages: 50000
+    async-threshold-kb: 512
+
+logging:
+  level:
+    root: INFO
+    ru.itmo.aiex: INFO
+    org.hibernate.orm.deprecation: WARN
+
+---
+spring:
+  cloud:
+    config:
+      enabled: false
+    discovery:
+      enabled: false
+  config:
+    import: ""
+  liquibase:
+    contexts: test
+  task:
+    execution:
+      pool:
+        core-size: 1
+ai-ex:
+  llm:
+    provider: stub
+logging:
+  level:
+    root: WARN
+    ru.itmo.aiex: INFO
+    org.springframework.test: WARN
+
+eureka:
+  client:
+    enabled: false
+ai-ex.outbox.delay-ms: 3600000

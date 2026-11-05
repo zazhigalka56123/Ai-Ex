@@ -4,8 +4,6 @@ databaseChangeLog:
       author: platform
       changes:
         - sql:
-            sql: CREATE SCHEMA IF NOT EXISTS iam
-        - sql:
             sql: CREATE SCHEMA IF NOT EXISTS persona
         - sql:
             sql: CREATE SCHEMA IF NOT EXISTS ingest
@@ -17,8 +15,6 @@ databaseChangeLog:
             sql: CREATE SCHEMA IF NOT EXISTS care
         - sql:
             sql: CREATE SCHEMA IF NOT EXISTS admin
-        - sql:
-            sql: CREATE SCHEMA IF NOT EXISTS notification
       rollback:
         - sql:
-            sql: DROP SCHEMA IF EXISTS notification, admin, care, agent, dialog, ingest, persona, iam CASCADE
+            sql: DROP SCHEMA IF EXISTS admin, care, agent, dialog, ingest, persona CASCADE

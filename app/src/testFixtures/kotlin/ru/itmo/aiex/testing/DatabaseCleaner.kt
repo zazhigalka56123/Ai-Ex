@@ -21,7 +21,7 @@ class DatabaseCleaner(private val jdbc: JdbcTemplate) {
     }
 
     companion object {
-        private val MODULE_SCHEMAS = arrayOf("iam", "persona", "ingest", "dialog", "agent", "care", "admin", "notification")
-        val REFERENCE_TABLES = setOf("iam.roles", "persona.tags", "care.specializations")
+        private val MODULE_SCHEMAS = arrayOf("persona", "ingest", "dialog", "agent", "care", "admin", "public")
+        val REFERENCE_TABLES = setOf("public.databasechangelog", "public.databasechangeloglock", "persona.tags", "care.specializations")
     }
 }

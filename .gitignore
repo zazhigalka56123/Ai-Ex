@@ -20,6 +20,7 @@ replay_pid*
 *.ipr
 *.iws
 out/
+bin/
 
 # Прочие редакторы и IDE
 .vscode/

@@ -1,64 +1,209 @@
-name: ai-ex
+name: ai-ex-lab2
 
 services:
-  postgres:
+  core-db:
     image: postgres:17-alpine
     environment:
-      POSTGRES_DB: ${POSTGRES_DB:-aiex}
-      POSTGRES_USER: ${POSTGRES_USER:-aiex}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-aiex}
+      POSTGRES_DB: core
+      POSTGRES_USER: core
+      POSTGRES_PASSWORD: ${CORE_DATABASE_PASSWORD:-core}
     volumes:
-      - pgdata:/var/lib/postgresql/data
+      - core-data:/var/lib/postgresql/data
     ports:
-      - "127.0.0.1:${AIEX_DB_PORT:-5432}:5432"
+      - "127.0.0.1:5432:5432"
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      test: ["CMD-SHELL", "pg_isready -U core -d core"]
       interval: 5s
       timeout: 3s
       retries: 20
 
-  app:
+  iam-db:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: iam
+      POSTGRES_USER: iam
+      POSTGRES_PASSWORD: ${IAM_DATABASE_PASSWORD:-iam}
+    volumes:
+      - iam-data:/var/lib/postgresql/data
+    ports:
+      - "127.0.0.1:5433:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U iam -d iam"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  notification-db:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: notification
+      POSTGRES_USER: notification
+      POSTGRES_PASSWORD: ${NOTIFICATION_DATABASE_PASSWORD:-notification}
+    volumes:
+      - notification-data:/var/lib/postgresql/data
+    ports:
+      - "127.0.0.1:5434:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U notification -d notification"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  config-server:
     build:
       context: .
       dockerfile: docker/Dockerfile
-    image: ai-ex:latest
-    depends_on:
-      postgres:
-        condition: service_healthy
+      args:
+        MODULE: config-server
     environment:
-      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE:-docker}
-      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB:-aiex}
-      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER:-aiex}
-      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD:-aiex}
-      AIEX_LIQUIBASE_CONTEXTS: ${AIEX_LIQUIBASE_CONTEXTS:-demo}
-      AIEX_LLM_PROVIDER: ${AIEX_LLM_PROVIDER:-stub}
-      AIEX_LLM_BASE_URL: ${AIEX_LLM_BASE_URL:-}
-      AIEX_LLM_API_KEY: ${AIEX_LLM_API_KEY:-}
-      AIEX_LLM_MODEL: ${AIEX_LLM_MODEL:-}
-      AIEX_LLM_TIMEOUT_MS: ${AIEX_LLM_TIMEOUT_MS:-20000}
-      AIEX_LLM_MAX_RETRIES: ${AIEX_LLM_MAX_RETRIES:-2}
-      AIEX_AGENT_HISTORY_WINDOW: ${AIEX_AGENT_HISTORY_WINDOW:-60}
-      AIEX_AGENT_MAX_OUTPUT_TOKENS: ${AIEX_AGENT_MAX_OUTPUT_TOKENS:-512}
-      AIEX_PAGINATION_MAX_SIZE: ${AIEX_PAGINATION_MAX_SIZE:-50}
-      AIEX_IMPORT_MAX_FILE_MB: ${AIEX_IMPORT_MAX_FILE_MB:-20}
-      AIEX_IMPORT_MAX_MESSAGES: ${AIEX_IMPORT_MAX_MESSAGES:-50000}
-      AIEX_LOG_FORMAT: ${AIEX_LOG_FORMAT:-ecs}
-      JAVA_OPTS: ${JAVA_OPTS:--XX:MaxRAMPercentage=75}
+      JAVA_OPTS: ${JAVA_OPTS:--Xmx192m -XX:MaxMetaspaceSize=256m -XX:ActiveProcessorCount=2 -XX:+UseSerialGC}
+      EUREKA_URL: http://discovery-server:8761/eureka/
+      CONFIG_REPOSITORY: file:/config-repository
+    volumes:
+      - ./config-repository:/config-repository:ro
     ports:
-      - "${AIEX_PORT:-8080}:8080"
+      - "127.0.0.1:8888:8888"
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8888/actuator/health/readiness | grep -q '\"status\":\"UP\"'"]
+      interval: 10s
+      timeout: 5s
+      start_period: 90s
+      retries: 30
 
-  pgadmin:
-    image: dpage/pgadmin4:9
-    profiles: ["tools"]
-    depends_on:
-      - postgres
+  discovery-server:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+      args:
+        MODULE: discovery-server
     environment:
-      PGADMIN_DEFAULT_EMAIL: admin@ai-ex.local
-      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD:-admin}
-      PGADMIN_CONFIG_SERVER_MODE: "False"
-      PGADMIN_CONFIG_ALLOW_SPECIAL_EMAIL_DOMAINS: "['local']"
+      JAVA_OPTS: ${JAVA_OPTS:--Xmx192m -XX:MaxMetaspaceSize=256m -XX:ActiveProcessorCount=2 -XX:+UseSerialGC}
+      EUREKA_URL: http://discovery-server:8761/eureka/
+      CONFIG_SERVER_URL: http://config-server:8888
+    depends_on:
+      config-server:
+        condition: service_healthy
     ports:
-      - "127.0.0.1:${PGADMIN_PORT:-5050}:80"
+      - "127.0.0.1:8761:8761"
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8761/actuator/health/readiness | grep -q '\"status\":\"UP\"'"]
+      interval: 10s
+      timeout: 5s
+      start_period: 90s
+      retries: 30
+
+  iam-service:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+      args:
+        MODULE: iam-service
+    environment:
+      JAVA_OPTS: ${JAVA_OPTS:--Xmx192m -XX:MaxMetaspaceSize=256m -XX:ActiveProcessorCount=2 -XX:+UseSerialGC}
+      EUREKA_URL: http://discovery-server:8761/eureka/
+      CONFIG_SERVER_URL: http://config-server:8888
+      AIEX_LIQUIBASE_CONTEXTS: ${AIEX_LIQUIBASE_CONTEXTS:-demo}
+      IAM_DATABASE_URL: jdbc:postgresql://iam-db:5432/iam
+      IAM_DATABASE_USER: iam
+      IAM_DATABASE_PASSWORD: ${IAM_DATABASE_PASSWORD:-iam}
+    depends_on:
+      config-server:
+        condition: service_healthy
+      discovery-server:
+        condition: service_healthy
+      iam-db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8081/actuator/health/readiness | grep -q '\"status\":\"UP\"'"]
+      interval: 10s
+      timeout: 5s
+      start_period: 90s
+      retries: 30
+
+  notification-service:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+      args:
+        MODULE: notification-service
+    environment:
+      JAVA_OPTS: ${JAVA_OPTS:--Xmx192m -XX:MaxMetaspaceSize=256m -XX:ActiveProcessorCount=2 -XX:+UseSerialGC}
+      EUREKA_URL: http://discovery-server:8761/eureka/
+      CONFIG_SERVER_URL: http://config-server:8888
+      NOTIFICATION_DATABASE_URL: r2dbc:postgresql://notification-db:5432/notification
+      NOTIFICATION_DATABASE_USER: notification
+      NOTIFICATION_DATABASE_PASSWORD: ${NOTIFICATION_DATABASE_PASSWORD:-notification}
+    depends_on:
+      config-server:
+        condition: service_healthy
+      discovery-server:
+        condition: service_healthy
+      notification-db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8082/actuator/health/readiness | grep -q '\"status\":\"UP\"'"]
+      interval: 10s
+      timeout: 5s
+      start_period: 90s
+      retries: 30
+
+  core-service:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+      args:
+        MODULE: app
+    environment:
+      JAVA_OPTS: ${JAVA_OPTS:--Xmx192m -XX:MaxMetaspaceSize=256m -XX:ActiveProcessorCount=2 -XX:+UseSerialGC}
+      EUREKA_URL: http://discovery-server:8761/eureka/
+      CONFIG_SERVER_URL: http://config-server:8888
+      AIEX_LIQUIBASE_CONTEXTS: ${AIEX_LIQUIBASE_CONTEXTS:-demo}
+      CORE_DATABASE_URL: jdbc:postgresql://core-db:5432/core
+      CORE_DATABASE_USER: core
+      CORE_DATABASE_PASSWORD: ${CORE_DATABASE_PASSWORD:-core}
+      AIEX_LLM_PROVIDER: ${AIEX_LLM_PROVIDER:-stub}
+      AIEX_LLM_API_KEY: ${AIEX_LLM_API_KEY:-}
+      AIEX_LLM_BASE_URL: ${AIEX_LLM_BASE_URL:-}
+      AIEX_LLM_MODEL: ${AIEX_LLM_MODEL:-}
+    depends_on:
+      config-server:
+        condition: service_healthy
+      discovery-server:
+        condition: service_healthy
+      core-db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8083/actuator/health/readiness | grep -q '\"status\":\"UP\"'"]
+      interval: 10s
+      timeout: 5s
+      start_period: 90s
+      retries: 30
+
+  gateway:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+      args:
+        MODULE: gateway
+    environment:
+      JAVA_OPTS: ${JAVA_OPTS:--Xmx192m -XX:MaxMetaspaceSize=256m -XX:ActiveProcessorCount=2 -XX:+UseSerialGC}
+      EUREKA_URL: http://discovery-server:8761/eureka/
+      CONFIG_SERVER_URL: http://config-server:8888
+    depends_on:
+      config-server:
+        condition: service_healthy
+      discovery-server:
+        condition: service_healthy
+    ports:
+      - "127.0.0.1:8080:8080"
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8080/actuator/health/readiness | grep -q '\"status\":\"UP\"'"]
+      interval: 10s
+      timeout: 5s
+      start_period: 90s
+      retries: 30
 
 volumes:
-  pgdata:
+  core-data:
+  iam-data:
+  notification-data:

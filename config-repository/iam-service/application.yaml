@@ -1,0 +1,21 @@
+spring:
+  datasource:
+    url: "${IAM_DATABASE_URL:jdbc:postgresql://localhost:5433/iam}"
+    username: "${IAM_DATABASE_USER:iam}"
+    password: "${IAM_DATABASE_PASSWORD:iam}"
+    hikari:
+      maximum-pool-size: 10
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+  liquibase:
+    default-schema: public
+    liquibase-schema: public
+    change-log: classpath:db/changelog/db.changelog-master.yaml
+    contexts: "${AIEX_LIQUIBASE_CONTEXTS:demo}"
+
+springdoc:
+  paths-to-match: /api/**
+  swagger-ui:
+    enabled: false
