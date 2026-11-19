@@ -25,12 +25,12 @@ jobs:
       - uses: gradle/actions/setup-gradle@v4
 
       - name: Build and verify
-        run: ./gradlew build koverXmlReport koverHtmlReport --continue
+        run: ./gradlew build :koverVerify :koverXmlReport :koverHtmlReport --continue
 
       - name: Coverage summary
         if: always()
         run: |
-          report=app/build/reports/kover/report.xml
+          report=build/reports/kover/report.xml
           if [ -f "$report" ]; then
             python3 - "$report" >> "$GITHUB_STEP_SUMMARY" <<'PY'
           import sys, xml.etree.ElementTree as ET
@@ -47,7 +47,7 @@ jobs:
         with:
           name: reports
           path: |
-            app/build/reports/kover/
+            build/reports/kover/
             **/build/reports/tests/
             **/build/reports/detekt/
           retention-days: 14
@@ -64,7 +64,7 @@ jobs:
         run: docker compose up -d --build --wait --wait-timeout 600
 
       - name: Smoke checks
-        run: python3 scripts/smoke-lab2.py
+        run: python3 scripts/smoke-lab2.py --resilience
 
       - name: Logs on failure
         if: failure()

@@ -131,6 +131,7 @@ services:
       EUREKA_URL: http://discovery-server:8761/eureka/
       CONFIG_SERVER_URL: http://config-server:8888
       NOTIFICATION_DATABASE_URL: r2dbc:postgresql://notification-db:5432/notification
+      NOTIFICATION_JDBC_URL: jdbc:postgresql://notification-db:5432/notification
       NOTIFICATION_DATABASE_USER: notification
       NOTIFICATION_DATABASE_PASSWORD: ${NOTIFICATION_DATABASE_PASSWORD:-notification}
     depends_on:

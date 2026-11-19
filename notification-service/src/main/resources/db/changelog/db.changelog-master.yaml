@@ -1,0 +1,50 @@
+databaseChangeLog:
+  - changeSet:
+      id: notification-001
+      author: notification
+      changes:
+        - sql:
+            sql: >-
+              CREATE TABLE IF NOT EXISTS notifications (
+                id uuid PRIMARY KEY,
+                recipient_id uuid NOT NULL,
+                type varchar(48) NOT NULL,
+                payload text NOT NULL,
+                status varchar(24) NOT NULL CHECK (status IN ('PENDING', 'SENT', 'FAILED')),
+                attempts integer NOT NULL DEFAULT 0,
+                created_at timestamptz NOT NULL,
+                sent_at timestamptz
+              );
+              CREATE INDEX IF NOT EXISTS ix_notifications_recipient_created
+                ON notifications (recipient_id, created_at DESC, id DESC);
+  - changeSet:
+      id: notification-002-constraints
+      author: notification
+      changes:
+        - sql:
+            sql: >-
+              ALTER TABLE notifications
+                ADD CONSTRAINT ck_notifications_type CHECK (type IN (
+                  'IMPORT_PARSED', 'IMPORT_FAILED', 'PERSONA_READY', 'PERSONA_ARCHIVED',
+                  'CONSULTATION_REQUESTED', 'CONSULTATION_STATUS_CHANGED', 'FLAG_RESOLVED')),
+                ADD CONSTRAINT ck_notifications_attempts CHECK (attempts >= 0),
+                ADD CONSTRAINT ck_notifications_sent CHECK ((status = 'SENT') = (sent_at IS NOT NULL)),
+                ADD CONSTRAINT ck_notifications_payload CHECK (jsonb_typeof(payload::jsonb) = 'object');
+  - changeSet:
+      id: notification-003-delivery-history
+      author: notification
+      preConditions:
+        - onFail: HALT
+        - sqlCheck:
+            expectedResult: "0"
+            sql: SELECT count(*) FROM notifications WHERE status <> 'SENT'
+      changes:
+        - dropColumn:
+            tableName: notifications
+            columnName: status
+        - dropColumn:
+            tableName: notifications
+            columnName: attempts
+        - dropColumn:
+            tableName: notifications
+            columnName: sent_at

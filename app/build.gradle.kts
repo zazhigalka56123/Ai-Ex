@@ -50,11 +50,3 @@ tasks.test {
 tasks.bootJar {
     archiveFileName.set("service.jar")
 }
-
-kover {
-    reports {
-        verify {
-            rule("Общее покрытие проекта ≥ 70%") { minBound(70) }
-        }
-    }
-}

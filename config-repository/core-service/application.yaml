@@ -24,7 +24,7 @@ spring:
     contexts: ${AIEX_LIQUIBASE_CONTEXTS:demo}
   servlet:
     multipart:
-      max-file-size: ${aiex.import.max-file-mb}MB
+      max-file-size: ${ai-ex.import.max-file-mb}MB
       max-request-size: 25MB
   task:
     execution:
@@ -95,3 +95,10 @@ logging:
     root: INFO
     ru.itmo.aiex: INFO
     org.hibernate.orm.deprecation: WARN
+
+resilience4j:
+  circuitbreaker:
+    configs:
+      default:
+        ignoreExceptions:
+          - feign.FeignException$FeignClientException

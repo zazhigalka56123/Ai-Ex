@@ -13,6 +13,7 @@ import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.MvcResult
 import org.springframework.test.web.servlet.ResultActionsDsl
 import org.springframework.test.web.servlet.post
+import org.testcontainers.containers.wait.strategy.Wait
 import org.testcontainers.postgresql.PostgreSQLContainer
 import ru.itmo.aiex.common.security.RoleCode
 import ru.itmo.aiex.iam.IamApplication
@@ -63,7 +64,7 @@ abstract class AbstractIntegrationTest {
 
     companion object {
         const val USER_HEADER = "X-User-Id"
-        val postgres = PostgreSQLContainer("postgres:17-alpine").apply { start() }
+        val postgres = PostgreSQLContainer("postgres:17-alpine").waitingFor(Wait.forListeningPort()).apply { start() }
 
         @JvmStatic
         @DynamicPropertySource

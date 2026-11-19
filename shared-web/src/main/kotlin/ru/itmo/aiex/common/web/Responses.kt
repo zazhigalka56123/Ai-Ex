@@ -16,14 +16,17 @@ object Responses {
         .location(location(pathTemplate, *uriVariables))
         .body(body)
 
-    fun <T> page(page: PageView<T>, requestUri: UriComponentsBuilder = ServletUriComponentsBuilder.fromCurrentRequest()): ResponseEntity<List<T>> {
+    fun <T> page(page: PageView<T>, requestUri: UriComponentsBuilder = ServletUriComponentsBuilder.fromCurrentRequest()): ResponseEntity<List<T>> =
+        ResponseEntity.ok().headers(pageHeaders(page, requestUri)).body(page.items)
+
+    fun pageHeaders(page: PageView<*>, requestUri: UriComponentsBuilder): HttpHeaders {
         val headers = HttpHeaders()
         headers.set(AiExHeaders.TOTAL_COUNT, page.totalElements.toString())
         headers.set(AiExHeaders.TOTAL_PAGES, page.totalPages.toString())
         headers.set(AiExHeaders.PAGE, page.page.toString())
         headers.set(AiExHeaders.PAGE_SIZE, page.size.toString())
         linkHeader(page, requestUri)?.let { headers.set(HttpHeaders.LINK, it) }
-        return ResponseEntity.ok().headers(headers).body(page.items)
+        return headers
     }
 
     private fun linkHeader(page: PageView<*>, requestUri: UriComponentsBuilder): String? {

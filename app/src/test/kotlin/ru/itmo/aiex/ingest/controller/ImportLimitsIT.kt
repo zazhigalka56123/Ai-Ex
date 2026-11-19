@@ -9,7 +9,7 @@ import org.springframework.test.context.TestPropertySource
 import ru.itmo.aiex.ingest.testing.IngestIntegrationTest
 import java.time.Duration
 
-@TestPropertySource(properties = ["aiex.import.max-file-mb=1", "aiex.import.async-threshold-kb=1", "aiex.import.max-messages=20"])
+@TestPropertySource(properties = ["ai-ex.import.max-file-mb=1", "ai-ex.import.async-threshold-kb=1", "ai-ex.import.max-messages=20"])
 class ImportLimitsIT : IngestIntegrationTest() {
     @Test
     fun `файл больше лимита - 413 FILE_TOO_LARGE, импорт не создаётся`() {

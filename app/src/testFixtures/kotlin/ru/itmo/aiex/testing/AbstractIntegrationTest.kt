@@ -12,6 +12,7 @@ import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.MvcResult
 import org.springframework.test.web.servlet.ResultActionsDsl
+import org.testcontainers.containers.wait.strategy.Wait
 import org.testcontainers.postgresql.PostgreSQLContainer
 import ru.itmo.aiex.AiExApplication
 import ru.itmo.aiex.common.security.RoleCode
@@ -53,10 +54,11 @@ abstract class AbstractIntegrationTest {
     @BeforeEach
     fun configureRemoteServices() {
         users.clear()
-        every { identityClient.findActive(any()) } answers { users[firstArg()] }
-        every { identityClient.metrics() } answers { mapOf("users.active" to users.size.toLong(), "users.blocked" to 0L) }
-        every { notificationClient.metrics() } returns mapOf("notifications.sent" to 0L, "notifications.pending" to 0L, "notifications.failed" to 0L)
-        every { notificationClient.deliver(any(), any()) } answers { firstArg() }
+        every { identityClient.findActive(any(), any()) } answers { users[firstArg()] }
+        every { identityClient.metrics(any()) } answers { mapOf("users.active" to users.size.toLong(), "users.blocked" to 0L) }
+        every { notificationClient.metrics(any()) } returns
+            mapOf("notifications.sent" to 0L)
+        every { notificationClient.deliver(any(), any(), any()) } answers { firstArg() }
     }
 
     protected fun createUser(vararg roles: RoleCode = arrayOf(RoleCode.USER), displayName: String = "Тестовый пользователь"): UUID {
@@ -82,7 +84,7 @@ abstract class AbstractIntegrationTest {
     companion object {
         @JvmField
         @ServiceConnection
-        val postgres: PostgreSQLContainer = PostgreSQLContainer("postgres:17-alpine").apply { start() }
+        val postgres: PostgreSQLContainer = PostgreSQLContainer("postgres:17-alpine").waitingFor(Wait.forListeningPort()).apply { start() }
 
         const val USER_HEADER = AiExHeaders.USER_ID
     }

@@ -6,7 +6,7 @@ dependencies {
     api(project(":shared-kernel"))
     api(libs.spring.boot.starter.webmvc)
     api(libs.spring.boot.starter.validation)
-    api(libs.springdoc.webmvc.ui)
+    api(libs.springdoc.webmvc.api)
     api(libs.hibernate.core)
     api(libs.spring.data.commons)
     api(libs.jackson.module.kotlin)
