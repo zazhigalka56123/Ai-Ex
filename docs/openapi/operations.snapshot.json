@@ -134,16 +134,6 @@
       "500" : [ "INTERNAL_ERROR" ]
     }
   },
-  "createUser" : {
-    "method" : "POST",
-    "path" : "/api/v1/users",
-    "responses" : {
-      "201" : [ ],
-      "400" : [ "VALIDATION_FAILED" ],
-      "409" : [ "EMAIL_TAKEN" ],
-      "500" : [ "INTERNAL_ERROR" ]
-    }
-  },
   "deleteSpecialization" : {
     "method" : "DELETE",
     "path" : "/api/v1/specializations/{id}",
@@ -288,16 +278,6 @@
       "500" : [ "INTERNAL_ERROR" ]
     }
   },
-  "getUser" : {
-    "method" : "GET",
-    "path" : "/api/v1/users/{id}",
-    "responses" : {
-      "200" : [ ],
-      "401" : [ "UNAUTHENTICATED" ],
-      "404" : [ "USER_NOT_FOUND" ],
-      "500" : [ "INTERNAL_ERROR" ]
-    }
-  },
   "listConsultations" : {
     "method" : "GET",
     "path" : "/api/v1/consultations",
@@ -362,16 +342,6 @@
       "500" : [ "INTERNAL_ERROR" ]
     }
   },
-  "listNotifications" : {
-    "method" : "GET",
-    "path" : "/api/v1/notifications",
-    "responses" : {
-      "200" : [ ],
-      "400" : [ "VALIDATION_FAILED" ],
-      "401" : [ "UNAUTHENTICATED" ],
-      "500" : [ "INTERNAL_ERROR" ]
-    }
-  },
   "listPersonaImports" : {
     "method" : "GET",
     "path" : "/api/v1/personas/{id}/imports",
@@ -428,17 +398,6 @@
     "responses" : {
       "200" : [ ],
       "400" : [ "VALIDATION_FAILED" ],
-      "500" : [ "INTERNAL_ERROR" ]
-    }
-  },
-  "listUsers" : {
-    "method" : "GET",
-    "path" : "/api/v1/users",
-    "responses" : {
-      "200" : [ ],
-      "400" : [ "VALIDATION_FAILED" ],
-      "401" : [ "UNAUTHENTICATED" ],
-      "403" : [ "FORBIDDEN" ],
       "500" : [ "INTERNAL_ERROR" ]
     }
   },
@@ -551,19 +510,6 @@
       "401" : [ "UNAUTHENTICATED" ],
       "403" : [ "FORBIDDEN" ],
       "404" : [ "TAG_NOT_FOUND" ],
-      "500" : [ "INTERNAL_ERROR" ]
-    }
-  },
-  "updateUser" : {
-    "method" : "PATCH",
-    "path" : "/api/v1/users/{id}",
-    "responses" : {
-      "200" : [ ],
-      "400" : [ "VALIDATION_FAILED" ],
-      "401" : [ "UNAUTHENTICATED" ],
-      "403" : [ "FORBIDDEN" ],
-      "404" : [ "USER_NOT_FOUND" ],
-      "409" : [ "CONCURRENT_MODIFICATION", "USER_INVALID_STATE" ],
       "500" : [ "INTERNAL_ERROR" ]
     }
   }

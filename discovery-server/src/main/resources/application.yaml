@@ -1,0 +1,12 @@
+spring:
+  application:
+    name: discovery-server
+server:
+  port: 8761
+
+---
+spring:
+  config:
+    activate:
+      on-profile: "!test"
+    import: "configserver:${CONFIG_SERVER_URL:http://localhost:8888}"

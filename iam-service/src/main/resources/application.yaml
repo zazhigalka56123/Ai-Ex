@@ -1,0 +1,12 @@
+spring:
+  application:
+    name: iam-service
+server:
+  port: 8081
+
+---
+spring:
+  config:
+    activate:
+      on-profile: "!test"
+    import: "configserver:${CONFIG_SERVER_URL:http://localhost:8888}"

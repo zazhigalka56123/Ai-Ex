@@ -175,7 +175,9 @@ class DemoScenarioIT : AbstractIntegrationTest() {
         }
         mockMvc.get("/api/v1/imports/$importId/messages") { header(USER_HEADER, client) }.andExpect { jsonPath("$.items.length()") { value(0) } }
 
-        val notifications = mockMvc.get("/api/v1/notifications?size=50") { header(USER_HEADER, client) }.json().toList()
+        val notifications = jdbcTemplate.queryForList("SELECT payload::text FROM notification_outbox")
+            .map { jsonMapper.readTree(it["payload"] as String) }
+            .filter { it["recipientId"].asString() == client.toString() }
         assertThat(notifications.map { it["type"].asString() }).contains("IMPORT_PARSED", "PERSONA_READY", "FLAG_RESOLVED")
         val metrics = mockMvc.get("/api/v1/admin/metrics") { header(USER_HEADER, admin) }.json()["metrics"]
         assertThat(metrics["personas.archived"].asLong()).isEqualTo(1)

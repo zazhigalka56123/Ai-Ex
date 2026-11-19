@@ -5,7 +5,7 @@ import org.junit.jupiter.api.Test
 import org.springframework.test.web.servlet.get
 import ru.itmo.aiex.testing.AbstractIntegrationTest
 class OpenApiIT : AbstractIntegrationTest() {
-    private val groups = listOf("all", "iam", "persona", "ingest", "dialog", "care", "admin", "notification")
+    private val groups = listOf("all", "persona", "ingest", "dialog", "care", "admin")
 
     @Test
     fun `каждая операция документирована полностью`() {

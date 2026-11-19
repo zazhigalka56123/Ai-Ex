@@ -5,6 +5,13 @@ import org.junit.jupiter.api.Test
 
 class ErrorCodeTest {
     @Test
+    fun `общий HTTP статус не превращается в случайную доменную ошибку`() {
+        assertThat(ErrorCode.fromHttpStatus(409)).isEqualTo(ErrorCode.CONSTRAINT_VIOLATED)
+        assertThat(ErrorCode.fromHttpStatus(415)).isEqualTo(ErrorCode.UNSUPPORTED_MEDIA_TYPE)
+        assertThat(ErrorCode.fromHttpStatus(503)).isEqualTo(ErrorCode.SERVICE_UNAVAILABLE)
+    }
+
+    @Test
     fun `слаг кода для поля type`() {
         assertThat(ErrorCode.PERSONA_NOT_READY.slug).isEqualTo("persona-not-ready")
     }

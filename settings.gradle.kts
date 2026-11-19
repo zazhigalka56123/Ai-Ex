@@ -20,3 +20,11 @@ dependencyResolutionManagement {
 rootProject.name = "ai-ex"
 
 include("app")
+
+include("shared-kernel")
+include("shared-web")
+include("config-server")
+include("discovery-server")
+include("gateway")
+include("iam-service")
+include("notification-service")

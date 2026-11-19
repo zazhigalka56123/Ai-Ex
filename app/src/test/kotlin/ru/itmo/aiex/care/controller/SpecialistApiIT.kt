@@ -216,13 +216,7 @@ class SpecialistApiIT : CareIntegrationTest() {
     @Test
     fun `имя заблокированного пользователя в профиле не раскрывается`() {
         val specialist = createSpecialist()
-        val admin = createAdmin()
-        mockMvc
-            .patch("/api/v1/users/${specialist.userId}") {
-                header(USER_HEADER, admin)
-                contentType = MediaType.APPLICATION_JSON
-                content = json(mapOf("status" to "BLOCKED"))
-            }.andExpect { status { isOk() } }
+        blockUser(specialist.userId)
         mockMvc.get("/api/v1/specialists/${specialist.id}").andExpect {
             status { isOk() }
             jsonPath("$.displayName") { value(org.hamcrest.Matchers.nullValue()) }

@@ -63,6 +63,7 @@ tasks.withType<Detekt>().configureEach {
 }
 
 tasks.withType<Test>().configureEach {
+    javaLauncher.set(javaToolchains.launcherFor { languageVersion.set(JavaLanguageVersion.of(catalogVersion("java").toInt())) })
     useJUnitPlatform()
     jvmArgs("-XX:+EnableDynamicAgentLoading", "-Xshare:off")
     testLogging {
