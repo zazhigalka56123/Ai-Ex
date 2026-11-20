@@ -1,4 +1,4 @@
-name: ai-ex-lab2
+name: ai-ex-lab3
 
 services:
   core-db:
@@ -10,7 +10,7 @@ services:
     volumes:
       - core-data:/var/lib/postgresql/data
     ports:
-      - "127.0.0.1:5432:5432"
+      - "127.0.0.1:${CORE_DB_PORT:-5432}:5432"
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U core -d core"]
       interval: 5s
@@ -26,7 +26,7 @@ services:
     volumes:
       - iam-data:/var/lib/postgresql/data
     ports:
-      - "127.0.0.1:5433:5432"
+      - "127.0.0.1:${IAM_DB_PORT:-5433}:5432"
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U iam -d iam"]
       interval: 5s
@@ -42,7 +42,7 @@ services:
     volumes:
       - notification-data:/var/lib/postgresql/data
     ports:
-      - "127.0.0.1:5434:5432"
+      - "127.0.0.1:${NOTIFICATION_DB_PORT:-5434}:5432"
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U notification -d notification"]
       interval: 5s
@@ -62,7 +62,7 @@ services:
     volumes:
       - ./config-repository:/config-repository:ro
     ports:
-      - "127.0.0.1:8888:8888"
+      - "127.0.0.1:${CONFIG_PORT:-8888}:8888"
     healthcheck:
       test: ["CMD-SHELL", "wget -qO- http://localhost:8888/actuator/health/readiness | grep -q '\"status\":\"UP\"'"]
       interval: 10s
@@ -84,7 +84,7 @@ services:
       config-server:
         condition: service_healthy
     ports:
-      - "127.0.0.1:8761:8761"
+      - "127.0.0.1:${EUREKA_PORT:-8761}:8761"
     healthcheck:
       test: ["CMD-SHELL", "wget -qO- http://localhost:8761/actuator/health/readiness | grep -q '\"status\":\"UP\"'"]
       interval: 10s
@@ -135,6 +135,7 @@ services:
       EUREKA_URL: http://discovery-server:8761/eureka/
       CONFIG_SERVER_URL: http://config-server:8888
       NOTIFICATION_DATABASE_URL: r2dbc:postgresql://notification-db:5432/notification
+      NOTIFICATION_JDBC_URL: jdbc:postgresql://notification-db:5432/notification
       NOTIFICATION_DATABASE_USER: notification
       NOTIFICATION_DATABASE_PASSWORD: ${NOTIFICATION_DATABASE_PASSWORD:-notification}
     depends_on:
@@ -201,7 +202,7 @@ services:
       discovery-server:
         condition: service_healthy
     ports:
-      - "127.0.0.1:8080:8080"
+      - "127.0.0.1:${GATEWAY_PORT:-8081}:8080"
     healthcheck:
       test: ["CMD-SHELL", "wget -qO- http://localhost:8080/actuator/health/readiness | grep -q '\"status\":\"UP\"'"]
       interval: 10s

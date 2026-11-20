@@ -6,6 +6,7 @@ import org.springframework.context.annotation.Import
 import org.springframework.http.HttpMethod
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
+import org.springframework.http.ProblemDetail
 import org.springframework.security.config.web.server.ServerHttpSecurity
 import org.springframework.security.oauth2.jwt.JwtDecoder
 import org.springframework.security.oauth2.jwt.ReactiveJwtDecoder
@@ -14,9 +15,11 @@ import org.springframework.security.web.server.context.NoOpServerSecurityContext
 import org.springframework.security.web.server.savedrequest.NoOpServerRequestCache
 import org.springframework.web.server.ServerWebExchange
 import reactor.core.publisher.Mono
+import tools.jackson.databind.json.JsonMapper
+import java.net.URI
 
 @Import(JwtSecurityConfiguration::class)
-class ReactiveSecurityConfiguration {
+class ReactiveSecurityConfiguration(private val jsonMapper: JsonMapper) {
     @Bean
     fun reactiveJwtDecoder(decoder: JwtDecoder): ReactiveJwtDecoder = ReactiveJwtDecoder { token -> Mono.fromCallable { decoder.decode(token) } }
 
@@ -27,12 +30,24 @@ class ReactiveSecurityConfiguration {
         .requestCache { it.requestCache(NoOpServerRequestCache.getInstance()) }
         .authorizeExchange {
             it.pathMatchers(HttpMethod.POST, "/api/v1/auth/login").permitAll()
-                .pathMatchers("/actuator/health/**", "/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html", "/fallback",
-                    "/", "/index.html", "/app.js", "/app.css", "/favicon.ico").permitAll()
-            if (application == "gateway") it.pathMatchers("/internal/**").denyAll()
-            else it.pathMatchers("/internal/**").hasAuthority("SCOPE_internal")
-            it.pathMatchers(HttpMethod.GET, "/api/v1/tags", "/api/v1/tags/**", "/api/v1/specializations", "/api/v1/specializations/**",
-                "/api/v1/specialists", "/api/v1/specialists/**").permitAll()
+                .pathMatchers(
+                    "/actuator/health/**", "/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html", "/fallback",
+                    "/", "/index.html", "/app.js", "/app.css", "/favicon.ico",
+                ).permitAll()
+            if (application == "gateway") {
+                it.pathMatchers("/internal/**").denyAll()
+            } else {
+                it.pathMatchers("/internal/**", "/actuator/metrics/**").hasAuthority("SCOPE_internal")
+            }
+            it.pathMatchers(
+                HttpMethod.GET,
+                "/api/v1/tags",
+                "/api/v1/tags/**",
+                "/api/v1/specializations",
+                "/api/v1/specializations/**",
+                "/api/v1/specialists",
+                "/api/v1/specialists/**",
+            ).permitAll()
                 .pathMatchers("/api/**").hasAuthority("SCOPE_user").anyExchange().denyAll()
         }
         .exceptionHandling {
@@ -41,6 +56,7 @@ class ReactiveSecurityConfiguration {
         }
         .oauth2ResourceServer {
             it.jwt {}
+            it.accessDeniedHandler { exchange, _ -> problem(exchange, HttpStatus.FORBIDDEN) }
             it.authenticationEntryPoint { exchange, _ -> problem(exchange, HttpStatus.UNAUTHORIZED) }
         }.build()
 
@@ -51,7 +67,12 @@ class ReactiveSecurityConfiguration {
         exchange.response.statusCode = status
         exchange.response.headers.contentType = MediaType.APPLICATION_PROBLEM_JSON
         if (unauthorized) exchange.response.headers.set("WWW-Authenticate", "Bearer")
-        val body = """{"status":${status.value()},"code":"$code","detail":"$detail"}""".toByteArray(Charsets.UTF_8)
+        val problem = ProblemDetail.forStatusAndDetail(status, detail).apply {
+            instance = URI.create(exchange.request.path.value())
+            setProperty("code", code)
+            setProperty("traceId", exchange.response.headers.getFirst("X-Trace-Id"))
+        }
+        val body = jsonMapper.writeValueAsBytes(problem)
         return exchange.response.writeWith(Mono.just(exchange.response.bufferFactory().wrap(body)))
     }
 }

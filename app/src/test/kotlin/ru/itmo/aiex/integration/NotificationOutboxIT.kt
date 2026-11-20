@@ -21,7 +21,7 @@ class NotificationOutboxIT : AbstractIntegrationTest() {
     @Test
     fun `неудачная доставка остаётся в очереди и повторяется с тем же id`() {
         val id = outbox.sendNotification(NotificationCommand(UUID.randomUUID(), NotificationType.PERSONA_READY, emptyMap()))
-        every { notificationClient.deliver(any(), any()) } throws IllegalStateException("offline")
+        every { notificationClient.deliver(any(), any(), any()) } throws IllegalStateException("offline")
         dispatcher.dispatch()
         assertThat(jdbcTemplate.queryForObject("SELECT attempts FROM notification_outbox WHERE id = ?", Int::class.java, id)).isEqualTo(1)
         every { notificationClient.deliver(id, any()) } returns id

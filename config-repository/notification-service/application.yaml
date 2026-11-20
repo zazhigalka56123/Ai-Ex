@@ -5,9 +5,24 @@ spring:
     password: "${NOTIFICATION_DATABASE_PASSWORD:notification}"
     pool:
       max-size: 10
-  sql:
-    init:
-      mode: always
+  liquibase:
+    url: "${NOTIFICATION_JDBC_URL:jdbc:postgresql://localhost:5434/notification}"
+    user: "${NOTIFICATION_DATABASE_USER:notification}"
+    password: "${NOTIFICATION_DATABASE_PASSWORD:notification}"
+    change-log: classpath:db/changelog/db.changelog-master.yaml
 
 springdoc:
   paths-to-match: /api/**
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+
+resilience4j:
+  circuitbreaker:
+    configs:
+      default:
+        ignoreExceptions:
+          - feign.FeignException$FeignClientException

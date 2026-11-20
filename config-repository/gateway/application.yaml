@@ -5,6 +5,7 @@ spring:
         webflux:
           default-filters:
             - PreserveHostHeader
+            - DedupeResponseHeader=X-Trace-Id, RETAIN_FIRST
           httpclient:
             connect-timeout: 2000
             response-timeout: 30s
@@ -46,7 +47,9 @@ spring:
             - id: core
               uri: lb://core-service
               predicates:
-                - Path=/api/**,/v3/api-docs/**,/swagger-ui/**,/swagger-ui.html,/,/index.html,/app.js,/app.css
+                - Path=/,/index.html,/app.js,/app.css,/api/**,/v3/api-docs/**,/swagger-ui/**,/swagger-ui.html
+              metadata:
+                response-timeout: 90000
               filters:
                 - name: CircuitBreaker
                   args:
@@ -56,4 +59,4 @@ resilience4j:
   timelimiter:
     instances:
       coreGateway:
-        timeoutDuration: 60s
+        timeoutDuration: 95s

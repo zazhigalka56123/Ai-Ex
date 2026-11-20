@@ -53,6 +53,7 @@ class UserServiceTest {
         assertThat(user.passwordHash).isNotEqualTo("Test-password-123!")
         assertThat(passwords.matches("Test-password-123!", user.passwordHash)).isTrue()
     }
+
     @Test
     fun `обычный пользователь и специалист не создают пользователей`() {
         for (role in listOf(RoleCode.USER, RoleCode.SPECIALIST)) {

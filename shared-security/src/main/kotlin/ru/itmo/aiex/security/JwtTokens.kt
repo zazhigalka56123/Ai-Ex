@@ -12,7 +12,7 @@ import java.util.UUID
 class JwtTokens(private val encoder: JwtEncoder) {
     fun userToken(id: UUID, roles: Set<RoleCode>): String = issue(id.toString(), "user", roles, USER_TTL_SECONDS)
 
-    fun serviceToken(): String = issue("service", "internal", emptySet(), 60)
+    fun serviceToken(): String = issue("service", "internal", emptySet(), SERVICE_TTL_SECONDS)
 
     private fun issue(subject: String, scope: String, roles: Set<RoleCode>, ttl: Long): String {
         val now = Instant.now()
@@ -25,6 +25,7 @@ class JwtTokens(private val encoder: JwtEncoder) {
     companion object {
         const val ISSUER = "ai-ex-iam"
         const val AUDIENCE = "ai-ex"
+        private const val SERVICE_TTL_SECONDS = 60L
         const val USER_TTL_SECONDS = 900L
     }
 }

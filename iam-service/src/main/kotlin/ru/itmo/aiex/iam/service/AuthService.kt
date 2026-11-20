@@ -12,14 +12,19 @@ import java.util.UUID
 
 @Service
 class AuthService(private val users: UserRepository, private val passwords: PasswordEncoder, private val tokens: JwtTokens) {
+    private companion object {
+        const val MAX_PASSWORD_BYTES = 72
+    }
+
     private val dummyHash = passwords.encode(UUID.randomUUID().toString())
 
     @Transactional(readOnly = true)
     fun login(email: String, password: String): TokenResponse {
         val user = users.findByEmail(email.trim().lowercase())
         val hash = user?.passwordHash?.takeUnless { it == "!" } ?: dummyHash
-        val matches = password.toByteArray(Charsets.UTF_8).size <= 72 && passwords.matches(password, hash)
-        if (!matches || user == null || !user.isActive || user.passwordHash == "!") {
+        val matches = password.toByteArray(Charsets.UTF_8).size <= MAX_PASSWORD_BYTES && passwords.matches(password, hash)
+        val active = user?.isActive == true && user.passwordHash != "!"
+        if (!matches || !active || user == null) {
             throw UnauthenticatedException("Неверный email или пароль")
         }
         return TokenResponse(tokens.userToken(user.id, user.roleCodes), "Bearer", JwtTokens.USER_TTL_SECONDS, user.toResponse())

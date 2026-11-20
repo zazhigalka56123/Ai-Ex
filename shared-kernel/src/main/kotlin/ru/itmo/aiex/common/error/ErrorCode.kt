@@ -44,8 +44,25 @@ enum class ErrorCode(val httpStatus: Int, val title: String) {
     UNSUPPORTED_MEDIA_TYPE(415, "Неподдерживаемый Content-Type"),
 
     INTERNAL_ERROR(500, "Внутренняя ошибка сервера"),
+    SERVICE_UNAVAILABLE(503, "Зависимый сервис временно недоступен"),
     LLM_UNAVAILABLE(503, "LLM-провайдер недоступен"),
     ;
 
     val slug: String get() = name.lowercase().replace('_', '-')
+
+    companion object {
+        fun fromHttpStatus(status: Int): ErrorCode = when (status) {
+            UNAUTHENTICATED.httpStatus -> UNAUTHENTICATED
+            FORBIDDEN.httpStatus -> FORBIDDEN
+            NOT_FOUND.httpStatus -> NOT_FOUND
+            METHOD_NOT_ALLOWED.httpStatus -> METHOD_NOT_ALLOWED
+            NOT_ACCEPTABLE.httpStatus -> NOT_ACCEPTABLE
+            CONSTRAINT_VIOLATED.httpStatus -> CONSTRAINT_VIOLATED
+            FILE_TOO_LARGE.httpStatus -> FILE_TOO_LARGE
+            UNSUPPORTED_MEDIA_TYPE.httpStatus -> UNSUPPORTED_MEDIA_TYPE
+            SERVICE_UNAVAILABLE.httpStatus -> SERVICE_UNAVAILABLE
+            in VALIDATION_FAILED.httpStatus until INTERNAL_ERROR.httpStatus -> VALIDATION_FAILED
+            else -> INTERNAL_ERROR
+        }
+    }
 }

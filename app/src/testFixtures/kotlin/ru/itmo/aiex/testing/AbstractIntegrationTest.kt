@@ -15,11 +15,14 @@ import org.springframework.test.web.servlet.MvcResult
 import org.springframework.test.web.servlet.ResultActionsDsl
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
 import org.springframework.test.web.servlet.request.RequestPostProcessor
+import org.springframework.test.web.servlet.setup.DefaultMockMvcBuilder
 import org.springframework.test.web.servlet.setup.MockMvcBuilders
 import org.springframework.web.context.WebApplicationContext
+import org.testcontainers.containers.wait.strategy.Wait
 import org.testcontainers.postgresql.PostgreSQLContainer
 import ru.itmo.aiex.AiExApplication
 import ru.itmo.aiex.common.security.RoleCode
+import ru.itmo.aiex.common.web.TraceIdFilter
 import ru.itmo.aiex.iam.dto.UserView
 import ru.itmo.aiex.integration.IdentityClient
 import ru.itmo.aiex.integration.NotificationClient
@@ -29,7 +32,7 @@ import tools.jackson.databind.json.JsonMapper
 import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
 
-@SpringBootTest(classes = [AiExApplication::class], properties = ["aiex.security.jwt-secret=test-only-jwt-secret-at-least-32-bytes"])
+@SpringBootTest(classes = [AiExApplication::class], properties = ["ai-ex.security.jwt-secret=test-only-jwt-secret-at-least-32-bytes"])
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
 abstract class AbstractIntegrationTest {
@@ -53,7 +56,10 @@ abstract class AbstractIntegrationTest {
     @MockkBean
     protected lateinit var notificationClient: NotificationClient
 
+    @Autowired private lateinit var traceIdFilter: TraceIdFilter
+
     @Autowired private lateinit var webContext: WebApplicationContext
+
     @Autowired protected lateinit var tokens: JwtTokens
 
     private val users = ConcurrentHashMap<UUID, UserView>()
@@ -62,23 +68,29 @@ abstract class AbstractIntegrationTest {
     fun configureRemoteServices() {
         users.clear()
         mockMvc = MockMvcBuilders.webAppContextSetup(webContext)
-            .apply<org.springframework.test.web.servlet.setup.DefaultMockMvcBuilder>(springSecurity())
-            .defaultRequest(MockMvcRequestBuilders.get("/").with(RequestPostProcessor { request ->
-                val raw = request.getHeader(USER_HEADER)
-                request.removeHeader(USER_HEADER)
-                if (raw != null) {
-                    val id = runCatching { UUID.fromString(raw) }.getOrNull()
-                    val token = id?.let { tokens.userToken(it, users[it]?.roles.orEmpty()) } ?: "invalid"
-                    request.addHeader("Authorization", "Bearer $token")
-                } else if (request.requestURI.startsWith("/api/v1/__test/") || request.requestURI == "/api/v1/nowhere") {
-                    request.addHeader("Authorization", "Bearer ${tokens.userToken(UUID.randomUUID(), setOf(RoleCode.USER))}")
-                }
-                request
-            })).build()
-        every { identityClient.findActive(any()) } answers { users[firstArg()] }
-        every { identityClient.metrics() } answers { mapOf("users.active" to users.size.toLong(), "users.blocked" to 0L) }
-        every { notificationClient.metrics() } returns mapOf("notifications.sent" to 0L, "notifications.pending" to 0L, "notifications.failed" to 0L)
-        every { notificationClient.deliver(any(), any()) } answers { firstArg() }
+            .addFilters<DefaultMockMvcBuilder>(traceIdFilter)
+            .apply<DefaultMockMvcBuilder>(springSecurity())
+            .defaultRequest<DefaultMockMvcBuilder>(
+                MockMvcRequestBuilders.get("/").with(
+                    RequestPostProcessor { request ->
+                        val raw = request.getHeader(USER_HEADER)
+                        request.removeHeader(USER_HEADER)
+                        if (raw != null) {
+                            val id = runCatching { UUID.fromString(raw) }.getOrNull()
+                            val token = id?.let { tokens.userToken(it, users[it]?.roles.orEmpty()) } ?: "invalid"
+                            request.addHeader("Authorization", "Bearer $token")
+                        } else if (request.requestURI?.startsWith("/api/v1/__test/") == true || request.requestURI == "/api/v1/nowhere") {
+                            request.addHeader("Authorization", "Bearer ${tokens.userToken(UUID.randomUUID(), setOf(RoleCode.USER))}")
+                        }
+                        request
+                    },
+                ),
+            ).build()
+        every { identityClient.findActive(any(), any()) } answers { users[firstArg()] }
+        every { identityClient.metrics(any()) } answers { mapOf("users.active" to users.size.toLong(), "users.blocked" to 0L) }
+        every { notificationClient.metrics(any()) } returns
+            mapOf("notifications.sent" to 0L)
+        every { notificationClient.deliver(any(), any(), any()) } answers { firstArg() }
     }
 
     protected fun createUser(vararg roles: RoleCode = arrayOf(RoleCode.USER), displayName: String = "Тестовый пользователь"): UUID {
@@ -104,7 +116,7 @@ abstract class AbstractIntegrationTest {
     companion object {
         @JvmField
         @ServiceConnection
-        val postgres: PostgreSQLContainer = PostgreSQLContainer("postgres:17-alpine").apply { start() }
+        val postgres: PostgreSQLContainer = PostgreSQLContainer("postgres:17-alpine").waitingFor(Wait.forListeningPort()).apply { start() }
 
         const val USER_HEADER = "X-Test-User"
     }

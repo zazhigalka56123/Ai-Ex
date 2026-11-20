@@ -2,7 +2,7 @@ package ru.itmo.aiex.llm
 
 import org.springframework.boot.context.properties.ConfigurationProperties
 
-@ConfigurationProperties("aiex.llm")
+@ConfigurationProperties("ai-ex.llm")
 data class LlmProperties(
     val provider: LlmProvider = LlmProvider.STUB,
     val baseUrl: String? = null,
@@ -13,8 +13,8 @@ data class LlmProperties(
     val retryBackoffMs: Long = DEFAULT_BACKOFF_MS,
 ) {
     init {
-        require(timeoutMs > 0) { "aiex.llm.timeout-ms должен быть > 0" }
-        require(maxRetries >= 0) { "aiex.llm.max-retries должен быть ≥ 0" }
+        require(timeoutMs > 0) { "ai-ex.llm.timeout-ms должен быть > 0" }
+        require(maxRetries >= 0) { "ai-ex.llm.max-retries должен быть ≥ 0" }
     }
 
     override fun toString(): String =

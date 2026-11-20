@@ -4,6 +4,8 @@ import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.jupiter.api.Test
 import org.springframework.mock.web.MockHttpServletRequest
+import org.springframework.security.oauth2.jwt.Jwt
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken
 import org.springframework.web.context.request.ServletWebRequest
 import ru.itmo.aiex.common.error.UnauthenticatedException
 import ru.itmo.aiex.common.security.Actor
@@ -15,12 +17,13 @@ class CurrentActorArgumentResolverTest {
     private val known = Actor(UUID.randomUUID(), setOf(RoleCode.USER))
     private val resolver = CurrentActorArgumentResolver { id -> known.takeIf { it.userId == id } }
 
-    private fun request(header: String?) =
-        ServletWebRequest(MockHttpServletRequest().apply {
+    private fun request(header: String?) = ServletWebRequest(
+        MockHttpServletRequest().apply {
             if (!header.isNullOrBlank()) {
                 userPrincipal = JwtAuthenticationToken(Jwt.withTokenValue("test").header("alg", "HS256").subject(header).build())
             }
-        })
+        },
+    )
 
     @Test
     fun `известный пользователь становится актором`() {

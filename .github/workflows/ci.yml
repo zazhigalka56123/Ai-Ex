@@ -2,7 +2,7 @@ name: CI
 
 on:
   push:
-    branches: [main, lab2]
+    branches: [main, lab2, lab3]
   pull_request:
 
 concurrency:
@@ -25,12 +25,12 @@ jobs:
       - uses: gradle/actions/setup-gradle@v4
 
       - name: Build and verify
-        run: ./gradlew build koverXmlReport koverHtmlReport --continue
+        run: ./gradlew build :koverVerify :koverXmlReport :koverHtmlReport --continue
 
       - name: Coverage summary
         if: always()
         run: |
-          report=app/build/reports/kover/report.xml
+          report=build/reports/kover/report.xml
           if [ -f "$report" ]; then
             python3 - "$report" >> "$GITHUB_STEP_SUMMARY" <<'PY'
           import sys, xml.etree.ElementTree as ET
@@ -47,7 +47,7 @@ jobs:
         with:
           name: reports
           path: |
-            app/build/reports/kover/
+            build/reports/kover/
             **/build/reports/tests/
             **/build/reports/detekt/
           retention-days: 14
@@ -56,15 +56,27 @@ jobs:
     name: docker compose up на чистой машине
     runs-on: ubuntu-latest
     needs: build
+    env:
+      GATEWAY_PORT: 8081
+      BOOTSTRAP_ADMIN_EMAIL: smoke@example.com
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
+
+      - name: Generate ephemeral credentials
+        run: |
+          jwt_secret=$(openssl rand -hex 32)
+          admin_password=$(openssl rand -hex 24)
+          echo "::add-mask::$jwt_secret"
+          echo "::add-mask::$admin_password"
+          echo "JWT_SECRET=$jwt_secret" >> "$GITHUB_ENV"
+          echo "BOOTSTRAP_ADMIN_PASSWORD=$admin_password" >> "$GITHUB_ENV"
 
       - name: Build and start
         run: docker compose up -d --build --wait --wait-timeout 600
 
       - name: Smoke checks
-        run: python3 scripts/smoke-lab2.py
+        run: python3 scripts/smoke-lab2.py --resilience
 
       - name: Logs on failure
         if: failure()

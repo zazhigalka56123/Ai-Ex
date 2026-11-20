@@ -20,22 +20,36 @@ import javax.crypto.spec.SecretKeySpec
 
 @Configuration(proxyBeanMethods = false)
 class JwtSecurityConfiguration {
+    private companion object {
+        const val MIN_SECRET_BYTES = 32
+    }
+
     @Bean
-    fun jwtKey(@Value("\${aiex.security.jwt-secret}") secret: String): SecretKeySpec {
-        require(secret.toByteArray(Charsets.UTF_8).size >= 32) { "JWT_SECRET должен содержать не менее 32 байт" }
+    fun jwtKey(@Value("\${ai-ex.security.jwt-secret}") secret: String): SecretKeySpec {
+        require(secret.toByteArray(Charsets.UTF_8).size >= MIN_SECRET_BYTES) { "JWT_SECRET должен содержать не менее 32 байт" }
         return SecretKeySpec(secret.toByteArray(Charsets.UTF_8), "HmacSHA256")
     }
 
     @Bean
     fun jwtDecoder(key: SecretKeySpec): JwtDecoder = NimbusJwtDecoder.withSecretKey(key).build().apply {
-        setJwtValidator(DelegatingOAuth2TokenValidator(JwtValidators.createDefaultWithIssuer(JwtTokens.ISSUER), OAuth2TokenValidator<Jwt> { jwt ->
-            val scope = jwt.getClaimAsString("scope")
-            val valid = jwt.expiresAt != null && jwt.audience.orEmpty().contains(JwtTokens.AUDIENCE) &&
-                ((scope == "user" && runCatching { UUID.fromString(jwt.subject) }.isSuccess) ||
-                    (scope == "internal" && jwt.subject == "service"))
-            if (valid) OAuth2TokenValidatorResult.success()
-            else OAuth2TokenValidatorResult.failure(OAuth2Error("invalid_token", "Некорректный JWT", null))
-        }))
+        setJwtValidator(
+            DelegatingOAuth2TokenValidator(
+                JwtValidators.createDefaultWithIssuer(JwtTokens.ISSUER),
+                OAuth2TokenValidator<Jwt> { jwt ->
+                    val scope = jwt.getClaimAsString("scope")
+                    val valid = jwt.expiresAt != null && jwt.audience.orEmpty().contains(JwtTokens.AUDIENCE) &&
+                        (
+                            (scope == "user" && runCatching { UUID.fromString(jwt.subject) }.isSuccess) ||
+                                (scope == "internal" && jwt.subject == "service")
+                            )
+                    if (valid) {
+                        OAuth2TokenValidatorResult.success()
+                    } else {
+                        OAuth2TokenValidatorResult.failure(OAuth2Error("invalid_token", "Некорректный JWT", null))
+                    }
+                },
+            ),
+        )
     }
 
     @Bean

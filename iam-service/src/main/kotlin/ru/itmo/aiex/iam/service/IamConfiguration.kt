@@ -8,8 +8,12 @@ import java.time.Clock
 
 @Configuration(proxyBeanMethods = false)
 class IamConfiguration {
+    private companion object {
+        const val BCRYPT_STRENGTH = 12
+    }
+
     @Bean
-    fun passwordEncoder(): PasswordEncoder = BCryptPasswordEncoder(12)
+    fun passwordEncoder(): PasswordEncoder = BCryptPasswordEncoder(BCRYPT_STRENGTH)
 
     @Bean
     fun clock(): Clock = Clock.systemUTC()

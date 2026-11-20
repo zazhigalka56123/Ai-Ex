@@ -90,12 +90,30 @@ class UserApiIT : AbstractIntegrationTest() {
             .get("/api/v1/users?page=0&size=2&sort=createdAt,asc") { header(USER_HEADER, admin) }
             .andExpect {
                 status { isOk() }
+                content { contentTypeCompatibleWith(MediaType.APPLICATION_JSON) }
                 header { string("X-Total-Count", "4") }
                 header { string("X-Total-Pages", "2") }
+                header { string("X-Page", "0") }
                 header { string("X-Page-Size", "2") }
                 header { string("Link", org.hamcrest.Matchers.containsString("rel=\"next\"")) }
                 jsonPath("$.length()") { value(2) }
+                jsonPath("$[0].id") { isString() }
             }
+    }
+
+    @Test
+    fun `пустая страница пользователей сохраняет JSON массив и заголовки пагинации`() {
+        val admin = createAdmin()
+        mockMvc.get("/api/v1/users?page=1&size=2") { header(USER_HEADER, admin) }.andExpect {
+            status { isOk() }
+            content { contentTypeCompatibleWith(MediaType.APPLICATION_JSON) }
+            content { json("[]") }
+            header { string("X-Total-Count", "1") }
+            header { string("X-Total-Pages", "1") }
+            header { string("X-Page", "1") }
+            header { string("X-Page-Size", "2") }
+            header { string("Link", org.hamcrest.Matchers.containsString("rel=\"prev\"")) }
+        }
     }
 
     @Test

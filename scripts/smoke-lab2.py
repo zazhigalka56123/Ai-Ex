@@ -1,6 +1,11 @@
 import argparse
+import base64
+import hashlib
+import hmac
 import os
 import secrets
+import re
+from pathlib import Path
 import json
 import time
 import urllib.error
@@ -10,7 +15,7 @@ import shutil
 import subprocess
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--gateway', default='http://localhost:8080')
+parser.add_argument('--gateway', default='http://localhost:' + os.environ.get('GATEWAY_PORT', '8081'))
 parser.add_argument('--eureka', default='http://localhost:8761')
 parser.add_argument('--config', default='http://localhost:8888')
 parser.add_argument('--resilience', action='store_true')
@@ -19,6 +24,8 @@ admin_email = os.environ.get('ADMIN_EMAIL') or os.environ.get('BOOTSTRAP_ADMIN_E
 admin_password = os.environ.get('ADMIN_PASSWORD') or os.environ.get('BOOTSTRAP_ADMIN_PASSWORD')
 if not admin_email or not admin_password:
     parser.error('Set ADMIN_EMAIL and ADMIN_PASSWORD (or BOOTSTRAP_ADMIN_EMAIL/PASSWORD)')
+if args.resilience and not os.environ.get('JWT_SECRET'):
+    parser.error('Set JWT_SECRET for authenticated internal metrics in --resilience')
 tokens = {}
 
 
@@ -31,12 +38,19 @@ def request(base, path, method='GET', body=None, user=None):
     req = urllib.request.Request(base + path, method=method, headers=headers,
                                  data=None if body is None else json.dumps(body).encode())
     try:
-        with urllib.request.urlopen(req, timeout=65) as response:
-            raw = response.read()
-            return response.status, json.loads(raw) if raw else None
+        response = urllib.request.urlopen(req, timeout=100)
     except urllib.error.HTTPError as error:
-        raw = error.read()
-        return error.code, json.loads(raw) if raw else None
+        response = error
+    with response:
+        raw = response.read()
+        result = json.loads(raw) if raw else None
+        if base == args.gateway and path.startswith('/api/'):
+            trace_ids = response.headers.get_all('X-Trace-Id') or []
+            assert len(trace_ids) == 1, (path, trace_ids)
+            assert re.fullmatch(r'[A-Za-z0-9-]{8,64}', trace_ids[0]), trace_ids
+            if isinstance(result, dict) and 'traceId' in result:
+                assert result['traceId'] == trace_ids[0], result
+        return response.status, result
 
 
 def eventually(action, predicate, timeout=120):
@@ -68,6 +82,16 @@ for name in ('core-service', 'iam-service', 'notification-service', 'gateway', '
         properties.update(source['source'])
     assert properties['resilience4j.circuitbreaker.configs.default.minimumNumberOfCalls'] == 5, name
 
+
+def static_resource(path):
+    with urllib.request.urlopen(args.gateway + path, timeout=100) as response:
+        return response.read()
+
+
+for path, expected_content in (('/', b'<html'), ('/app.js', b''), ('/app.css', b'')):
+    eventually(lambda path=path: static_resource(path),
+               lambda content: bool(content) and expected_content in content)
+
 status, swagger = eventually(lambda: request(args.gateway, '/v3/api-docs/swagger-config'),
                              lambda result: result[0] == 200)
 urls = {entry['name']: entry['url'] for entry in swagger['urls']}
@@ -82,6 +106,11 @@ for name, url, endpoint in (
     assert all(path.startswith('/api/') for path in spec['paths']), name
     assert spec['servers'] == [{'url': '/'}], (name, spec['servers'])
     assert spec['components']['securitySchemes']['bearerAuth']['scheme'] == 'bearer', name
+    if name == 'notifications':
+        properties = spec['components']['schemas']['NotificationResponse']['properties']
+        assert set(properties) == {'id', 'type', 'payload', 'createdAt'}, properties
+        parameters = spec['paths'][endpoint]['get'].get('parameters', [])
+        assert all(parameter['name'] != 'status' for parameter in parameters), parameters
 print('PASS: shared Swagger UI configuration and all three public OpenAPI specifications')
 
 status, session = request(args.gateway, '/api/v1/auth/login', 'POST', {'email': admin_email, 'password': admin_password})
@@ -114,10 +143,11 @@ assert status == 201, (status, persona)
 persona_id = persona['id']
 status, body = request(args.gateway, f'/api/v1/personas/{persona_id}', 'DELETE', user=user_id)
 assert status == 204, (status, body)
-eventually(lambda: request(args.gateway, '/api/v1/notifications', user=user_id),
+status, notifications = eventually(lambda: request(args.gateway, '/api/v1/notifications', user=user_id),
            lambda result: result[0] == 200 and any(
                item['type'] == 'PERSONA_ARCHIVED' and item['payload']['personaId'] == persona_id
                for item in result[1]))
+assert all(set(item) == {'id', 'type', 'payload', 'createdAt'} for item in notifications), notifications
 assert request(args.gateway, '/api/v1/notifications')[0] == 401
 assert request(args.gateway, '/api/v1/notifications', user=str(uuid.uuid4()))[0] == 401
 assert request(args.gateway, f'/internal/users/{user_id}', user=admin_id)[0] == 403
@@ -128,17 +158,79 @@ print('PASS: Config Server, Eureka, Gateway, Feign, IAM, core, R2DBC notificatio
 
 if args.resilience:
     compose = ['docker-compose'] if shutil.which('docker-compose') else ['docker', 'compose']
-    subprocess.run(compose + ['stop', 'notification-service'], check=True)
+    project_dir = Path(__file__).resolve().parents[1]
+
+    def service_status(path):
+        result = subprocess.run(
+            compose + ['exec', '-T', 'gateway', 'wget', '-S', '-O', '/dev/null', '-T', '20',
+                       '--header', f'Authorization: Bearer {tokens[user_id]}', f'http://notification-service:8082{path}'],
+            cwd=project_dir, capture_output=True, text=True, timeout=30,
+        )
+        statuses = re.findall(r'HTTP/\S+\s+(\d{3})', result.stdout + result.stderr)
+        assert statuses, result.stdout + result.stderr
+        return int(statuses[-1])
+
+    def internal_token():
+        def encode(value):
+            return base64.urlsafe_b64encode(value).rstrip(b'=')
+        now = int(time.time())
+        header = encode(json.dumps({'alg': 'HS256', 'typ': 'JWT'}).encode())
+        payload = encode(json.dumps({'iss': 'ai-ex-iam', 'aud': ['ai-ex'], 'sub': 'service',
+                                     'scope': 'internal', 'iat': now, 'exp': now + 60}).encode())
+        message = header + b'.' + payload
+        signature = hmac.new(os.environ['JWT_SECRET'].encode(), message, hashlib.sha256).digest()
+        return (message + b'.' + encode(signature)).decode()
+
+    def breaker_state_value(state):
+        result = subprocess.run(
+            compose + ['exec', '-T', 'gateway', 'wget', '-qO-', '-T', '10',
+                       '--header', f'Authorization: Bearer {internal_token()}',
+                       f'http://notification-service:8082/actuator/metrics/resilience4j.circuitbreaker.state?tag=state:{state}'],
+            cwd=project_dir, capture_output=True, text=True, check=True, timeout=20,
+        )
+        return sum(item['value'] for item in json.loads(result.stdout)['measurements'])
+
+    subprocess.run(compose + ['stop', 'iam-service'], cwd=project_dir, check=True)
     try:
-        for _ in range(6):
-            assert request(args.gateway, '/api/v1/notifications', user=user_id)[0] == 503
+        assert service_status('/actuator/health/readiness') == 200
+        for attempt in range(6):
+            status = service_status('/api/v1/notifications')
+            print(f'Notifications -> stopped IAM: attempt {attempt + 1}, HTTP {status}')
+            assert status == 503, status
+        assert breaker_state_value('open') >= 1
+        status, problem = request(args.gateway, '/api/v1/notifications', user=user_id)
+        assert status == 503 and problem['code'] == 'SERVICE_UNAVAILABLE', (status, problem)
+        assert problem['traceId'], problem
+        print(f'Gateway response: HTTP {status}, {json.dumps(problem, ensure_ascii=False)}')
+        print('PASS: Notifications remains UP, returns 503 itself, and its Feign Circuit Breaker is OPEN')
+    finally:
+        subprocess.run(compose + ['start', 'iam-service'], cwd=project_dir, check=True)
+    eventually(
+        lambda: (service_status('/api/v1/notifications'), service_status('/api/v1/notifications')),
+        lambda statuses: statuses == (200, 200), timeout=180,
+    )
+    assert breaker_state_value('closed') >= 1
+    print('PASS: IAM restored, Notifications returns 200, Circuit Breaker is CLOSED')
+    eventually(
+        lambda: (request(args.gateway, '/api/v1/personas', user=user_id)[0],
+                 request(args.gateway, '/api/v1/personas', user=user_id)[0]),
+        lambda statuses: statuses == (200, 200), timeout=180,
+    )
+    print('PASS: core also resolves restored IAM and returns 200')
+
+    subprocess.run(compose + ['stop', 'notification-service'], cwd=project_dir, check=True)
+    try:
+        for attempt in range(6):
+            status, problem = request(args.gateway, '/api/v1/notifications', user=user_id)
+            assert status == 503 and problem['code'] == 'SERVICE_UNAVAILABLE', (status, problem)
+            print(f'Gateway -> stopped Notifications: attempt {attempt + 1}, HTTP {status}')
         status, queued = request(args.gateway, '/api/v1/personas', 'POST', {
             'name': 'Queued notification', 'relationshipKind': 'FRIEND'
         }, user_id)
         assert status == 201, (status, queued)
         assert request(args.gateway, f"/api/v1/personas/{queued['id']}", 'DELETE', user=user_id)[0] == 204
     finally:
-        subprocess.run(compose + ['start', 'notification-service'], check=True)
+        subprocess.run(compose + ['start', 'notification-service'], cwd=project_dir, check=True)
     eventually(lambda: request(args.gateway, '/api/v1/notifications', user=user_id),
                lambda result: result[0] == 200 and any(
                    item['payload'].get('personaId') == queued['id'] for item in result[1]), timeout=180)

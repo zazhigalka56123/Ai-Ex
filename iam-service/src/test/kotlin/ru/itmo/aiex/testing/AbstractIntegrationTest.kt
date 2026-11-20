@@ -14,11 +14,14 @@ import org.springframework.test.web.servlet.MvcResult
 import org.springframework.test.web.servlet.ResultActionsDsl
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
 import org.springframework.test.web.servlet.request.RequestPostProcessor
+import org.springframework.test.web.servlet.setup.DefaultMockMvcBuilder
 import org.springframework.test.web.servlet.setup.MockMvcBuilders
 import org.springframework.web.context.WebApplicationContext
+import org.testcontainers.containers.wait.strategy.Wait
 import org.testcontainers.postgresql.PostgreSQLContainer
 import ru.itmo.aiex.common.security.Actor
 import ru.itmo.aiex.common.security.RoleCode
+import ru.itmo.aiex.common.web.TraceIdFilter
 import ru.itmo.aiex.iam.IamApplication
 import ru.itmo.aiex.iam.repository.UserRepository
 import ru.itmo.aiex.iam.service.RegisterUserCommand
@@ -32,7 +35,7 @@ import java.util.UUID
 @SpringBootTest(
     classes = [IamApplication::class],
     properties = [
-        "aiex.security.jwt-secret=test-only-jwt-secret-at-least-32-bytes",
+        "ai-ex.security.jwt-secret=test-only-jwt-secret-at-least-32-bytes",
         "spring.cloud.config.enabled=false", "spring.config.import=", "eureka.client.enabled=false",
         "spring.cloud.discovery.enabled=false", "spring.liquibase.contexts=test", "spring.jpa.hibernate.ddl-auto=validate",
     ],
@@ -46,33 +49,41 @@ abstract class AbstractIntegrationTest {
     @Autowired protected lateinit var jdbcTemplate: JdbcTemplate
 
     @Autowired protected lateinit var tokens: JwtTokens
+
+    @Autowired private lateinit var traceIdFilter: TraceIdFilter
+
     @Autowired private lateinit var webContext: WebApplicationContext
+
     @Autowired private lateinit var userService: UserService
+
     @Autowired private lateinit var userRepository: UserRepository
 
     @BeforeEach
     fun cleanDatabase() {
         jdbcTemplate.execute("TRUNCATE iam.users CASCADE")
         mockMvc = MockMvcBuilders.webAppContextSetup(webContext)
-            .apply<org.springframework.test.web.servlet.setup.DefaultMockMvcBuilder>(springSecurity())
-            .defaultRequest(MockMvcRequestBuilders.get("/").with(RequestPostProcessor { request ->
-                val raw = request.getHeader(USER_HEADER)
-                request.removeHeader(USER_HEADER)
-                if (raw != null) {
-                    val id = runCatching { UUID.fromString(raw) }.getOrNull()
-                    val token = id?.let { tokens.userToken(it, userRepository.findById(it)?.roleCodes.orEmpty()) } ?: "invalid"
-                    request.addHeader("Authorization", "Bearer $token")
-                }
-                request
-            })).build()
+            .addFilters<DefaultMockMvcBuilder>(traceIdFilter)
+            .apply<DefaultMockMvcBuilder>(springSecurity())
+            .defaultRequest<DefaultMockMvcBuilder>(
+                MockMvcRequestBuilders.get("/").with(
+                    RequestPostProcessor { request ->
+                        val raw = request.getHeader(USER_HEADER)
+                        request.removeHeader(USER_HEADER)
+                        if (raw != null) {
+                            val id = runCatching { UUID.fromString(raw) }.getOrNull()
+                            val token = id?.let { tokens.userToken(it, userRepository.findById(it)?.roleCodes.orEmpty()) } ?: "invalid"
+                            request.addHeader("Authorization", "Bearer $token")
+                        }
+                        request
+                    },
+                ),
+            ).build()
     }
 
-    protected fun createUser(vararg roles: RoleCode = arrayOf(RoleCode.USER), displayName: String = "Пользователь"): UUID {
-        return userService.registerUser(
-            Actor(UUID(0, 0), setOf(RoleCode.ADMIN)),
-            RegisterUserCommand("${UUID.randomUUID()}@test.local", displayName, roles.toSet(), TEST_PASSWORD),
-        ).id
-    }
+    protected fun createUser(vararg roles: RoleCode = arrayOf(RoleCode.USER), displayName: String = "Пользователь"): UUID = userService.registerUser(
+        Actor(UUID(0, 0), setOf(RoleCode.ADMIN)),
+        RegisterUserCommand("${UUID.randomUUID()}@test.local", displayName, roles.toSet(), TEST_PASSWORD),
+    ).id
 
     protected fun createAdmin(): UUID = createUser(RoleCode.ADMIN, RoleCode.USER)
     protected fun json(value: Any): String = jsonMapper.writeValueAsString(value)
@@ -82,7 +93,7 @@ abstract class AbstractIntegrationTest {
     companion object {
         const val USER_HEADER = "X-Test-User"
         const val TEST_PASSWORD = "Test-password-123!"
-        val postgres = PostgreSQLContainer("postgres:17-alpine").apply { start() }
+        val postgres = PostgreSQLContainer("postgres:17-alpine").waitingFor(Wait.forListeningPort()).apply { start() }
 
         @JvmStatic
         @DynamicPropertySource

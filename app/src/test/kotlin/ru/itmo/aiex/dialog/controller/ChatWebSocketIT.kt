@@ -31,7 +31,7 @@ import java.util.concurrent.TimeUnit
 @SpringBootTest(
     classes = [AiExApplication::class],
     webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
-    properties = ["aiex.security.jwt-secret=test-only-jwt-secret-at-least-32-bytes"],
+    properties = ["ai-ex.security.jwt-secret=test-only-jwt-secret-at-least-32-bytes"],
 )
 class ChatWebSocketIT : DialogIntegrationTest() {
     @Value("\${local.server.port}")

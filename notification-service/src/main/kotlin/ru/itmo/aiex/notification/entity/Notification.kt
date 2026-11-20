@@ -6,13 +6,4 @@ import java.time.Instant
 import java.util.UUID
 
 @Table("notifications")
-data class Notification(
-    @Id val id: UUID,
-    val recipientId: UUID,
-    val type: NotificationType,
-    val payload: String,
-    val status: NotificationStatus,
-    val attempts: Int,
-    val createdAt: Instant,
-    val sentAt: Instant?,
-)
+data class Notification(@Id val id: UUID, val recipientId: UUID, val type: NotificationType, val payload: String, val createdAt: Instant)

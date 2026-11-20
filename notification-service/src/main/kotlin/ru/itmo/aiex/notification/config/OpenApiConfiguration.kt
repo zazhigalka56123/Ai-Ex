@@ -15,8 +15,11 @@ class OpenApiConfiguration {
     fun serviceOpenApi(): OpenAPI = OpenAPI()
         .info(Info().title("Notifications API").version("v1"))
         .servers(listOf(Server().url("/")))
-        .components(Components().addSecuritySchemes(
-            "bearerAuth", SecurityScheme().type(SecurityScheme.Type.HTTP).scheme("bearer").bearerFormat("JWT"),
-        ))
+        .components(
+            Components().addSecuritySchemes(
+                "bearerAuth",
+                SecurityScheme().type(SecurityScheme.Type.HTTP).scheme("bearer").bearerFormat("JWT"),
+            ),
+        )
         .security(listOf(SecurityRequirement().addList("bearerAuth")))
 }

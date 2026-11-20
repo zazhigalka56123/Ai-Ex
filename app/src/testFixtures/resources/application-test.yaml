@@ -21,7 +21,7 @@ spring:
     contexts: ${AIEX_LIQUIBASE_CONTEXTS:}
   servlet:
     multipart:
-      max-file-size: ${aiex.import.max-file-mb}MB
+      max-file-size: ${ai-ex.import.max-file-mb}MB
       max-request-size: 25MB
   task:
     execution:

@@ -1,6 +1,7 @@
 package ru.itmo.aiex.integration
 
 import org.slf4j.LoggerFactory
+import org.slf4j.MDC
 import org.springframework.cloud.openfeign.FeignClient
 import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.scheduling.annotation.Scheduled
@@ -10,6 +11,7 @@ import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.RequestHeader
 import ru.itmo.aiex.notification.service.NotificationCommand
 import ru.itmo.aiex.notification.service.NotificationPort
 import tools.jackson.databind.json.JsonMapper
@@ -18,10 +20,14 @@ import java.util.UUID
 @FeignClient(name = "notification-service")
 interface NotificationClient {
     @GetMapping("/internal/metrics")
-    fun metrics(): Map<String, Long>
+    fun metrics(@RequestHeader("X-Trace-Id", required = false) traceId: String? = MDC.get("traceId")): Map<String, Long>
 
     @PutMapping("/internal/notifications/{id}")
-    fun deliver(@PathVariable id: UUID, @RequestBody command: NotificationCommand): UUID
+    fun deliver(
+        @PathVariable id: UUID,
+        @RequestBody command: NotificationCommand,
+        @RequestHeader("X-Trace-Id") traceId: String = id.toString(),
+    ): UUID
 }
 
 @Component

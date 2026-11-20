@@ -60,7 +60,8 @@ class UserService(
     @Transactional
     fun updateUser(actor: Actor, userId: UUID, command: UpdateUserCommand): User {
         val user = getUser(actor, userId)
-        if ((command.status != null || command.roles != null || command.password != null) && !actor.isAdmin) {
+        val changesRestrictedFields = command.status != null || command.roles != null || command.password != null
+        if (changesRestrictedFields && !actor.isAdmin) {
             throw ForbiddenException("Статус, роли и пароль меняет только супервайзер (ADMIN)")
         }
         if (actor.userId == userId && command.status == UserStatus.BLOCKED) {
@@ -74,11 +75,16 @@ class UserService(
         return users.saveAndFlush(user)
     }
 
+    private companion object {
+        const val MIN_PASSWORD_LENGTH = 12
+        const val MAX_PASSWORD_BYTES = 72
+    }
+
     private fun hashPassword(password: String): String {
-        if (password.isBlank() || password.length < 12 || password.toByteArray(Charsets.UTF_8).size > 72) {
+        if (password.isBlank() || password.length < MIN_PASSWORD_LENGTH || password.toByteArray(Charsets.UTF_8).size > MAX_PASSWORD_BYTES) {
             throw ValidationException("password", "size", "Пароль: минимум 12 символов, максимум 72 байта UTF-8")
         }
-        return passwords.encode(password)
+        return checkNotNull(passwords.encode(password))
     }
 
     private fun resolveRoles(codes: Set<RoleCode>): List<Role> {

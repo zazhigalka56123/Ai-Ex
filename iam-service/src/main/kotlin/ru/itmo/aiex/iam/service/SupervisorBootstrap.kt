@@ -14,8 +14,8 @@ import java.util.UUID
 class SupervisorBootstrap(
     private val users: UserRepository,
     private val service: UserService,
-    @Value("\${aiex.security.bootstrap-email:}") private val email: String,
-    @Value("\${aiex.security.bootstrap-password:}") private val password: String,
+    @Value("\${ai-ex.security.bootstrap-email:}") private val email: String,
+    @Value("\${ai-ex.security.bootstrap-password:}") private val password: String,
 ) : ApplicationRunner {
     @Transactional
     override fun run(args: ApplicationArguments) {

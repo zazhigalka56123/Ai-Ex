@@ -63,7 +63,20 @@ tasks.withType<Detekt>().configureEach {
 }
 
 tasks.withType<Test>().configureEach {
+    javaLauncher.set(javaToolchains.launcherFor { languageVersion.set(JavaLanguageVersion.of(catalogVersion("java").toInt())) })
     useJUnitPlatform()
+    if (System.getProperty("os.name") == "Mac OS X") {
+        val colimaSocket = File(System.getProperty("user.home"), ".colima/default/docker.sock")
+        val colimaHost = "unix://${colimaSocket.absolutePath}"
+        val dockerHost = environment["DOCKER_HOST"]?.toString()?.trim().orEmpty()
+        if (colimaSocket.exists() && (dockerHost == colimaHost || dockerHost.isEmpty() && !File("/var/run/docker.sock").exists())) {
+            environment("DOCKER_HOST", colimaHost)
+            val socketOverride = environment["TESTCONTAINERS_DOCKER_SOCKET_OVERRIDE"]?.toString()?.trim().orEmpty()
+            if (socketOverride.isEmpty() || socketOverride == "var/run/docker.sock") {
+                environment("TESTCONTAINERS_DOCKER_SOCKET_OVERRIDE", "/var/run/docker.sock")
+            }
+        }
+    }
     jvmArgs("-XX:+EnableDynamicAgentLoading", "-Xshare:off")
     testLogging {
         events("failed", "skipped")

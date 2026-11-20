@@ -17,11 +17,13 @@ class AuthIT : AbstractIntegrationTest() {
     fun `вход супервайзера и создание пользователя сохраняют только хэш`() {
         val admin = createAdmin()
         val token = login(admin).json()["accessToken"].asString()
-        val result = resolve(mockMvc.post("/api/v1/users") {
-            header("Authorization", "Bearer $token")
-            contentType = MediaType.APPLICATION_JSON
-            content = json(mapOf("email" to "new@example.com", "displayName" to "Новый", "password" to TEST_PASSWORD))
-        }.andReturn())
+        val result = resolve(
+            mockMvc.post("/api/v1/users") {
+                header("Authorization", "Bearer $token")
+                contentType = MediaType.APPLICATION_JSON
+                content = json(mapOf("email" to "new@example.com", "displayName" to "Новый", "password" to TEST_PASSWORD))
+            }.andReturn(),
+        )
         assertThat(result.response.status).isEqualTo(201)
         assertThat(result.json().has("password")).isFalse()
         assertThat(result.json().has("passwordHash")).isFalse()
@@ -39,13 +41,20 @@ class AuthIT : AbstractIntegrationTest() {
         for (role in listOf(RoleCode.USER, RoleCode.SPECIALIST)) {
             val user = createUser(role)
             val token = login(user).json()["accessToken"].asString()
-            val response = resolve(mockMvc.post("/api/v1/users") {
-                header("Authorization", "Bearer $token")
-                contentType = MediaType.APPLICATION_JSON
-                content = json(mapOf(
-                    "email" to "escalation@example.com", "displayName" to "X", "password" to TEST_PASSWORD, "roles" to listOf("ADMIN"),
-                ))
-            }.andReturn())
+            val response = resolve(
+                mockMvc.post("/api/v1/users") {
+                    header("Authorization", "Bearer $token")
+                    contentType = MediaType.APPLICATION_JSON
+                    content = json(
+                        mapOf(
+                            "email" to "escalation@example.com",
+                            "displayName" to "X",
+                            "password" to TEST_PASSWORD,
+                            "roles" to listOf("ADMIN"),
+                        ),
+                    )
+                }.andReturn(),
+            )
             assertThat(response.response.status).isEqualTo(403)
         }
         assertThat(jdbcTemplate.queryForObject("SELECT count(*) FROM iam.users WHERE email = 'escalation@example.com'", Long::class.java)).isZero()
@@ -55,7 +64,16 @@ class AuthIT : AbstractIntegrationTest() {
     fun `старый заголовок и поврежденный JWT не авторизуют запрос`() {
         val admin = createAdmin()
         mockMvc.get("/api/v1/users") { header("X-User-Id", admin) }.andExpect { status { isUnauthorized() } }
-        mockMvc.get("/api/v1/users") { header("Authorization", "Bearer broken") }.andExpect { status { isUnauthorized() } }
+        mockMvc.get("/api/v1/users") {
+            header("Authorization", "Bearer broken")
+            header("X-Trace-Id", "request-12345")
+        }.andExpect {
+            status { isUnauthorized() }
+            content { contentType("application/problem+json") }
+            header { string("WWW-Authenticate", "Bearer") }
+            jsonPath("$.traceId") { value("request-12345") }
+            jsonPath("$.code") { value("UNAUTHENTICATED") }
+        }
         mockMvc.post("/api/v1/users") {
             contentType = MediaType.APPLICATION_JSON
             content = json(mapOf("email" to "anonymous@example.com", "displayName" to "X", "password" to TEST_PASSWORD))
@@ -67,10 +85,12 @@ class AuthIT : AbstractIntegrationTest() {
         val user = createUser()
         val wrong = login(user, "Wrong-password-123!")
         assertThat(wrong.response.status).isEqualTo(401)
-        val missing = resolve(mockMvc.post("/api/v1/auth/login") {
-            contentType = MediaType.APPLICATION_JSON
-            content = json(mapOf("email" to "missing@example.com", "password" to TEST_PASSWORD))
-        }.andReturn())
+        val missing = resolve(
+            mockMvc.post("/api/v1/auth/login") {
+                contentType = MediaType.APPLICATION_JSON
+                content = json(mapOf("email" to "missing@example.com", "password" to TEST_PASSWORD))
+            }.andReturn(),
+        )
         assertThat(missing.response.status).isEqualTo(401)
         assertThat(missing.json()["detail"]).isEqualTo(wrong.json()["detail"])
         val token = login(user).json()["accessToken"].asString()
@@ -92,10 +112,12 @@ class AuthIT : AbstractIntegrationTest() {
 
     private fun login(id: UUID, password: String = TEST_PASSWORD): MvcResult {
         val email = jdbcTemplate.queryForObject("SELECT email FROM iam.users WHERE id = ?", String::class.java, id)!!
-        return resolve(mockMvc.post("/api/v1/auth/login") {
-            contentType = MediaType.APPLICATION_JSON
-            content = json(mapOf("email" to email, "password" to password))
-        }.andReturn())
+        return resolve(
+            mockMvc.post("/api/v1/auth/login") {
+                contentType = MediaType.APPLICATION_JSON
+                content = json(mapOf("email" to email, "password" to password))
+            }.andReturn(),
+        )
     }
 
     private fun resolve(result: MvcResult): MvcResult =

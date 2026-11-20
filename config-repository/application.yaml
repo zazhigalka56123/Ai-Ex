@@ -10,7 +10,7 @@ management:
   endpoints:
     web:
       exposure:
-        include: health,info,circuitbreakers
+        include: health,info
   endpoint:
     health:
       probes:
@@ -39,6 +39,6 @@ resilience4j:
       default:
         timeoutDuration: 7s
 
-aiex:
+ai-ex:
   security:
     jwt-secret: "${JWT_SECRET}"
